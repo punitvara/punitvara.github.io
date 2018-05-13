@@ -39,7 +39,7 @@ body {
 
 .btn-new {
     border-radius: 0;
-    color:;
+    color: #;
     background-color: rgba(0,0,0,4);
 }
 
@@ -162,6 +162,7 @@ hr.small {
     width: 100%;
     height: 100%;
     background-color:  #403f4c;
+    padding-left: 200px;
 
     -webkit-background-size: cover;
     -moz-background-size: cover;
