@@ -1,0 +1,31 @@
+/* your styles go here */
+
+.navbar {
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.5);
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000; 
+  }
+  
+  .navbar a {
+    float: center;
+    display: block;
+    color: #000000;
+    text-align: center;
+    padding: 5px 5px;
+    text-decoration: none;
+    font-size: 12px;
+  }
+  
+  .navbar a:hover {
+    background: rgba(255, 255, 255, 0.459);
+    color: black;
+  }
+  
+  /* .main {
+    padding: 16px;
+    margin-top: 30px;
+    height: 1500px; /* Used in this example to enable scrolling */
+  
