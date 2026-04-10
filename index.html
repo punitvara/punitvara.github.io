@@ -1,167 +1,416 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Punit Vara — Engineer, Builder, Learner</title>
+<meta name="description" content="Personal site of Punit Vara — ML/GPU engineer, former GSoC student & mentor, builder of things that matter.">
+<style>
+/* ── Reset & Variables ─────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0b;--bg2:#111113;--bg3:#18181b;
+  --text:#a1a1aa;--text-bright:#fafafa;--text-dim:#52525b;
+  --accent:#c9a76a;--accent2:#e8c88a;--accent-glow:rgba(201,167,106,0.12);
+  --green:#56d364;--blue:#58a6ff;
+  --border:#27272a;--border-accent:rgba(201,167,106,0.2);
+  --serif:Georgia,'Palatino Linotype','Book Antiqua',serif;
+  --sans:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'SF Mono','Cascadia Code','Fira Code',monospace;
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="This site is intended to improve online presence of Punit Vara">
-    <meta name="author" content="Punit Vara">
-    <meta name="keywords" content="Punit Vara,punit,vara,punitvara,gsoc,rtems,embedded system,google,stanford,linux,device driver,rtos,programming,kernel,code2040,cdac,software engineer">
-    <meta name="google-site-verification" content="YiwB1rJpV4g45iFI5Ixx1kT9RdvAR0R2EtVj_oJLmiw" />
+/* ── Noise overlay ─────────────────────────────────── */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
 
-    <meta name="msvalidate.01" content="E00BFEEB22C65594CAC14949C5DE597E" />
-    <title>About Punit Vara</title>
+/* ── Scrollbar ─────────────────────────────────────── */
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}::-webkit-scrollbar-thumb:hover{background:var(--accent)}
 
-    <link rel="canonical" href="http://www.punitvara.com/">
+/* ── Navigation ────────────────────────────────────── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:1000;padding:1.2rem 3rem;display:flex;align-items:center;justify-content:space-between;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);background:rgba(10,10,11,0.8);border-bottom:1px solid transparent;transition:border-color .3s var(--ease)}
+.nav.scrolled{border-bottom-color:var(--border)}
+.nav-brand{font-family:var(--mono);font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);text-decoration:none}
+.nav-links{display:flex;gap:2.5rem;list-style:none}
+.nav-links a{color:var(--text-dim);text-decoration:none;font-size:.82rem;letter-spacing:.05em;transition:color .25s var(--ease);position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--accent);transition:width .3s var(--ease)}
+.nav-links a:hover{color:var(--text-bright)}
+.nav-links a:hover::after{width:100%}
+.nav-links a.active{color:var(--accent)}
+.nav-links a.active::after{width:100%}
 
-    <!-- Bootstrap Core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+/* ── Hero ──────────────────────────────────────────── */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:0 3rem;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;z-index:0}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(201,167,106,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(201,167,106,0.03) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 60% 50% at 50% 50%,black 30%,transparent 70%)}
+.hero-glow{position:absolute;top:20%;left:50%;width:800px;height:800px;transform:translate(-50%,-50%);background:radial-gradient(circle,rgba(201,167,106,0.06) 0%,transparent 70%);pointer-events:none}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-overline{font-family:var(--mono);font-size:.72rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin-bottom:1.5rem;opacity:0;animation:slideUp .8s var(--ease) .2s forwards}
+.hero h1{font-family:var(--serif);font-size:clamp(2.8rem,6vw,5rem);font-weight:400;color:var(--text-bright);line-height:1.1;margin-bottom:1.5rem;opacity:0;animation:slideUp .8s var(--ease) .4s forwards}
+.hero h1 em{font-style:italic;color:var(--accent);position:relative}
+.hero h1 em::after{content:'';position:absolute;bottom:.05em;left:0;right:0;height:2px;background:var(--accent);opacity:.3}
+.hero-desc{font-size:1.1rem;color:var(--text);max-width:560px;line-height:1.8;margin-bottom:2.5rem;opacity:0;animation:slideUp .8s var(--ease) .6s forwards}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap;opacity:0;animation:slideUp .8s var(--ease) .8s forwards}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1.8rem;border-radius:6px;font-size:.85rem;font-weight:500;text-decoration:none;letter-spacing:.03em;transition:all .25s var(--ease);cursor:pointer;border:none}
+.btn-primary{background:var(--accent);color:var(--bg);box-shadow:0 0 30px rgba(201,167,106,0.15)}
+.btn-primary:hover{background:var(--accent2);box-shadow:0 0 40px rgba(201,167,106,0.25);transform:translateY(-2px)}
+.btn-ghost{background:transparent;color:var(--text-bright);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+.hero-scroll{position:absolute;bottom:3rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;color:var(--text-dim);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;opacity:0;animation:fadeIn 1s var(--ease) 1.2s forwards}
+.hero-scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,var(--accent),transparent);animation:scrollPulse 2s ease infinite}
 
-    <!-- Custom CSS -->
-    <link href="css/stylish-portfolio.css" rel="stylesheet">
+/* ── Sections ──────────────────────────────────────── */
+.section{padding:8rem 3rem;position:relative}
+.section-inner{max-width:1100px;margin:0 auto}
+.section-label{font-family:var(--mono);font-size:.68rem;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem}
+.section-title{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.8rem);font-weight:400;color:var(--text-bright);margin-bottom:1rem;line-height:1.2}
+.section-desc{color:var(--text);max-width:600px;margin-bottom:3rem;font-size:.95rem}
+.section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:0 3rem}
 
-    <!-- Custom Fonts -->
-    <link href="font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Raleway:200,100,400" rel="stylesheet" type="text/css" />
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="fonts/stylesheet.css" rel="stylesheet">
-    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro' rel='stylesheet' type='text/css'>
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+/* ── Courses Grid ──────────────────────────────────── */
+.courses-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:1.5rem}
+.course-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:2rem;transition:all .35s var(--ease);position:relative;overflow:hidden;text-decoration:none;display:block}
+.course-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(201,167,106,0.05),transparent 60%);opacity:0;transition:opacity .35s var(--ease)}
+.course-card:hover{border-color:var(--border-accent);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.course-card:hover::before{opacity:1}
+.course-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;margin-bottom:1.5rem;position:relative;z-index:1}
+.course-icon.ml{background:rgba(201,167,106,0.1);border:1px solid rgba(201,167,106,0.2)}
+.course-icon.gpu{background:rgba(86,211,100,0.1);border:1px solid rgba(86,211,100,0.2)}
+.course-card h3{font-family:var(--serif);font-size:1.3rem;color:var(--text-bright);margin-bottom:.6rem;position:relative;z-index:1}
+.course-card p{font-size:.88rem;color:var(--text);line-height:1.65;margin-bottom:1.5rem;position:relative;z-index:1}
+.course-meta{display:flex;gap:1rem;flex-wrap:wrap;position:relative;z-index:1}
+.course-tag{font-family:var(--mono);font-size:.68rem;padding:.3rem .7rem;border-radius:20px;letter-spacing:.05em}
+.course-tag.weeks{background:rgba(201,167,106,0.08);color:var(--accent);border:1px solid rgba(201,167,106,0.15)}
+.course-tag.chapters{background:rgba(88,166,255,0.08);color:var(--blue);border:1px solid rgba(88,166,255,0.15)}
+.course-arrow{position:absolute;top:2rem;right:2rem;color:var(--text-dim);font-size:1.2rem;transition:all .3s var(--ease);z-index:1}
+.course-card:hover .course-arrow{color:var(--accent);transform:translate(4px,-4px)}
 
+/* ── About Section ─────────────────────────────────── */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:start}
+.about-text p{margin-bottom:1.2rem;font-size:.95rem;line-height:1.8}
+.about-text p:first-child{font-size:1.05rem;color:var(--text-bright)}
+.about-highlights{display:grid;gap:1rem}
+.highlight{display:flex;align-items:flex-start;gap:1rem;padding:1.2rem 1.4rem;background:var(--bg2);border:1px solid var(--border);border-radius:10px;transition:border-color .3s var(--ease)}
+.highlight:hover{border-color:var(--border-accent)}
+.highlight-icon{flex-shrink:0;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem}
+.highlight-icon.gold{background:rgba(201,167,106,0.1);border:1px solid rgba(201,167,106,0.2)}
+.highlight-icon.green{background:rgba(86,211,100,0.1);border:1px solid rgba(86,211,100,0.2)}
+.highlight-icon.blue{background:rgba(88,166,255,0.1);border:1px solid rgba(88,166,255,0.2)}
+.highlight h4{font-size:.88rem;color:var(--text-bright);margin-bottom:.25rem;font-weight:600}
+.highlight p{font-size:.8rem;color:var(--text-dim);line-height:1.5;margin:0}
+
+/* ── Projects Section ──────────────────────────────── */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem}
+.project-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.6rem;transition:all .3s var(--ease);text-decoration:none;display:block}
+.project-card:hover{border-color:var(--border-accent);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.project-card h4{font-size:.95rem;color:var(--text-bright);margin-bottom:.5rem;font-weight:600}
+.project-card p{font-size:.82rem;color:var(--text);line-height:1.6;margin-bottom:1rem}
+.project-tags{display:flex;gap:.5rem;flex-wrap:wrap}
+.project-tag{font-family:var(--mono);font-size:.65rem;padding:.2rem .5rem;background:var(--bg3);border:1px solid var(--border);border-radius:4px;color:var(--text-dim)}
+
+/* ── Contact / Footer ──────────────────────────────── */
+.contact{text-align:center;padding:6rem 3rem}
+.social-links{display:flex;justify-content:center;gap:1.5rem;margin-top:2rem}
+.social-link{width:48px;height:48px;border-radius:10px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:var(--text-dim);text-decoration:none;font-size:1.1rem;transition:all .25s var(--ease)}
+.social-link:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 25px rgba(201,167,106,0.15)}
+.footer{padding:3rem;border-top:1px solid var(--border);text-align:center;font-size:.75rem;color:var(--text-dim)}
+
+/* ── Animations ────────────────────────────────────── */
+@keyframes slideUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scrollPulse{0%,100%{opacity:.3}50%{opacity:1}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .7s var(--ease),transform .7s var(--ease)}.reveal.visible{opacity:1;transform:none}
+
+/* ── Mobile Menu ───────────────────────────────────── */
+.menu-toggle{display:none;background:none;border:none;color:var(--text-bright);font-size:1.4rem;cursor:pointer;padding:.5rem}
+
+/* ── Responsive ────────────────────────────────────── */
+@media(max-width:768px){
+  .nav{padding:1rem 1.5rem}
+  .nav-links{display:none;position:fixed;inset:0;background:var(--bg);flex-direction:column;justify-content:center;align-items:center;gap:2rem;z-index:999}
+  .nav-links.open{display:flex}
+  .nav-links a{font-size:1.2rem}
+  .menu-toggle{display:block;z-index:1001}
+  .hero{padding:0 1.5rem}
+  .hero h1{font-size:2.4rem}
+  .section{padding:4rem 1.5rem}
+  .about-grid{grid-template-columns:1fr;gap:2rem}
+  .courses-grid{grid-template-columns:1fr}
+  .projects-grid{grid-template-columns:1fr}
+}
+@media print{.nav,.hero-scroll{display:none}}
+</style>
 </head>
-
 <body>
 
-<div class="sidenav">
-  <a href="about/about.html">About</a>
-  <a href="projects/projects.html">Projects</a>
-  <a href="index.html">Contact</a>
-</div>
+<!-- Navigation -->
+<nav class="nav" id="nav">
+  <a href="#" class="nav-brand">punit vara</a>
+  <button class="menu-toggle" id="menuToggle" aria-label="Menu">☰</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">About</a></li>
+    <li><a href="#courses">Courses</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
 
- <!-- Header -->
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-overline">Engineer · Builder · Learner</div>
+    <h1>Hi, I'm Punit.<br>I build things that <em>matter</em>.</h1>
+    <p class="hero-desc">ML/GPU engineer, former Google Summer of Code student & mentor. Passionate about systems programming, machine learning infrastructure, and making complex things simple.</p>
+    <div class="hero-actions">
+      <a href="#courses" class="btn btn-primary">Explore Courses ↓</a>
+      <a href="#about" class="btn btn-ghost">About Me</a>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    scroll
+  </div>
+</section>
 
-    <header id="top" class="header">
-        <div class="text-vertical-center">
-          <  <h1 class="bigquote text-center"> Life is beautiful </h1>
-           <h3 class="bigquote"> Do something hard and uncomfortable </h3>
-                <ol class="list-inline intro-social-buttons">
-                    <li>
-                        <a href="https://twitter.com/punitvara" class="btn btn-info btn-lg"><i class="fa fa-twitter fa-fw"></i> <span class="network-name">Twitter</span></a>
-                    </li>
-                    <li>
-                        <a href="https://github.com/punitvara/" class="btn btn-default btn-lg"><i class="fa fa-github fa-fw"></i> <span class="network-name">Github</span></a>
-                    </li>
-                    <li>
-                        <a href="https://www.linkedin.com/in/punitvara/" class="btn btn-primary btn-lg"><i class="fa fa-linkedin fa-fw"></i> <span class="network-name">Linkedin</span></a>
-                    </li>
-                </ol>
-            <br>
+<div class="section-divider"></div>
+
+<!-- Courses -->
+<section class="section" id="courses">
+  <div class="section-inner reveal">
+    <div class="section-label">Learn</div>
+    <h2 class="section-title">Open Courses</h2>
+    <p class="section-desc">Comprehensive study guides for ML engineering and GPU programming, distilled into beautiful zero-dependency HTML pages you can study anywhere.</p>
+
+    <div class="courses-grid">
+      <a href="courses/ml-engineer/index.html" class="course-card">
+        <span class="course-arrow">↗</span>
+        <div class="course-icon ml">🧠</div>
+        <h3>ML Engineer Interview Course</h3>
+        <p>4-week intensive covering statistics, deep learning, system design, and behavioral prep. From fundamentals to FAANG-ready.</p>
+        <div class="course-meta">
+          <span class="course-tag weeks">4 weeks</span>
+          <span class="course-tag chapters">29 chapters</span>
         </div>
-    </header>
-   
-    <!-- jQuery -->
-    <script src="js/jquery.js"></script>
+      </a>
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
+      <a href="courses/gpu-engineering/index.html" class="course-card">
+        <span class="course-arrow">↗</span>
+        <div class="course-icon gpu">⚡</div>
+        <h3>GPU Engineering Course</h3>
+        <p>From GPU fundamentals to distributed training and inference optimization. CUDA, PyTorch internals, Flash Attention, and more.</p>
+        <div class="course-meta">
+          <span class="course-tag weeks">4 weeks</span>
+          <span class="course-tag chapters">30 chapters</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
 
-    <!-- Custom Theme JavaScript -->
-    <script>
-    // Closes the sidebar menu
-    $("#menu-close").click(function(e) {
-        e.preventDefault();
-        $("#sidebar-wrapper").toggleClass("active");
-    });
-    // Opens the sidebar menu
-    $("#menu-toggle").click(function(e) {
-        e.preventDefault();
-        $("#sidebar-wrapper").toggleClass("active");
-    });
-    // Scrolls to the selected menu item on the page
-    $(function() {
-        $('a[href*=#]:not([href=#],[data-toggle],[data-target],[data-slide])').click(function() {
-            if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') || location.hostname == this.hostname) {
-                var target = $(this.hash);
-                target = target.length ? target : $('[name=' + this.hash.slice(1) + ']');
-                if (target.length) {
-                    $('html,body').animate({
-                        scrollTop: target.offset().top
-                    }, 1000);
-                    return false;
-                }
-            }
-        });
-    });
-    //#to-top button appears after scrolling
-    var fixed = false;
-    $(document).scroll(function() {
-        if ($(this).scrollTop() > 250) {
-            if (!fixed) {
-                fixed = true;
-                // $('#to-top').css({position:'fixed', display:'block'});
-                $('#to-top').show("slow", function() {
-                    $('#to-top').css({
-                        position: 'fixed',
-                        display: 'block'
-                    });
-                });
-            }
-        } else {
-            if (fixed) {
-                fixed = false;
-                $('#to-top').hide("slow", function() {
-                    $('#to-top').css({
-                        display: 'none'
-                    });
-                });
-            }
-        }
-    });
-    // Disable Google Maps scrolling
-    // See http://stackoverflow.com/a/25904582/1607849
-    // Disable scroll zooming and bind back the click event
-    var onMapMouseleaveHandler = function(event) {
-        var that = $(this);
-        that.on('click', onMapClickHandler);
-        that.off('mouseleave', onMapMouseleaveHandler);
-        that.find('iframe').css("pointer-events", "none");
+<div class="section-divider"></div>
+
+<!-- About -->
+<section class="section" id="about">
+  <div class="section-inner reveal">
+    <div class="section-label">Who I Am</div>
+    <h2 class="section-title">About Punit</h2>
+
+    <div class="about-grid">
+      <div class="about-text">
+        <p>I'm a software engineer who started with blinking LEDs and ended up building ML infrastructure at scale. The journey from soldering 8051 microcontrollers to deploying GPU workloads on Kubernetes has been anything but linear — and that's what makes it fun.</p>
+        <p>My background spans embedded systems, Linux kernel development, real-time operating systems, and now machine learning platforms. I believe the best engineers are the ones who understand the full stack — from transistors to transformers.</p>
+        <p>When I'm not writing code, I'm writing about it. These courses are my way of giving back — distilling years of learning into structured, accessible content.</p>
+      </div>
+
+      <div class="about-highlights">
+        <div class="highlight">
+          <div class="highlight-icon gold">🏢</div>
+          <div>
+            <h4>ML Platform Engineer</h4>
+            <p>Building ML infrastructure, GPU workload orchestration, and Kubernetes-based ML pipelines.</p>
+          </div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon green">🌍</div>
+          <div>
+            <h4>Google Summer of Code</h4>
+            <p>Contributing to RTEMS RTOS — GPIO, PWM drivers, and I2C drivers for BeagleBone Black. Student & mentor.</p>
+          </div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon blue">🔧</div>
+          <div>
+            <h4>Systems at Heart</h4>
+            <p>From Linux kernel patches to embedded NTP clients for protection relays — I love the low-level stuff.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Projects -->
+<section class="section" id="projects">
+  <div class="section-inner reveal">
+    <div class="section-label">Built</div>
+    <h2 class="section-title">Projects</h2>
+    <p class="section-desc">A mix of hardware and software — from microcontroller boards to open-source operating systems.</p>
+
+    <div class="projects-grid">
+      <div class="project-card">
+        <h4>GSoC — BeagleBone BSP for RTEMS</h4>
+        <p>Built GPIO test code, PWM driver, and I2C driver for BeagleBone Black within the RTEMS real-time OS. Mentored by Worth Burruss and Dr. Joel.</p>
+        <div class="project-tags">
+          <span class="project-tag">C</span>
+          <span class="project-tag">RTOS</span>
+          <span class="project-tag">BeagleBone</span>
+          <span class="project-tag">Open Source</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <h4>NTP Client for Embedded Relays</h4>
+        <p>Implemented network time sync for protection relays at Easun Reyrolle — replacing costly coaxial cables with LAN-based NTP, reducing per-unit costs.</p>
+        <div class="project-tags">
+          <span class="project-tag">Embedded C</span>
+          <span class="project-tag">NTP</span>
+          <span class="project-tag">Networking</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <h4>Elevator Control System</h4>
+        <p>Final-year thesis: elevator prototype using CPLD boards with custom hardware programming. Designed power supply and real-time motor switching circuits.</p>
+        <div class="project-tags">
+          <span class="project-tag">CPLD</span>
+          <span class="project-tag">VHDL</span>
+          <span class="project-tag">Hardware</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <h4>Programmable Microcontroller Computer</h4>
+        <p>College project building a small programmable computer with 8051 MCU — custom PCB, RS232 connectivity, and ADC validation with LED binary display.</p>
+        <div class="project-tags">
+          <span class="project-tag">8051</span>
+          <span class="project-tag">PCB Design</span>
+          <span class="project-tag">ADC</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <h4>Auto-Wiki</h4>
+        <p>AI-powered wiki generator that parses codebases using tree-sitter, builds dependency graphs, and generates documentation with LLMs.</p>
+        <div class="project-tags">
+          <span class="project-tag">Python</span>
+          <span class="project-tag">Next.js</span>
+          <span class="project-tag">LLM</span>
+          <span class="project-tag">Tree-sitter</span>
+        </div>
+      </div>
+
+      <div class="project-card">
+        <h4>3D Blender Models</h4>
+        <p>Explored 3D modeling with Blender — created various objects including a photorealistic cup model published on Sketchfab.</p>
+        <div class="project-tags">
+          <span class="project-tag">Blender</span>
+          <span class="project-tag">3D</span>
+          <span class="project-tag">Creative</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Contact -->
+<section class="contact" id="contact">
+  <div class="reveal">
+    <div class="section-label" style="text-align:center">Connect</div>
+    <h2 class="section-title" style="text-align:center;margin-bottom:.5rem">Let's Talk</h2>
+    <p style="color:var(--text);font-size:.95rem;margin-bottom:2rem">Find me on the internet — always happy to chat about engineering, ML, or open source.</p>
+    <div class="social-links">
+      <a href="https://github.com/punitvara/" class="social-link" title="GitHub" aria-label="GitHub">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+      </a>
+      <a href="https://www.linkedin.com/in/punitvara/" class="social-link" title="LinkedIn" aria-label="LinkedIn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+      </a>
+      <a href="https://twitter.com/punitvara" class="social-link" title="Twitter / X" aria-label="Twitter">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <p>Built with curiosity. No frameworks, no dependencies — just code.</p>
+  <p style="margin-top:.5rem;color:var(--text-dim)">© 2024 Punit Vara</p>
+</footer>
+
+<!-- Scripts -->
+<script>
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 50);
+}, { passive: true });
+
+// Mobile menu
+const menuToggle = document.getElementById('menuToggle');
+const navLinks = document.getElementById('navLinks');
+menuToggle.addEventListener('click', () => {
+  navLinks.classList.toggle('open');
+  menuToggle.textContent = navLinks.classList.contains('open') ? '✕' : '☰';
+});
+navLinks.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    navLinks.classList.remove('open');
+    menuToggle.textContent = '☰';
+  });
+});
+
+// Scroll reveal
+const reveals = document.querySelectorAll('.reveal');
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+reveals.forEach(r => revealObs.observe(r));
+
+// Active nav link
+const sections = document.querySelectorAll('section[id]');
+const navItems = document.querySelectorAll('.nav-links a');
+const activeObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navItems.forEach(a => a.classList.remove('active'));
+      const link = document.querySelector('.nav-links a[href="#' + e.target.id + '"]');
+      if (link) link.classList.add('active');
     }
-    var onMapClickHandler = function(event) {
-            var that = $(this);
-            // Disable the click handler until the user leaves the map area
-            that.off('click', onMapClickHandler);
-            // Enable scrolling zoom
-            that.find('iframe').css("pointer-events", "auto");
-            // Handle the mouse leave event
-            that.on('mouseleave', onMapMouseleaveHandler);
-        }
-        // Enable map zooming with mouse scroll when the user clicks the map
-    $('.map').on('click', onMapClickHandler);
-    </script>
+  });
+}, { threshold: 0.3, rootMargin: '-80px 0px -50% 0px' });
+sections.forEach(s => activeObs.observe(s));
 
-    <script>
-	(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-	(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-	m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-	})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-	ga('create', 'UA-71964111-2', 'auto');
-	ga('send', 'pageview');
-
-    </script>
-
-    <!-- test animation text -->
-    <script src="js/anime.js"></script>
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
 
 </body>
-
 </html>
+
+
