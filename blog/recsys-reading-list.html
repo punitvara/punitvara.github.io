@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recommendation Systems: Papers to Read — Blog — Punit Vara</title>
+<meta name="description" content="A running list of recommendation-systems papers, blog posts, surveys, and datasets I want to read — updated as I find new ones.">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#ffffff;--bg2:#f7f7f8;--bg3:#f0f0f1;--bg4:#e4e4e7;
+  --text:#3f3f46;--text-bright:#111111;--text-dim:#8a8a8f;
+  --accent:#111111;--accent2:#000000;--accent-glow:rgba(17,17,17,0.05);
+  --green:#1a7f37;--blue:#0969da;
+  --border:#e4e4e7;--border-accent:#111111;
+  --serif:Georgia,'Palatino Linotype','Book Antiqua',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'SF Mono','Menlo','Consolas','Liberation Mono',monospace;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --topbar-h:60px;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--text-dim)}
+a{color:var(--text-bright);text-decoration:underline;text-decoration-color:var(--border-accent);text-underline-offset:2px}
+a:hover{color:var(--blue)}
+
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.topbar-left{display:flex;align-items:center;gap:1.2rem;min-width:0}
+.home-link,.back-link{font-family:var(--mono);font-size:.78rem;color:var(--text-dim);text-decoration:none;letter-spacing:.05em;white-space:nowrap;transition:color .2s var(--ease)}
+.home-link:hover,.back-link:hover{color:var(--text-bright)}
+.topbar-title{font-family:var(--sans);font-weight:600;font-size:1.02rem;color:var(--text-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-title em{font-style:normal;color:var(--text-dim)}
+
+.wrap{max-width:760px;margin:0 auto;padding:calc(var(--topbar-h) + 4rem) 1.5rem 6rem}
+
+.section-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.8rem}
+.page-title{font-family:var(--sans);font-size:clamp(1.9rem,4vw,2.6rem);font-weight:700;color:var(--text-bright);line-height:1.2;margin-bottom:1rem;letter-spacing:-.02em}
+.page-desc{color:var(--text);max-width:640px;margin-bottom:2.5rem;font-size:1rem}
+
+.post-meta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;color:var(--text-dim);margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border)}
+.post-date{color:var(--text-dim)}
+.tag{font-size:.68rem;padding:.25rem .65rem;border-radius:20px;background:var(--bg2);border:1px solid var(--border);color:var(--text-dim);letter-spacing:.03em;font-family:var(--mono)}
+
+.article h2{font-family:var(--sans);font-size:1.5rem;color:var(--text-bright);font-weight:700;margin:2.2rem 0 1rem;letter-spacing:-.01em}
+.article h3{font-family:var(--sans);font-size:1.2rem;color:var(--text-bright);font-weight:700;margin:2rem 0 .8rem}
+.article h4{font-family:var(--sans);font-size:1.05rem;color:var(--text-bright);font-weight:700;margin:1.6rem 0 .6rem}
+.article p{font-size:.98rem;color:var(--text);line-height:1.85;margin-bottom:1.3rem}
+.article ul,.article ol{margin:0 0 1.3rem 1.4rem;color:var(--text);font-size:.98rem;line-height:1.85}
+.article li{margin-bottom:.5rem}
+.article blockquote{border-left:3px solid var(--border-accent);background:var(--bg2);padding:.9rem 1.3rem;margin:0 0 1.3rem;border-radius:0 8px 8px 0;color:var(--text);font-style:italic}
+.article hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
+.article code{font-family:var(--mono);font-size:.85em;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:.1rem .4rem;color:#b5121b}
+.article strong{color:var(--text-bright)}
+
+.code-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin:0 0 1.6rem;overflow:hidden}
+.code-card-head{display:flex;align-items:center;padding:.5rem .9rem;background:var(--bg3);border-bottom:1px solid var(--border)}
+.code-tag{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase}
+.code-block{padding:1rem 1.2rem;overflow-x:auto}
+.code-block code{font-family:var(--mono);font-size:.83rem;line-height:1.65;color:var(--text);white-space:pre;background:none;border:none;padding:0}
+
+.article-footer-nav{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.footer-note{padding:3rem 1.5rem;text-align:center;font-size:.75rem;color:var(--text-dim)}
+
+.post-grid{display:grid;gap:1.3rem;margin-top:2.5rem}
+.post-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.8rem 2rem;transition:all .3s var(--ease);text-decoration:none;display:block}
+.post-card:hover{border-color:var(--border-accent);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.06)}
+.post-card-date{font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;color:var(--text-dim);margin-bottom:.6rem}
+.post-card h3{font-family:var(--sans);font-size:1.25rem;color:var(--text-bright);font-weight:700;margin-bottom:.6rem}
+.post-card p{font-size:.9rem;color:var(--text);line-height:1.65;margin-bottom:1rem}
+.post-card .post-tags{display:flex;gap:.5rem;flex-wrap:wrap}
+
+.empty-state{text-align:center;padding:5rem 1.5rem;border:1px dashed var(--border);border-radius:12px;margin-top:2.5rem}
+.empty-state p{font-size:1rem;color:var(--text-dim)}
+
+@media(max-width:600px){
+  .wrap{padding:calc(var(--topbar-h) + 2.5rem) 1.2rem 4rem}
+  .post-card{padding:1.4rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar" aria-label="Blog">
+  <div class="topbar-left"><a href="index.html" class="back-link">&larr; Back to Blog</a><span style="color:var(--border)" aria-hidden="true">|</span><a href="../index.html" class="home-link">&larr; punitvara.com</a></div>
+  <div class="topbar-title">Blog &middot; <em>Recommendation Systems: Papers to Read</em></div>
+</nav>
+
+<main class="wrap">
+  <article class="reveal">
+    <div class="section-label">Blog Post</div>
+    <h1 class="page-title">Recommendation Systems: Papers to Read</h1>
+    <div class="post-meta"><span class="post-date">July 27, 2026</span><span class="tag">recsys</span><span class="tag">papers</span><span class="tag">reading-list</span></div>
+    <div class="article">
+<p>A living reading list on recommender systems — classic papers, industry blog posts, surveys, and datasets. I'll keep adding to this over time rather than starting a new post for every batch.</p>
+<h3>Part 11 - Multi-modal &amp; Visual Recommendation</h3>
+<ul><li><a href="https://arxiv.org/pdf/1510.01784.pdf">VBPR: Visual Bayesian Personalized Ranking from Implicit Feedback</a> - He &amp; McAuley (2016) · visual features from CNN in MF · <code>paper</code></li><li><a href="https://dl.acm.org/doi/pdf/10.1145/3077136.3080797">ACF: Attentive Collaborative Filtering with Item and Component-level Attention</a> - Chen et al. (2017) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2207.05969.pdf">BM3: Bootstrapped Multi-modal Self-supervised Learning for Recommendation</a> (2022) · modal dropout + contrastive learning · <code>paper</code></li><li><a href="https://dl.acm.org/doi/pdf/10.1145/3474085.3475356">MMGCN: Multi-modal Graph Convolution Network for Personalized Recommendation</a> (2021) · <code>paper</code></li><li><a href="https://netflixtechblog.com/artwork-personalization-c589f074ad76">Artwork Personalization at Netflix</a> - Netflix Tech Blog (2017) · personalized thumbnail selection via contextual bandits · <code>blog</code></li></ul>
+<hr>
+<h3>Part 12 - LLMs &amp; Generative Recommendation</h3>
+<ul><li><a href="https://arxiv.org/pdf/2203.13366.pdf">P5: Pretrain, Personalize, Prompt - Towards a Unified Paradigm for RecSys</a> - Geng et al. (2022) · text-to-text unified LLM for all RecSys tasks · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2305.05065.pdf">TIGER: Generative Retrieval via Semantic IDs</a> - Rajput et al., Google (2023) · autoregressive generation of hierarchical item IDs · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2305.06569.pdf">How to Index Item IDs for Recommendation Foundation Models</a> (2023) · ID vs text indexing comparison · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2305.00447.pdf">TALLRec: Align LLM with Recommendation via Instruction Tuning</a> (2023) · LoRA two-stage tuning for LLM rec · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2305.07001.pdf">InstructRec: Recommendation as Instruction Following</a> (2023) · instruction-tuning for personalized rec · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2312.02445.pdf">LLaRA: Large Language-Recommendation Assistant</a> (2023) · hybrid prompts with collaborative + text features · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2310.15950.pdf">RLMRec: Representation Learning with LLMs for Recommendation</a> (2023) · LLM-generated semantic profiles augment CF · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2304.10149.pdf">Is ChatGPT a Good Recommender? A Preliminary Study</a> (2023) · zero-shot LLM rec evaluation · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2308.12519.pdf">BIGRec: Grounding Language Models for Recommendation</a> (2023) · grounding LLM outputs to real catalog items · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2402.17152.pdf">Actions Speak Louder than Words (HSTU)</a> - Zhai et al., Meta (2024) · generative rec at trillion-scale · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2305.19860.pdf">A Survey on Large Language Models for Recommendation</a> - Wu et al. (2023) · covers prompting, tuning, and agent-based rec · <code>survey</code></li><li><a href="https://arxiv.org/pdf/2307.02046.pdf">RecSys in the Era of Large Language Models: A Survey</a> (2023) · <code>survey</code></li></ul>
+<hr>
+<h3>Part 13 - Exploration, Bandits &amp; Reinforcement Learning</h3>
+<ul><li><a href="https://arxiv.org/pdf/1003.0146.pdf">Contextual Bandits for Personalized News Article Recommendation (LinUCB)</a> - Li et al., Yahoo! (2010) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/1802.09127.pdf">Deep Bayesian Bandits Showdown</a> - Riquelme et al. (2018) · benchmark of neural contextual bandits · <code>paper</code></li><li><a href="https://arxiv.org/pdf/1812.02353.pdf">Top-K Off-Policy Correction for a REINFORCE Recommender System</a> - Chen et al., Google (2019) · policy gradient with off-policy correction at YouTube · <code>paper</code></li><li><a href="https://arxiv.org/pdf/1905.12767.pdf">Reinforcement Learning for Slate-based Recommender Systems (SlateQ)</a> - Ie et al., Google (2019) · Q-learning for ordered list recommendations · <code>paper</code></li><li><a href="https://arxiv.org/pdf/1909.04847.pdf">RecSim: A Configurable Simulation Platform for Recommender Systems</a> - Google (2019) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/1003.5956.pdf">Unbiased Offline Evaluation of Contextual-Bandit-Based News Recommendation</a> - Li et al. (2010) · replay method for offline bandit eval · <code>paper</code></li></ul>
+<hr>
+<h3>Part 14 - Causal Inference &amp; Debiasing</h3>
+<ul><li><a href="https://arxiv.org/pdf/1602.05352.pdf">Recommendations as Treatments: Debiasing Learning and Evaluation</a> - Schnabel et al. (2016) · IPS for unbiased recommendation training · <code>paper</code></li><li><a href="https://arxiv.org/pdf/1804.05938.pdf">Unbiased Learning to Rank with Unbiased Propensity Estimation</a> - Joachims et al. (2018) · position bias correction via dual learning · <code>paper</code></li><li><a href="https://arxiv.org/pdf/1706.07639.pdf">CausE: Towards Causal Recommendations</a> - Bonner &amp; Vasile (2018) · counterfactual thinking for RecSys · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2105.10648.pdf">Deconfounded Recommendation for Alleviating Bias Amplification</a> (2021) · causal graph + PD learning for popularity debiasing · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2006.11011.pdf">Disentangling User Interest and Conformity for Recommendation</a> (2021) · DICE: causal embedding separating interest from conformity · <code>paper</code></li><li><a href="https://dl.acm.org/doi/10.1145/3460231.3474255">Popularity Bias in Recommender Systems</a> - Abdollahpouri et al. (2021) · taxonomy of popularity bias types and effects · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2205.11619.pdf">A Survey on the Fairness of Recommender Systems</a> (2022) · bias types, debiasing methods, fairness metrics · <code>survey</code></li></ul>
+<hr>
+<h3>Part 15 - Evaluation Methodology</h3>
+<ul><li><a href="https://dl.acm.org/doi/pdf/10.1145/963770.963772">Evaluating Collaborative Filtering Recommender Systems</a> - Herlocker et al. (2004) · canonical evaluation methodology paper · <code>paper</code></li><li><a href="https://arxiv.org/pdf/1907.06902.pdf">Are We Really Making Much Progress? A Worrying Analysis of Recent Neural Recommendation Approaches</a> - Dacrema et al. (2019) · reproducibility crisis: simple baselines match complex models · <code>paper</code></li><li><a href="https://dl.acm.org/doi/10.1145/582415.582418">Normalized Discounted Cumulative Gain (NDCG) for Ranking Evaluation</a> - Järvelin &amp; Kekäläinen (2002) · <code>paper</code></li><li><a href="https://dl.acm.org/doi/10.1145/1864708.1864761">Beyond Accuracy: Evaluating Recommender Systems by Coverage and Serendipity</a> - Ge et al. (2010) · diversity + serendipity metrics · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2009.04984.pdf">A Closer Look at the Evaluation of Recommender Systems</a> (2020) · sampled-based NDCG is heavily biased · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2007.14863.pdf">Leave-One-Out vs. Temporal Split Evaluation for Sequential RecSys</a> (2020) · critiques common evaluation flaws in sequential rec · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2209.00148.pdf">Offline Evaluation of Recommender Systems: A Practitioner's View</a> (2022) · <code>paper</code></li><li><a href="https://netflixtechblog.com/a-b-testing-intuition-busters-common-misunderstandings-in-online-controlled-experiments-cb4ddd21d00b">Netflix Tech Blog: A/B Testing Intuition Busters</a> - Netflix · <code>blog</code></li><li><a href="https://arxiv.org/pdf/2011.01731.pdf">RecBole: A Unified, Comprehensive and Efficient Recommendation Library</a> (2020) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2111.09963.pdf">Reclist: Beyond-accuracy Evaluation of RecSys</a> - Chia et al. (2022) · behavioral testing framework for rec models · <code>paper</code></li></ul>
+<hr>
+<h3>Part 16 - Datasets</h3>
+<ul><li><a href="https://dl.acm.org/doi/10.1145/2827872">MovieLens: Stable Benchmark Dataset</a> - Harper &amp; Konstan (2015) · 1M / 10M / 25M versions; starting point for most papers · <code>dataset</code></li><li><a href="https://nijianmo.github.io/amazon/index.html">Amazon Product Reviews (2018)</a> - Ni et al. (2019) · 233M reviews across 29 categories; widely used for sequential rec · <code>dataset</code></li><li><a href="https://www.yelp.com/dataset">Yelp Open Dataset</a> - local business reviews + metadata · <code>dataset</code></li><li><a href="https://arxiv.org/pdf/2006.11927.pdf">MIND: Microsoft News Dataset</a> - Wu et al. (2020) · 1M users, 160K news articles, click labels · <code>dataset</code></li><li><a href="https://arxiv.org/pdf/2202.10842.pdf">KuaiRec: A Fully-Observed Dataset for Recommender Systems</a> - Gao et al. (2022) · near-complete observation matrix; nearly unbiased evaluation · <code>dataset</code></li><li><a href="https://arxiv.org/pdf/2208.08949.pdf">KuaiRand: An Unbiased Sequential Recommendation Dataset</a> (2022) · random exploration policy logging for unbiased eval · <code>dataset</code></li><li><a href="https://tianchi.aliyun.com/dataset/649">Taobao User Behavior Dataset</a> - Alibaba · 100M user behavior records · <code>dataset</code></li><li><a href="http://millionsongdataset.com/">MSD: Million Song Dataset</a> - Bertin-Mahieux et al. (2011) · implicit listening history for music rec · <code>dataset</code></li><li><a href="https://recsys.acm.org/challenges/">RecSys Challenge Datasets</a> - ACM RecSys (annual) · <code>dataset</code></li><li><a href="https://grouplens.org/datasets/hetrec-2011/">LastFM Dataset</a> - HetRec 2011 · music listening history · <code>dataset</code></li></ul>
+<hr>
+<h3>Part 17 - Surveys &amp; Textbooks</h3>
+<ul><li><a href="https://link.springer.com/book/10.1007/978-1-0716-2197-4">Recommender Systems Handbook (3rd ed.)</a> - Ricci, Rokach &amp; Shapira (2022) · comprehensive reference · <code>book</code></li><li><a href="https://www.manning.com/books/practical-recommender-systems">Practical Recommender Systems</a> - Falk, Manning (2019) · practitioner-focused · <code>book</code></li><li><a href="https://arxiv.org/pdf/1707.07435.pdf">Deep Learning based Recommender System: A Survey and New Perspectives</a> - Zhang et al. (2019) · <code>survey</code></li><li><a href="https://arxiv.org/pdf/2011.02260.pdf">Graph Neural Networks in Recommender Systems: A Survey</a> - Wu et al. (2020) · <code>survey</code></li><li><a href="https://arxiv.org/pdf/2203.15876.pdf">Self-supervised Learning for Recommender Systems: A Survey</a> - Yu et al. (2022) · <code>survey</code></li><li><a href="https://arxiv.org/pdf/2003.00911.pdf">A Survey on Knowledge Graph-Based Recommender Systems</a> - Guo et al. (2020) · <code>survey</code></li><li><a href="https://arxiv.org/pdf/2305.19860.pdf">A Survey on Large Language Models for Recommendation</a> - Wu et al. (2023) · <code>survey</code></li><li><a href="https://ieeexplore.ieee.org/document/1423975">Toward the Next Generation of Recommender Systems</a> - Adomavicius &amp; Tuzhilin (2005) · foundational taxonomy survey · <code>survey</code></li><li><a href="https://developers.google.com/machine-learning/recommendation">Google ML Crash Course: Recommendation Systems</a> · hands-on collaborative filtering, candidate generation, retrieval · <code>website</code></li><li><a href="https://www.recspod.com/">RecSys Podcast (recspod.com)</a> · practitioner interviews on production rec · <code>website</code></li></ul>
+<hr>
+<h3>Part 18 – 2024–2026 Frontier</h3>
+<h4>Scaling Laws for RecSys (2024)</h4>
+<ul><li><a href="https://arxiv.org/pdf/2402.17152.pdf">Actions Speak Louder than Words: HSTU at Meta</a> - Zhai et al., Meta (Feb 2024) · 1T-param sequential transducer; scales rec the way LLM scaling laws scale language · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2403.02545.pdf">Wukong: Towards a Scaling Law for Large-Scale Recommendation</a> - Yao et al., LinkedIn (Mar 2024) · rec models follow power laws but with different exponents than LLMs · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2402.03841.pdf">Breaking the Length Barrier: LLMs Excel at Supervised Long-Context Recommendation</a> (2024) · fine-tuned LLMs with very long behavior sequences beat all baselines · <code>paper</code></li></ul>
+<h4>LLM-Integrated RecSys (2024)</h4>
+<ul><li><a href="https://arxiv.org/pdf/2304.10149.pdf">Is ChatGPT a Good Recommender? A Preliminary Study</a> (2023) · zero-shot GPT-4 still loses to fine-tuned ID models; set the 2024 research agenda · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2403.01744.pdf">NoteLLM: A Retrievable Large Language Model for Note Recommendation</a> - Xiaohongshu/REDNote, WWW (2024) · end-to-end LLM as retriever at production note-rec scale · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2409.12111.pdf">HLLM: Enhancing Sequential Recommendations via Hierarchical Large Language Models</a> (2024) · item-level LLM encodes content; user-level LLM models history · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2312.02445.pdf">LLaRA: Aligning Large Language Models with Sequential Recommenders</a> (2023/2024) · hybrid prompt connects LLM reasoning with ID-based sequence model · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2310.09233.pdf">AgentCF: Collaborative Learning with Autonomous Language Agents for Recommender Systems</a> (2024) · LLM agents simulate user-item interaction for training signal · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2312.02443.pdf">E4SRec: Effective, Efficient, Extensible Sequential Rec with LLMs</a> (2024) · practical LLM-for-SeqRec that's actually deployable in production · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2306.02841.pdf">CTRL: Connect Tabular and Language Model for CTR Prediction</a> - Yuan et al., Alibaba (2023) · bridges structured feature tables and LLM text for industrial CTR · <code>paper</code></li></ul>
+<h4>Generative Retrieval (2024)</h4>
+<ul><li><a href="https://arxiv.org/pdf/2305.06569.pdf">How to Index Item IDs for Recommendation Foundation Models</a> (2024) · systematic study of semantic ID design for TIGER-style autoregressive rec · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2304.03516.pdf">Generative Recommendation: Towards Next-generation Recommender Paradigm</a> (2023/2024) · position paper framing the shift from retrieve-rank to generate · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2211.09971.pdf">MoRec: Representation Learning with Item Text Encoders vs ID Embeddings</a> (2022, re-evaluated 2024) · reopens the "text vs ID" debate: text encoders rival ID embeds at scale · <code>paper</code></li></ul>
+<h4>Diffusion Models for RecSys (2023–2024)</h4>
+<ul><li><a href="https://arxiv.org/pdf/2304.04971.pdf">DiffRec: Diffusion Recommender Model</a> - Lin et al., RecSys (2023) · DDPM applied to collaborative filtering; strong on cold/sparse data · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2310.05108.pdf">CF-Diff: Collaborative Filtering with Diffusion Models</a> (2023) · multi-step denoising as personalization · <code>paper</code></li></ul>
+<h4>Multi-Modal RecSys (2024–2025)</h4>
+<ul><li><a href="https://arxiv.org/pdf/2304.04360.pdf">BM3: Bootstrap Latent Representations for Multi-modal Recommendation</a> (2023/2024) · SSL multi-modal alignment without negative sampling · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2306.15950.pdf">MMSSL: Multi-modal Self-supervised Learning for Recommendation</a> (2023/2024) · cross-modal contrastive learning with graph structure · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2501.14456.pdf">AlphaRec: Scalable Multimodal Recommendation with Vision-Language Models</a> (2025) · CLIP embeddings as item representations for zero-shot rec · <code>paper</code></li></ul>
+<h4>Agentic &amp; RAG-based RecSys (2024–2025)</h4>
+<ul><li><a href="https://arxiv.org/pdf/2308.14296.pdf">RecMind: Large Language Model Powered Agent For Recommendation</a> (2024) · planning + memory + tool use in an LLM agent for rec · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2312.02558.pdf">RAG for Personalized Recommendation</a> (2024) · retrieval-augmented generation injected into rec ranking stage · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2405.02310.pdf">AgentRec: Simulation-based Evaluation of Recommender Systems via LLM Agents</a> (2024) · replaces offline user behavior datasets with LLM-simulated users · <code>paper</code></li></ul>
+<h4>Industry Blog Posts (2024–2026)</h4>
+<ul><li><a href="https://ai.meta.com/research/publications/actions-speak-louder-than-words-trillion-parameter-sequential-transducers-for-generative-recommendations/">Meta Generative Recommendations - HSTU Deep Dive</a> - Meta AI (2024) · companion to the paper · <code>blog</code></li><li><a href="https://blog.youtube/inside-youtube/on-youtubes-recommendation-system/">How YouTube Thinks About Recommendations</a> - YouTube (2021, updated 2024) · goals, metrics, and societal responsibility framing · <code>blog</code></li><li><a href="https://blog.twitter.com/engineering/en_us/topics/open-source/2023/twitter-recommendation-algorithm">Twitter's Open-Source Recommendation Algorithm</a> - X/Twitter (2023) · full production stack: GraphJet, SimClusters, TwHIN, Heavy Ranker · <code>blog</code></li><li><a href="https://engineering.atspotify.com/2022/10/the-evolution-of-spotify-poscasts-recommendation/">Spotify's Podcast Recommendation System</a> - Spotify Engineering (2022/2024) · two-tower + session context at audio scale · <code>blog</code></li><li><a href="https://netflixtechblog.com/netflix-recommendations-beyond-the-5-stars-part-1-55838468f429">Netflix: How We Built Personalized Homepage</a> - Netflix (2012, still relevant architecture primer) · <code>blog</code></li><li><a href="https://eugeneyan.com/tag/recsys/">Eugene Yan's RecSys Writing (2024)</a> - collected practitioner deep-dives; updated regularly through 2025 · <code>blog</code></li></ul>
+    </div>
+  </article>
+
+  <div class="article-footer-nav">
+    <a href="index.html" class="back-link">&larr; Back to all posts</a>
+  </div>
+</main>
+
+<footer class="footer-note">
+  <p>Built with curiosity. No frameworks, no dependencies — just code.</p>
+</footer>
+
+</body>
+</html>
