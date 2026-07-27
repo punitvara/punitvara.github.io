@@ -1,0 +1,1814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SQL Interview Crash Course — Punit Vara</title>
+<meta name="description" content="A 6-module SQL interview crash course for ML/Data/Backend engineers — foundations, joins, window functions, subqueries, advanced patterns, and hard interview problems, plus a 10-question timed mock interview.">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0b;--bg2:#111113;--bg3:#18181b;--bg4:#1e1e22;
+  --text:#a1a1aa;--text-bright:#fafafa;--text-dim:#52525b;
+  --accent:#c9a76a;--accent2:#e8c88a;--accent-glow:rgba(201,167,106,0.12);
+  --green:#56d364;--blue:#58a6ff;--red:#f85149;--purple:#bc8cff;
+  --border:#27272a;--border-accent:rgba(201,167,106,0.2);
+  --serif:Georgia,'Palatino Linotype','Book Antiqua',serif;
+  --sans:'Inter','Segoe UI',system-ui,-apple-system,sans-serif;
+  --mono:'SF Mono','Cascadia Code','Fira Code',monospace;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --sidebar-w:290px;
+  --topbar-h:60px;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+a{color:inherit}
+
+/* ── Top bar ───────────────────────────────────────── */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;background:rgba(10,10,11,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.topbar-left{display:flex;align-items:center;gap:1.2rem;min-width:0}
+.home-link{font-family:var(--mono);font-size:.78rem;color:var(--text-dim);text-decoration:none;letter-spacing:.05em;white-space:nowrap;transition:color .2s var(--ease)}
+.home-link:hover{color:var(--accent)}
+.topbar-title{font-family:var(--serif);font-size:1.05rem;color:var(--text-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-title em{font-style:italic;color:var(--accent)}
+.menu-toggle{display:none;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-bright);font-size:1.1rem;cursor:pointer;padding:.4rem .7rem;line-height:1}
+.menu-toggle:hover{border-color:var(--accent);color:var(--accent)}
+
+/* ── Layout ────────────────────────────────────────── */
+.layout{display:flex;padding-top:var(--topbar-h);min-height:100vh}
+
+/* ── Sidebar ───────────────────────────────────────── */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;position:sticky;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));overflow-y:auto;border-right:1px solid var(--border);background:var(--bg2);padding:1.5rem 0 2rem}
+.progress-box{margin:0 1.3rem 1.3rem;padding:1rem 1.1rem;background:var(--bg3);border:1px solid var(--border);border-radius:10px}
+.progress-label{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.6rem}
+.progress-label b{color:var(--accent);font-size:.9rem;font-family:var(--sans)}
+.progress-track{height:6px;border-radius:3px;background:var(--bg4);overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;width:0%;transition:width .4s var(--ease)}
+.progress-reset{display:inline-block;margin-top:.7rem;font-size:.68rem;color:var(--text-dim);background:none;border:none;cursor:pointer;text-decoration:underline;text-underline-offset:2px;padding:0}
+.progress-reset:hover{color:var(--red)}
+
+.nav-group-label{font-family:var(--mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);padding:0 1.3rem;margin:1.2rem 0 .5rem}
+.side-nav{list-style:none}
+.side-nav li{position:relative}
+.side-item{display:flex;align-items:center;gap:.7rem;width:100%;padding:.65rem 1.3rem;background:none;border:none;color:var(--text);text-align:left;font-size:.85rem;cursor:pointer;transition:all .2s var(--ease);position:relative;border-left:2px solid transparent}
+.side-item:hover{background:var(--bg3);color:var(--text-bright)}
+.side-item.active{background:var(--accent-glow);color:var(--accent2);border-left-color:var(--accent)}
+.side-num{font-family:var(--mono);font-size:.72rem;color:var(--text-dim);flex-shrink:0;width:1.4rem}
+.side-item.active .side-num{color:var(--accent)}
+.side-check{margin-left:auto;flex-shrink:0;width:18px;height:18px;border-radius:5px;border:1.5px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.65rem;color:transparent;transition:all .2s var(--ease);background:none}
+.side-check:hover{border-color:var(--accent)}
+.side-check.done{background:var(--green);border-color:var(--green);color:var(--bg)}
+
+/* ── Main content ──────────────────────────────────── */
+.main{flex:1;min-width:0;padding:2.5rem 3rem 6rem}
+.course-section{display:none;max-width:920px}
+.course-section.active{display:block;animation:fadeIn .35s var(--ease)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.section-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:.8rem}
+.section-title{font-family:var(--serif);font-size:clamp(1.7rem,3vw,2.4rem);font-weight:400;color:var(--text-bright);margin-bottom:1rem;line-height:1.2}
+.section-desc{color:var(--text);max-width:680px;margin-bottom:2rem;font-size:.95rem}
+
+.badge-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:2rem}
+.badge{font-family:var(--mono);font-size:.68rem;padding:.3rem .7rem;border-radius:20px;letter-spacing:.03em;background:var(--bg3);border:1px solid var(--border);color:var(--text-dim)}
+
+/* ── Callout / mental model box ────────────────────── */
+.callout{background:var(--bg2);border:1px solid var(--border-accent);border-left:3px solid var(--accent);border-radius:8px;padding:1.1rem 1.3rem;margin:1.5rem 0 2rem}
+.callout-label{font-family:var(--mono);font-size:.65rem;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem}
+.callout pre{font-family:var(--mono);font-size:.82rem;color:var(--text);white-space:pre-wrap;line-height:1.6}
+
+/* ── Subheads ──────────────────────────────────────── */
+.subhead{display:flex;align-items:baseline;gap:.6rem;font-family:var(--serif);font-size:1.25rem;color:var(--text-bright);font-weight:400;margin:2.4rem 0 .8rem}
+.subhead:first-of-type{margin-top:1rem}
+.subhead-num{font-family:var(--mono);font-size:.75rem;color:var(--accent);background:var(--accent-glow);border:1px solid var(--border-accent);padding:.15rem .5rem;border-radius:5px;flex-shrink:0}
+.note{font-size:.88rem;color:var(--text);margin:.4rem 0 1rem;line-height:1.7}
+.trap{background:rgba(248,81,73,0.07);border:1px solid rgba(248,81,73,0.25);border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0;font-size:.85rem;color:var(--text)}
+.trap b{color:var(--red);font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.3rem}
+.key-rule{background:rgba(88,166,255,0.07);border:1px solid rgba(88,166,255,0.25);border-radius:8px;padding:.9rem 1.1rem;margin:1rem 0;font-size:.85rem;color:var(--text)}
+.key-rule b{color:var(--blue);font-family:var(--mono);font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;display:block;margin-bottom:.3rem}
+
+/* ── Code blocks ───────────────────────────────────── */
+.code-card{background:#0d0d0f;border:1px solid var(--border);border-radius:10px;margin:1rem 0 1.6rem;overflow:hidden}
+.code-card-head{display:flex;align-items:center;justify-content:space-between;padding:.5rem .9rem;background:var(--bg3);border-bottom:1px solid var(--border)}
+.code-tag{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase}
+.copy-btn{font-family:var(--mono);font-size:.68rem;background:none;border:1px solid var(--border);color:var(--text-dim);padding:.25rem .6rem;border-radius:5px;cursor:pointer;transition:all .2s var(--ease)}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.copy-btn.copied{border-color:var(--green);color:var(--green)}
+.sql-block{padding:1rem 1.2rem;overflow-x:auto}
+.sql-code{font-family:var(--mono);font-size:.83rem;line-height:1.65;color:var(--text);white-space:pre}
+
+.tok-kw{color:var(--blue);font-weight:600}
+.tok-str{color:var(--green)}
+.tok-com{color:var(--text-dim);font-style:italic}
+.tok-num{color:var(--accent2)}
+.tok-fn{color:var(--accent)}
+
+/* ── Practice problems ─────────────────────────────── */
+.practice-block{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.practice-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.2rem 1.3rem;margin-bottom:1rem}
+.practice-q{display:flex;gap:.7rem;align-items:flex-start;font-size:.9rem;color:var(--text-bright);margin-bottom:.8rem}
+.qtag{font-family:var(--mono);font-size:.68rem;color:var(--bg);background:var(--accent);padding:.15rem .5rem;border-radius:5px;flex-shrink:0;margin-top:.15rem}
+.reveal-btn{font-family:var(--mono);font-size:.7rem;background:none;border:1px solid var(--border-accent);color:var(--accent);padding:.4rem .8rem;border-radius:6px;cursor:pointer;letter-spacing:.03em;transition:all .2s var(--ease)}
+.reveal-btn:hover{background:var(--accent-glow)}
+.answer-body{margin-top:.9rem}
+.answer-body.hidden{display:none}
+
+/* ── Pattern reference grid (module 6) ─────────────── */
+.pattern-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.9rem;margin:1.5rem 0 2rem}
+.pattern-card{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:1rem 1.1rem;transition:border-color .2s var(--ease)}
+.pattern-card:hover{border-color:var(--border-accent)}
+.pattern-card .pnum{font-family:var(--mono);color:var(--accent);font-size:.7rem}
+.pattern-card h4{font-size:.88rem;color:var(--text-bright);margin:.3rem 0;font-weight:600}
+.pattern-card p{font-family:var(--mono);font-size:.76rem;color:var(--text-dim)}
+
+/* ── Schema box ────────────────────────────────────── */
+.schema-box{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.8rem;margin:1.5rem 0 2rem}
+.schema-table{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:.9rem 1rem}
+.schema-table .tname{font-family:var(--mono);color:var(--accent2);font-size:.85rem;font-weight:600;margin-bottom:.35rem;display:block}
+.schema-table .tcols{font-family:var(--mono);font-size:.76rem;color:var(--text-dim);line-height:1.6}
+
+/* ── Overview module cards ─────────────────────────── */
+.module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.1rem;margin:1.5rem 0 2.5rem}
+.module-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.4rem 1.5rem;cursor:pointer;transition:all .3s var(--ease);text-align:left;display:block;width:100%}
+.module-card:hover{border-color:var(--border-accent);transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.module-card .mnum{font-family:var(--mono);font-size:.68rem;color:var(--accent);letter-spacing:.1em;text-transform:uppercase}
+.module-card h3{font-family:var(--serif);font-size:1.15rem;color:var(--text-bright);margin:.5rem 0 .4rem;font-weight:400}
+.module-card p{font-size:.82rem;color:var(--text-dim);line-height:1.55}
+
+/* ── Mock interview ────────────────────────────────── */
+.diff-group{margin-bottom:2.2rem}
+.diff-head{display:flex;align-items:center;gap:.8rem;margin-bottom:1rem}
+.diff-badge{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;padding:.3rem .7rem;border-radius:20px;font-weight:600}
+.diff-badge.warmup{background:rgba(86,211,100,0.1);color:var(--green);border:1px solid rgba(86,211,100,0.25)}
+.diff-badge.core{background:rgba(88,166,255,0.1);color:var(--blue);border:1px solid rgba(88,166,255,0.25)}
+.diff-badge.hard{background:rgba(201,167,106,0.12);color:var(--accent2);border:1px solid rgba(201,167,106,0.3)}
+.diff-badge.brutal{background:rgba(248,81,73,0.1);color:var(--red);border:1px solid rgba(248,81,73,0.25)}
+.diff-time{font-family:var(--mono);font-size:.75rem;color:var(--text-dim)}
+.mock-problem{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.3rem;margin-bottom:.8rem;display:flex;gap:1rem;align-items:flex-start}
+.mock-problem .mqtag{font-family:var(--mono);font-size:.72rem;color:var(--accent);background:var(--accent-glow);border:1px solid var(--border-accent);padding:.2rem .55rem;border-radius:6px;flex-shrink:0}
+.mock-problem p{font-size:.9rem;color:var(--text-bright);line-height:1.6}
+.scoring-table{width:100%;border-collapse:collapse;margin:1rem 0 2rem;font-size:.86rem}
+.scoring-table th,.scoring-table td{text-align:left;padding:.6rem .9rem;border-bottom:1px solid var(--border)}
+.scoring-table th{font-family:var(--mono);font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim)}
+.scoring-table td{color:var(--text)}
+.score-band{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:2rem}
+.score-band div{flex:1;min-width:180px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:.9rem 1rem}
+.score-band .n{font-family:var(--mono);font-size:1.1rem;color:var(--accent);display:block;margin-bottom:.2rem}
+.score-band .d{font-size:.8rem;color:var(--text-dim)}
+
+/* ── Prev/Next footer nav ──────────────────────────── */
+.section-footer-nav{display:flex;justify-content:space-between;gap:1rem;margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.foot-nav-btn{display:flex;flex-direction:column;gap:.2rem;padding:.8rem 1.1rem;border:1px solid var(--border);border-radius:9px;background:var(--bg2);cursor:pointer;text-align:left;transition:all .2s var(--ease);max-width:45%}
+.foot-nav-btn:hover{border-color:var(--accent)}
+.foot-nav-btn .dir{font-family:var(--mono);font-size:.65rem;color:var(--text-dim);letter-spacing:.08em;text-transform:uppercase}
+.foot-nav-btn .lbl{font-size:.85rem;color:var(--text-bright)}
+.foot-nav-btn.next{margin-left:auto;text-align:right;align-items:flex-end}
+
+/* ── Mobile drawer ─────────────────────────────────── */
+.sidebar-backdrop{display:none}
+
+/* ── Responsive ────────────────────────────────────── */
+@media(max-width:900px){
+  .menu-toggle{display:inline-flex;align-items:center;justify-content:center}
+  .sidebar{position:fixed;left:0;top:var(--topbar-h);height:calc(100vh - var(--topbar-h));transform:translateX(-100%);transition:transform .3s var(--ease);z-index:900;box-shadow:20px 0 60px rgba(0,0,0,.4)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-backdrop{display:none;position:fixed;inset:var(--topbar-h) 0 0 0;background:rgba(0,0,0,.55);z-index:850}
+  .sidebar-backdrop.open{display:block}
+  .main{padding:2rem 1.3rem 5rem;width:100%}
+  .topbar-title{font-size:.92rem}
+}
+@media(max-width:520px){
+  .schema-box,.pattern-grid{grid-template-columns:1fr}
+  .section-footer-nav{flex-direction:column}
+  .foot-nav-btn{max-width:100%}
+  .foot-nav-btn.next{text-align:left;align-items:flex-start}
+}
+@media print{.topbar,.sidebar,.section-footer-nav{display:none}.main{padding:0}.course-section{display:block !important}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+    <a href="../../index.html" class="home-link">← punitvara.com</a>
+  </div>
+  <div class="topbar-title">SQL Interview <em>Crash Course</em></div>
+</div>
+
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="progress-box">
+      <div class="progress-label"><span>Progress</span> <b id="progressCount">0 / 7</b></div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <button class="progress-reset" id="progressReset">Reset progress</button>
+    </div>
+
+    <div class="nav-group-label">Start Here</div>
+    <ul class="side-nav">
+      <li><button class="side-item" data-target="sec-overview"><span class="side-num">—</span><span>Overview</span></button></li>
+    </ul>
+
+    <div class="nav-group-label">Modules</div>
+    <ul class="side-nav">
+      <li><button class="side-item" data-target="sec-mod1"><span class="side-num">01</span><span>Core Foundations</span><span class="side-check" data-check="mod1">✓</span></button></li>
+      <li><button class="side-item" data-target="sec-mod2"><span class="side-num">02</span><span>JOINs Deep Dive</span><span class="side-check" data-check="mod2">✓</span></button></li>
+      <li><button class="side-item" data-target="sec-mod3"><span class="side-num">03</span><span>Window Functions</span><span class="side-check" data-check="mod3">✓</span></button></li>
+      <li><button class="side-item" data-target="sec-mod4"><span class="side-num">04</span><span>Aggregations &amp; Subqueries</span><span class="side-check" data-check="mod4">✓</span></button></li>
+      <li><button class="side-item" data-target="sec-mod5"><span class="side-num">05</span><span>Advanced Patterns</span><span class="side-check" data-check="mod5">✓</span></button></li>
+      <li><button class="side-item" data-target="sec-mod6"><span class="side-num">06</span><span>Hard Interview Problems</span><span class="side-check" data-check="mod6">✓</span></button></li>
+    </ul>
+
+    <div class="nav-group-label">Test Yourself</div>
+    <ul class="side-nav">
+      <li><button class="side-item" data-target="sec-mock"><span class="side-num">★</span><span>Mock Interview</span><span class="side-check" data-check="mock">✓</span></button></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+
+    <!-- ═══════════════════════ OVERVIEW ═══════════════════════ -->
+    <section class="course-section" id="sec-overview">
+      <div class="section-label">SQL Interview Prep</div>
+      <h2 class="section-title">SQL Interview Crash Course</h2>
+      <p class="section-desc">Structured for ML, Data, and Backend engineering interviews. Six modules of progressive difficulty, built around one unified e-commerce/analytics schema, capped off with a timed 10-question mock interview.</p>
+
+      <div class="badge-row">
+        <span class="badge">6 modules</span>
+        <span class="badge">Progressive difficulty</span>
+        <span class="badge">1 unified schema</span>
+        <span class="badge">10-question mock interview</span>
+        <span class="badge">Zero setup — read &amp; drill</span>
+      </div>
+
+      <h3 class="subhead"><span class="subhead-num">→</span>How to use this course</h3>
+      <p class="note">Work through modules 1–6 in order — each builds on the last. Every module ends with practice problems; try them yourself before tapping <em>"Show Answer"</em>. When you've drilled all six, take the timed mock interview and score yourself with the guide at the bottom. Tick off modules in the sidebar as you finish them to track progress — it's saved locally in your browser.</p>
+
+      <h3 class="subhead"><span class="subhead-num">☰</span>Modules</h3>
+      <div class="module-grid" id="moduleGrid">
+        <button class="module-card" data-target="sec-mod1">
+          <span class="mnum">Module 01</span>
+          <h3>Core Foundations</h3>
+          <p>SELECT, WHERE, ORDER BY, GROUP BY, HAVING, DISTINCT, LIMIT/OFFSET — the SQL execution mental model.</p>
+        </button>
+        <button class="module-card" data-target="sec-mod2">
+          <span class="mnum">Module 02</span>
+          <h3>JOINs Deep Dive</h3>
+          <p>INNER, LEFT, RIGHT, FULL, SELF, CROSS joins — anti-joins, multi-joins, ON vs WHERE semantics.</p>
+        </button>
+        <button class="module-card" data-target="sec-mod3">
+          <span class="mnum">Module 03</span>
+          <h3>Window Functions</h3>
+          <p>ROW_NUMBER, RANK, DENSE_RANK, LAG/LEAD, running totals, moving averages, NTILE, percentiles.</p>
+        </button>
+        <button class="module-card" data-target="sec-mod4">
+          <span class="mnum">Module 04</span>
+          <h3>Aggregations &amp; Subqueries</h3>
+          <p>Scalar/inline/correlated subqueries, EXISTS, CTEs, recursive CTEs, ROLLUP, conditional aggregation.</p>
+        </button>
+        <button class="module-card" data-target="sec-mod5">
+          <span class="mnum">Module 05</span>
+          <h3>Advanced Patterns</h3>
+          <p>CASE WHEN, pivoting, NULL handling, date/string ops, set operations, indexing &amp; UPSERT patterns.</p>
+        </button>
+        <button class="module-card" data-target="sec-mod6">
+          <span class="mnum">Module 06</span>
+          <h3>Hard Interview Problems</h3>
+          <p>Nth-highest, streaks/islands, sessionization, cohort retention, median, gaps &amp; islands — FAANG-style.</p>
+        </button>
+      </div>
+
+      <h3 class="subhead"><span class="subhead-num">DB</span>Practice Schema</h3>
+      <p class="note">Every example and problem in this course uses the same unified e-commerce/analytics schema:</p>
+      <div class="schema-box">
+        <div class="schema-table"><span class="tname">users</span><div class="tcols">id<br>name<br>email<br>signup_date<br>country</div></div>
+        <div class="schema-table"><span class="tname">orders</span><div class="tcols">id<br>user_id<br>amount<br>status<br>created_at</div></div>
+        <div class="schema-table"><span class="tname">products</span><div class="tcols">id<br>name<br>category<br>price</div></div>
+        <div class="schema-table"><span class="tname">order_items</span><div class="tcols">order_id<br>product_id<br>quantity<br>unit_price</div></div>
+        <div class="schema-table"><span class="tname">events</span><div class="tcols">id<br>user_id<br>event_type<br>event_time<br>session_id</div></div>
+      </div>
+
+      <div class="section-footer-nav">
+        <span></span>
+        <button class="foot-nav-btn next" data-target="sec-mod1"><span class="dir">Next</span><span class="lbl">Module 1 · Core Foundations →</span></button>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ MODULE 1 ═══════════════════════ -->
+    <section class="course-section" id="sec-mod1">
+      <div class="section-label">Module 1</div>
+      <h2 class="section-title">Core Foundations</h2>
+      <p class="section-desc">SELECT, WHERE, ORDER BY, GROUP BY, HAVING, DISTINCT, LIMIT</p>
+
+      <div class="callout">
+        <div class="callout-label">Mental Model</div>
+        <pre>SQL runs in this order:
+FROM -&gt; JOIN -&gt; WHERE -&gt; GROUP BY -&gt; HAVING -&gt; SELECT -&gt; DISTINCT -&gt; ORDER BY -&gt; LIMIT</pre>
+      </div>
+
+      <h3 class="subhead"><span class="subhead-num">1.1</span>Basic SELECT</h3>
+      <div class="code-card">
+        <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+        <pre class="sql-block"><code class="sql-code">-- All columns
+SELECT * FROM users;
+
+-- Specific columns + alias
+SELECT id, name, country AS user_country FROM users;
+
+-- Computed column
+SELECT id, name, UPPER(email) AS email_upper FROM users;</code></pre>
+      </div>
+
+      <h3 class="subhead"><span class="subhead-num">1.2</span>WHERE — filtering rows</h3>
+      <div class="code-card">
+        <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+        <pre class="sql-block"><code class="sql-code">-- Equality, comparison
+SELECT * FROM orders WHERE status = 'completed';
+SELECT * FROM orders WHERE amount &gt; 500;
+
+-- Multiple conditions
+SELECT * FROM orders WHERE status = 'completed' AND amount &gt; 1000;
+SELECT * FROM orders WHERE status = 'pending' OR status = 'cancelled';
+
+-- IN (cleaner than multiple ORs)
+SELECT * FROM orders WHERE status IN ('pending', 'cancelled');
+
+-- BETWEEN (inclusive both ends)
+SELECT * FROM orders WHERE amount BETWEEN 100 AND 1000;
+
+-- LIKE (pattern match)
+SELECT * FROM users WHERE email LIKE '%@ex.com';  -- ends with
+SELECT * FROM users WHERE name  LIKE 'A%';        -- starts with
+SELECT * FROM users WHERE name  LIKE '_ob';       -- _ = exactly one char
+
+-- NULL checks — always use IS NULL, never = NULL
+SELECT * FROM orders WHERE user_id IS NOT NULL;</code></pre>
+      </div>
+
+      <h3 class="subhead"><span class="subhead-num">1.3</span>ORDER BY</h3>
+      <div class="code-card">
+        <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+        <pre class="sql-block"><code class="sql-code">SELECT * FROM orders ORDER BY amount DESC;
+SELECT * FROM orders ORDER BY created_at ASC, amount DESC;  -- multi-column sort</code></pre>
+      </div>
+
+      <h3 class="subhead"><span class="subhead-num">1.4</span>DISTINCT</h3>
+      <div class="code-card">
+        <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+        <pre class="sql-block"><code class="sql-code">-- Unique countries
+SELECT DISTINCT country FROM users;
+
+-- Count of unique countries
+SELECT COUNT(DISTINCT country) AS unique_countries FROM users;</code></pre>
+      </div>
+
+      <h3 class="subhead"><span class="subhead-num">1.5</span>GROUP BY + Aggregate Functions</h3>
+      <p class="note">Aggregate functions: COUNT, SUM, AVG, MIN, MAX</p>
+      <div class="code-card">
+        <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+        <pre class="sql-block"><code class="sql-code">-- Orders per user
+SELECT user_id, COUNT(*) AS order_count FROM orders GROUP BY user_id;
+
+-- Revenue per user (completed only)
+SELECT user_id, SUM(amount) AS total_revenue, AVG(amount) AS avg_order, MAX(amount) AS biggest_order, COUNT(*) AS order_count
+FROM orders
+WHERE status = 'completed'
+GROUP BY user_id
+ORDER BY total_revenue DESC;</code></pre>
+      </div>
+      <div class="key-rule"><b>Key Rule</b>Every column in SELECT must either be in GROUP BY or wrapped in an aggregate.</div>
+
+      <h3 class="subhead"><span class="subhead-num">1.6</span>HAVING — filter after aggregation</h3>
+      <p class="note">WHERE filters individual rows (before GROUP BY). HAVING filters groups (after GROUP BY).</p>
+      <div class="code-card">
+        <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+        <pre class="sql-block"><code class="sql-code">-- Users with more than 1 completed order
+SELECT user_id, COUNT(*) AS completed_orders
+FROM orders
+WHERE status = 'completed'
+GROUP BY user_id
+HAVING COUNT(*) &gt; 1
+ORDER BY completed_orders DESC;</code></pre>
+      </div>
+      <div class="trap"><b>Trap</b>You can't use SELECT aliases in HAVING.<br>Wrong: <code>HAVING completed_orders &gt; 1</code><br>Right: <code>HAVING COUNT(*) &gt; 1</code></div>
+
+      <h3 class="subhead"><span class="subhead-num">1.7</span>LIMIT / OFFSET (pagination)</h3>
+      <div class="code-card">
+        <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+        <pre class="sql-block"><code class="sql-code">-- Top 3 biggest orders
+SELECT * FROM orders ORDER BY amount DESC LIMIT 3;
+
+-- Page 2 (rows 4-6)
+SELECT * FROM orders ORDER BY id LIMIT 3 OFFSET 3;</code></pre>
+      </div>
+
+      <div class="practice-block">
+        <h3 class="subhead"><span class="subhead-num">✎</span>Practice Problems</h3>
+        <div class="practice-item">
+          <div class="practice-q"><span class="qtag">P1</span> List all users from the US, ordered by signup_date newest first.</div>
+          <button class="reveal-btn">Show Answer</button>
+          <div class="answer-body hidden">
+            <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+            <pre class="sql-block"><code class="sql-code">SELECT * FROM users WHERE country = 'US' ORDER BY signup_date DESC;</code></pre></div>
+          </div>
+        </div>
+        <div class="practice-item">
+          <div class="practice-q"><span class="qtag">P2</span> How many orders are in each status?</div>
+          <button class="reveal-btn">Show Answer</button>
+          <div class="answer-body hidden">
+            <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+            <pre class="sql-block"><code class="sql-code">SELECT status, COUNT(*) AS cnt FROM orders GROUP BY status;</code></pre></div>
+          </div>
+        </div>
+        <div class="practice-item">
+          <div class="practice-q"><span class="qtag">P3</span> Which users have total order amount &gt; 2000? Show user_id and total.</div>
+          <button class="reveal-btn">Show Answer</button>
+          <div class="answer-body hidden">
+            <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+            <pre class="sql-block"><code class="sql-code">SELECT user_id, SUM(amount) AS total
+FROM orders
+GROUP BY user_id
+HAVING SUM(amount) &gt; 2000
+ORDER BY total DESC;</code></pre></div>
+          </div>
+        </div>
+        <div class="practice-item">
+          <div class="practice-q"><span class="qtag">P4</span> Find the average order amount for completed orders per country.</div>
+          <button class="reveal-btn">Show Answer</button>
+          <div class="answer-body hidden">
+            <div class="code-card"><div class="code-card-head"><span class="code-tag">Try it yourself</span></div>
+            <pre class="sql-block"><code class="sql-code">-- Hint: JOIN users to orders on user_id, filter WHERE status = 'completed',
+-- GROUP BY country, use AVG(amount).</code></pre></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-footer-nav">
+        <button class="foot-nav-btn" data-target="sec-overview"><span class="dir">Back</span><span class="lbl">← Overview</span></button>
+        <button class="foot-nav-btn next" data-target="sec-mod2"><span class="dir">Next</span><span class="lbl">Module 2 · JOINs Deep Dive →</span></button>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════ MODULE 2 ═══════════════════════ -->
+    <section class="course-section" id="sec-mod2">
+      <div class="section-label">Module 2</div>
+<h2 class="section-title">JOINs Deep Dive</h2>
+<p class="section-desc">INNER, LEFT, RIGHT, FULL, CROSS, SELF joins &amp; anti-join patterns</p>
+
+<div class="callout">
+  <div class="callout-label">Mental Model</div>
+  <pre>JOINs combine rows from two tables based on a condition. Think of it as a Venn diagram:
+INNER JOIN  = intersection only
+LEFT JOIN   = left table + intersection (NULLs for right missing rows)
+RIGHT JOIN  = right table + intersection (rare in practice, flip to LEFT)
+FULL JOIN   = everything, NULLs where no match
+CROSS JOIN  = cartesian product (every combo) -- expensive!
+SELF JOIN   = table joined to itself</pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">2.1</span>INNER JOIN — only matching rows</h3>
+<p class="note">Orders with user names (only users who have orders).</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT o.id AS order_id, u.name, o.amount, o.status
+FROM orders o
+INNER JOIN users u ON o.user_id = u.id;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">2.2</span>LEFT JOIN — all left rows, NULLs for missing right</h3>
+<p class="note">All users, even those without orders.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT u.id, u.name, o.id AS order_id, o.amount
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">2.3</span>Finding rows with NO match (anti-join pattern)</h3>
+<p class="note">Classic interview question: "Find users who have never placed an order."</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT u.id, u.name
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id
+WHERE o.id IS NULL;
+
+-- Alternative using NOT IN (careful with NULLs)
+SELECT id, name
+FROM users
+WHERE id NOT IN (SELECT user_id FROM orders);
+
+-- Alternative using NOT EXISTS (safest with NULLs)
+SELECT id, name
+FROM users u
+WHERE NOT EXISTS (
+  SELECT 1 FROM orders o WHERE o.user_id = u.id
+);</code></pre>
+</div>
+<div class="trap"><b>Trap</b>NOT IN silently returns zero rows if the subquery contains any NULL values in user_id. NOT EXISTS doesn't have this problem — prefer it for anti-joins.</div>
+
+<h3 class="subhead"><span class="subhead-num">2.4</span>Multiple JOINs</h3>
+<p class="note">Order details: user name + product name + quantity.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT u.name AS buyer, p.name AS product, oi.quantity, oi.unit_price,
+       (oi.quantity * oi.unit_price) AS line_total
+FROM orders o
+JOIN users u ON o.user_id = u.id
+JOIN order_items oi ON o.id = oi.order_id
+JOIN products p ON oi.product_id = p.id
+WHERE o.status = 'completed';</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">2.5</span>SELF JOIN — table joined to itself</h3>
+<p class="note">Useful for hierarchical data (employee-&gt;manager) or comparing rows. Here: users who signed up on the same day as another user.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT a.name AS user1, b.name AS user2, a.signup_date
+FROM users a
+JOIN users b ON a.signup_date = b.signup_date AND a.id &lt; b.id;</code></pre>
+</div>
+<div class="key-rule"><b>Key Rule</b>The a.id &lt; b.id condition prevents duplicate pairs (a,b) and (b,a) and stops a user from matching itself.</div>
+
+<h3 class="subhead"><span class="subhead-num">2.6</span>CROSS JOIN — cartesian product</h3>
+<p class="note">Every user x every product.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT u.name, p.name AS product
+FROM users u
+CROSS JOIN products p;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">2.7</span>Aggregation across JOINed tables</h3>
+<p class="note">Total revenue per country (completed orders only).</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT u.country,
+       COUNT(DISTINCT u.id) AS user_count,
+       COUNT(o.id) AS order_count,
+       SUM(o.amount) AS total_revenue,
+       AVG(o.amount) AS avg_order
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id AND o.status = 'completed'
+GROUP BY u.country
+ORDER BY total_revenue DESC NULLS LAST;</code></pre>
+</div>
+<div class="key-rule"><b>Key Rule</b>A condition in ON vs WHERE behaves differently for LEFT JOINs.<br>ON — filter during join; missing rows still appear (with NULLs).<br>WHERE — filter after join; missing rows get eliminated.</div>
+
+<h3 class="subhead"><span class="subhead-num">2.8</span>JOIN vs WHERE — execution mental model</h3>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">-- IMPLICIT JOIN (old style -- avoid)
+SELECT u.name, o.amount
+FROM users u, orders o
+WHERE u.id = o.user_id;
+
+-- EXPLICIT JOIN (preferred)
+SELECT u.name, o.amount
+FROM users u
+JOIN orders o ON u.id = o.user_id;</code></pre>
+</div>
+
+<div class="practice-block">
+  <h3 class="subhead"><span class="subhead-num">✎</span>Practice Problems</h3>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P1</span> List every product that has been ordered at least once. Show product name, category, and total units sold.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">SELECT p.name, p.category, SUM(oi.quantity) AS units_sold
+FROM products p
+JOIN order_items oi ON p.id = oi.product_id
+JOIN orders o ON oi.order_id = o.id
+GROUP BY p.id, p.name, p.category
+ORDER BY units_sold DESC;</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P2</span> Find users who have only 'cancelled' or 'pending' orders (no completed).</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">SELECT u.id, u.name
+FROM users u
+WHERE u.id NOT IN (
+  SELECT user_id FROM orders WHERE status = 'completed'
+)
+AND u.id IN (
+  SELECT user_id FROM orders
+);</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P3</span> Show the top-selling product category by revenue.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">SELECT p.category, SUM(oi.quantity * oi.unit_price) AS revenue
+FROM products p
+JOIN order_items oi ON p.id = oi.product_id
+JOIN orders o ON oi.order_id = o.id
+WHERE o.status = 'completed'
+GROUP BY p.category
+ORDER BY revenue DESC
+LIMIT 1;</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P4 (HARD)</span> Find users who ordered the same product as user_id=1. Don't include user 1 in the result.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">SELECT DISTINCT u.id, u.name
+FROM users u
+JOIN orders o ON u.id = o.user_id
+JOIN order_items oi ON o.id = oi.order_id
+WHERE oi.product_id IN (
+  SELECT oi2.product_id
+  FROM orders o2
+  JOIN order_items oi2 ON o2.id = oi2.order_id
+  WHERE o2.user_id = 1
+)
+AND u.id != 1;</code></pre></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-footer-nav">
+  <button class="foot-nav-btn" data-target="sec-mod1"><span class="dir">Back</span><span class="lbl">← Module 1 · Core Foundations</span></button>
+  <button class="foot-nav-btn next" data-target="sec-mod3"><span class="dir">Next</span><span class="lbl">Module 3 · Window Functions →</span></button>
+</div>
+    </section>
+
+    <!-- ═══════════════════════ MODULE 3 ═══════════════════════ -->
+    <section class="course-section" id="sec-mod3">
+      <div class="section-label">Module 3</div>
+<h2 class="section-title">Window Functions</h2>
+<p class="section-desc">ROW_NUMBER, RANK, LAG/LEAD, running totals, NTILE, FIRST_VALUE, PERCENT_RANK</p>
+
+<div class="callout">
+  <div class="callout-label">Mental Model</div>
+  <pre>Window functions compute values ACROSS rows related to the current row
+WITHOUT collapsing them -- unlike GROUP BY, every input row survives in the output.</pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">3.1</span>ROW_NUMBER, RANK, DENSE_RANK</h3>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">-- ROW_NUMBER: sequential, no ties
+SELECT user_id, amount, status,
+       ROW_NUMBER() OVER (ORDER BY amount DESC) AS rn
+FROM orders;
+
+-- RANK: ties get same rank, then gap
+-- DENSE_RANK: ties get same rank, no gap
+SELECT user_id, amount,
+       RANK() OVER (ORDER BY amount DESC) AS rnk,
+       DENSE_RANK() OVER (ORDER BY amount DESC) AS dense_rnk,
+       ROW_NUMBER() OVER (ORDER BY amount DESC) AS row_num
+FROM orders;</code></pre>
+</div>
+<p class="note">Add PARTITION BY to rank within groups instead of across the whole table.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">-- Per-partition ranking: rank each user's orders by amount
+SELECT user_id, id AS order_id, amount,
+       ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY amount DESC) AS user_rank
+FROM orders;
+
+-- Get each user's MOST RECENT order
+SELECT user_id, order_id, amount, created_at
+FROM (
+  SELECT user_id, id AS order_id, amount, created_at,
+         ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY created_at DESC) AS rn
+  FROM orders
+) t
+WHERE rn = 1;</code></pre>
+</div>
+<div class="key-rule"><b>Key Rule</b>To get "top N per group", wrap the windowed query in a subquery and filter on the rank column in the outer WHERE — you can't filter on a window function directly in the same SELECT's WHERE clause.</div>
+
+<h3 class="subhead"><span class="subhead-num">3.2</span>LAG / LEAD — access previous/next row</h3>
+<p class="note">Revenue vs previous order for each user.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT user_id, id AS order_id, amount, created_at,
+       LAG(amount) OVER (PARTITION BY user_id ORDER BY created_at) AS prev_order_amount,
+       LEAD(amount) OVER (PARTITION BY user_id ORDER BY created_at) AS next_order_amount,
+       amount - LAG(amount) OVER (PARTITION BY user_id ORDER BY created_at) AS delta
+FROM orders
+WHERE status = 'completed'
+ORDER BY user_id, created_at;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">3.3</span>Running totals and moving averages</h3>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">-- Running total of revenue per user
+SELECT user_id, created_at, amount,
+       SUM(amount) OVER (
+         PARTITION BY user_id ORDER BY created_at
+         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       ) AS running_total
+FROM orders
+WHERE status = 'completed';
+
+-- 3-order moving average
+SELECT user_id, created_at, amount,
+       AVG(amount) OVER (
+         PARTITION BY user_id ORDER BY created_at
+         ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+       ) AS moving_avg_3
+FROM orders
+WHERE status = 'completed';</code></pre>
+</div>
+<p class="note">Cumulative % of total revenue — combine a running-total frame with an unbounded (whole-partition) frame in the same query.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT user_id, amount,
+       SUM(amount) OVER (
+         ORDER BY amount DESC
+         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       ) AS cumulative,
+       SUM(amount) OVER () AS grand_total,
+       ROUND(
+         100.0 * SUM(amount) OVER (
+           ORDER BY amount DESC
+           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+         ) / SUM(amount) OVER (),
+         1
+       ) AS cum_pct
+FROM orders
+WHERE status = 'completed';</code></pre>
+</div>
+<div class="key-rule"><b>Key Rule</b>Frame clause cheat sheet:<br>ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW → running total<br>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW → 3-row moving window<br>ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING → whole partition</div>
+
+<h3 class="subhead"><span class="subhead-num">3.4</span>NTILE — buckets/percentiles</h3>
+<p class="note">Divide users into 3 revenue tiers.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT user_id, SUM(amount) AS total,
+       NTILE(3) OVER (ORDER BY SUM(amount) DESC) AS tier
+FROM orders
+WHERE status = 'completed'
+GROUP BY user_id;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">3.5</span>FIRST_VALUE / LAST_VALUE</h3>
+<p class="note">Each order annotated with the user's first order amount.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT user_id, id AS order_id, amount, created_at,
+       FIRST_VALUE(amount) OVER (
+         PARTITION BY user_id ORDER BY created_at
+         ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING
+       ) AS first_order_amount
+FROM orders;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">3.6</span>PERCENT_RANK / CUME_DIST</h3>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT user_id, amount,
+       PERCENT_RANK() OVER (ORDER BY amount) AS pct_rank,
+       CUME_DIST() OVER (ORDER BY amount) AS cum_dist
+FROM orders;</code></pre>
+</div>
+
+<div class="practice-block">
+  <h3 class="subhead"><span class="subhead-num">✎</span>Practice Problems</h3>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P1</span> For each user, find the order where they spent the most.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">SELECT user_id, order_id, amount, created_at
+FROM (
+  SELECT user_id, id AS order_id, amount, created_at,
+         RANK() OVER (PARTITION BY user_id ORDER BY amount DESC) AS rnk
+  FROM orders
+  WHERE status = 'completed'
+) t
+WHERE rnk = 1;</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P2</span> Find users whose most recent order was smaller than their previous order.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">SELECT user_id
+FROM (
+  SELECT user_id, amount,
+         LAG(amount) OVER (PARTITION BY user_id ORDER BY created_at) AS prev,
+         ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY created_at DESC) AS rn
+  FROM orders
+  WHERE status = 'completed'
+) t
+WHERE rn = 1 AND amount &lt; prev;</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P3</span> Compute month-over-month revenue change.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">WITH monthly AS (
+  SELECT DATE_TRUNC('month', created_at) AS month, SUM(amount) AS revenue
+  FROM orders
+  WHERE status = 'completed'
+  GROUP BY 1
+)
+SELECT month, revenue,
+       LAG(revenue) OVER (ORDER BY month) AS prev_revenue,
+       ROUND(
+         100.0 * (revenue - LAG(revenue) OVER (ORDER BY month))
+         / LAG(revenue) OVER (ORDER BY month),
+         1
+       ) AS change_pct
+FROM monthly;</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P4 (HARD)</span> Find the top-2 products by revenue per category.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">SELECT category, product_name, revenue
+FROM (
+  SELECT p.category, p.name AS product_name,
+         SUM(oi.quantity * oi.unit_price) AS revenue,
+         RANK() OVER (
+           PARTITION BY p.category
+           ORDER BY SUM(oi.quantity * oi.unit_price) DESC
+         ) AS rnk
+  FROM products p
+  JOIN order_items oi ON p.id = oi.product_id
+  JOIN orders o ON oi.order_id = o.id
+  WHERE o.status = 'completed'
+  GROUP BY p.category, p.id, p.name
+) t
+WHERE rnk &lt;= 2;</code></pre></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-footer-nav">
+  <button class="foot-nav-btn" data-target="sec-mod2"><span class="dir">Back</span><span class="lbl">← Module 2 · JOINs Deep Dive</span></button>
+  <button class="foot-nav-btn next" data-target="sec-mod4"><span class="dir">Next</span><span class="lbl">Module 4 · Aggregations &amp; Subqueries →</span></button>
+</div>
+    </section>
+
+    <!-- ═══════════════════════ MODULE 4 ═══════════════════════ -->
+    <section class="course-section" id="sec-mod4">
+      <div class="section-label">Module 4</div>
+<h2 class="section-title">Aggregations, Subqueries &amp; CTEs</h2>
+<p class="section-desc">Scalar, inline &amp; correlated subqueries, EXISTS / NOT EXISTS, CTEs, recursive CTEs, ROLLUP</p>
+
+<div class="callout">
+  <div class="callout-label">Mental Model</div>
+  <pre>A subquery is just a query nested inside another. Three shapes:
+- Scalar    -&gt; returns ONE value, usable anywhere an expression is (SELECT list, WHERE)
+- Inline    -&gt; returns a table, used in FROM/JOIN like a temp table
+- Correlated -&gt; references the OUTER query, re-runs once PER ROW (can be slow)
+CTEs (WITH ...) don't change what's possible -- they just name a subquery so the query reads top-to-bottom.</pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">4.1</span>Scalar Subquery (returns a single value)</h3>
+<p class="note">Orders above the average completed-order amount.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT id, user_id, amount
+FROM orders
+WHERE amount &gt; (
+  SELECT AVG(amount) FROM orders WHERE status = 'completed'
+);</code></pre>
+</div>
+<p class="note">Annotate each order with the overall average, right in the SELECT list.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT
+  id, user_id, amount,
+  (SELECT AVG(amount) FROM orders WHERE status = 'completed') AS avg_amount,
+  amount - (SELECT AVG(amount) FROM orders WHERE status = 'completed') AS above_avg
+FROM orders
+WHERE status = 'completed';</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">4.2</span>Inline View (subquery in FROM)</h3>
+<p class="note">Top users by spend, using a derived table.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT u.name, t.total
+FROM users u
+JOIN (
+  SELECT user_id, SUM(amount) AS total
+  FROM orders
+  WHERE status = 'completed'
+  GROUP BY user_id
+) t ON u.id = t.user_id
+ORDER BY t.total DESC;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">4.3</span>Correlated Subquery (references the outer query)</h3>
+<p class="note">Users who spent more than the average spend across ALL users.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT u.id, u.name, user_total
+FROM (
+  SELECT user_id, SUM(amount) AS user_total
+  FROM orders
+  WHERE status = 'completed'
+  GROUP BY user_id
+) t
+JOIN users u ON u.id = t.user_id
+WHERE user_total &gt; (
+  SELECT AVG(sub_total)
+  FROM (
+    SELECT user_id, SUM(amount) AS sub_total
+    FROM orders
+    WHERE status = 'completed'
+    GROUP BY user_id
+  ) avg_t
+);</code></pre>
+</div>
+<p class="note">Each user's last order date (true correlated subquery — the inner query references <code>u.id</code> from the outer row).</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT u.name,
+  (SELECT MAX(created_at) FROM orders o WHERE o.user_id = u.id) AS last_order
+FROM users u;</code></pre>
+</div>
+<div class="trap"><b>Trap</b>A correlated subquery runs once per outer row. On large tables this can be much slower than an equivalent JOIN — check the execution plan before shipping one.</div>
+
+<h3 class="subhead"><span class="subhead-num">4.4</span>EXISTS / NOT EXISTS</h3>
+<p class="note">Users who have at least one completed order.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT id, name
+FROM users u
+WHERE EXISTS (
+  SELECT 1 FROM orders o
+  WHERE o.user_id = u.id AND o.status = 'completed'
+);</code></pre>
+</div>
+<p class="note">Users who have NEVER placed an order.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT id, name
+FROM users u
+WHERE NOT EXISTS (
+  SELECT 1 FROM orders o WHERE o.user_id = u.id
+);</code></pre>
+</div>
+<div class="key-rule"><b>Key Rule</b>EXISTS only checks for row presence — it never looks at the values inside the subquery's SELECT list. <code>SELECT 1</code> is idiomatic because the actual columns don't matter.</div>
+
+<h3 class="subhead"><span class="subhead-num">4.5</span>CTEs — the WITH clause</h3>
+<p class="note">A single CTE gives the derived table a name up front, so the main query reads cleanly.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH user_revenue AS (
+  SELECT user_id, SUM(amount) AS total
+  FROM orders
+  WHERE status = 'completed'
+  GROUP BY user_id
+)
+SELECT u.name, ur.total
+FROM users u
+JOIN user_revenue ur ON u.id = ur.user_id
+ORDER BY ur.total DESC;</code></pre>
+</div>
+<p class="note">Chained CTEs — each one can reference any CTE defined before it.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH user_revenue AS (
+  SELECT user_id, SUM(amount) AS total
+  FROM orders
+  WHERE status = 'completed'
+  GROUP BY user_id
+),
+avg_revenue AS (
+  SELECT AVG(total) AS avg_total FROM user_revenue
+),
+top_users AS (
+  SELECT user_id, total
+  FROM user_revenue, avg_revenue
+  WHERE total &gt; avg_total
+)
+SELECT u.name, t.total
+FROM users u
+JOIN top_users t ON u.id = t.user_id;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">4.6</span>Recursive CTE</h3>
+<p class="note">Generate a date series (first 7 days of 2023) — the anchor member seeds the recursion, the recursive member repeats until its WHERE stops matching.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH RECURSIVE date_series AS (
+  SELECT DATE '2023-01-01' AS d
+  UNION ALL
+  SELECT d + INTERVAL '1 day'
+  FROM date_series
+  WHERE d &lt; DATE '2023-01-07'
+)
+SELECT d FROM date_series;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">4.7</span>Advanced Aggregation — ROLLUP, FILTER, CASE</h3>
+<p class="note">ROLLUP adds subtotal and grand-total rows automatically.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT country, status, SUM(o.amount) AS revenue
+FROM users u
+JOIN orders o ON u.id = o.user_id
+GROUP BY ROLLUP (country, status)
+ORDER BY country, status;</code></pre>
+</div>
+<p class="note">FILTER (PostgreSQL) — conditional aggregates without CASE.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT
+  COUNT(*) AS total_orders,
+  COUNT(*) FILTER (WHERE status = 'completed') AS completed,
+  COUNT(*) FILTER (WHERE status = 'cancelled') AS cancelled,
+  SUM(amount) FILTER (WHERE status = 'completed') AS completed_revenue
+FROM orders;</code></pre>
+</div>
+<p class="note">The same thing with CASE WHEN — works in every SQL dialect, not just Postgres.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT
+  COUNT(*) AS total_orders,
+  SUM(CASE WHEN status = 'completed' THEN 1 ELSE 0 END) AS completed,
+  SUM(CASE WHEN status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled
+FROM orders;</code></pre>
+</div>
+
+<div class="practice-block">
+  <h3 class="subhead"><span class="subhead-num">✎</span>Practice Problems</h3>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P1</span> Use a CTE to find the 2nd highest revenue user.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">WITH user_revenue AS (
+  SELECT user_id, SUM(amount) AS total,
+    DENSE_RANK() OVER (ORDER BY SUM(amount) DESC) AS rnk
+  FROM orders
+  WHERE status = 'completed'
+  GROUP BY user_id
+)
+SELECT user_id, total
+FROM user_revenue
+WHERE rnk = 2;</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P2</span> Find products that have been ordered MORE THAN the average number of times.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">WITH product_order_counts AS (
+  SELECT product_id, COUNT(DISTINCT order_id) AS times_ordered
+  FROM order_items
+  GROUP BY product_id
+)
+SELECT p.name, poc.times_ordered
+FROM products p
+JOIN product_order_counts poc ON p.id = poc.product_id
+WHERE poc.times_ordered &gt; (
+  SELECT AVG(times_ordered) FROM product_order_counts
+);</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P3 (HARD)</span> Using a recursive CTE, generate a "day of week" label for each order.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Try it yourself</span></div>
+      <pre class="sql-block"><code class="sql-code">-- Hint: build a recursive CTE that enumerates the 7 weekday names (or numbers 0-6),
+-- then join each order's EXTRACT(DOW FROM created_at) to it to get the label.</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P4 (HARD)</span> Find users who placed orders in 3 consecutive months.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">WITH monthly_orders AS (
+  SELECT DISTINCT user_id, DATE_TRUNC('month', created_at) AS order_month
+  FROM orders
+  WHERE status = 'completed'
+),
+with_lag AS (
+  SELECT user_id, order_month,
+    LAG(order_month, 1) OVER (PARTITION BY user_id ORDER BY order_month) AS prev1,
+    LAG(order_month, 2) OVER (PARTITION BY user_id ORDER BY order_month) AS prev2
+  FROM monthly_orders
+)
+SELECT DISTINCT user_id
+FROM with_lag
+WHERE order_month = prev1 + INTERVAL '1 month'
+  AND prev1 = prev2 + INTERVAL '1 month';</code></pre></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-footer-nav">
+  <button class="foot-nav-btn" data-target="sec-mod3"><span class="dir">Back</span><span class="lbl">← Module 3 · Window Functions</span></button>
+  <button class="foot-nav-btn next" data-target="sec-mod5"><span class="dir">Next</span><span class="lbl">Module 5 · Advanced Patterns →</span></button>
+</div>
+    </section>
+
+    <!-- ═══════════════════════ MODULE 5 ═══════════════════════ -->
+    <section class="course-section" id="sec-mod5">
+      <div class="section-label">Module 5</div>
+<h2 class="section-title">Advanced Patterns</h2>
+<p class="section-desc">CASE WHEN, PIVOT, NULL handling, date/string ops, set operations, query optimization, UPSERT</p>
+
+<div class="callout">
+  <div class="callout-label">Mental Model</div>
+  <pre>Most "advanced" SQL is just CASE WHEN wearing different hats:
+- Bucketing a value       -&gt; CASE WHEN ... THEN ... END
+- Pivoting rows to columns -&gt; SUM(CASE WHEN col = 'x' THEN val ELSE 0 END)
+- Conditional counting     -&gt; COUNT(CASE WHEN ... THEN 1 END)
+Everything else in this module (NULLs, dates, strings, set ops) is about shaping data
+that's already been aggregated or filtered.</pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">5.1</span>CASE WHEN — conditional logic in SQL</h3>
+<p class="note">Simple bucketing.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT id, amount,
+  CASE
+    WHEN amount &lt; 200 THEN 'small'
+    WHEN amount &lt; 1000 THEN 'medium'
+    ELSE 'large'
+  END AS order_tier
+FROM orders;</code></pre>
+</div>
+<p class="note">Conditional aggregation (pivot-style) — one row per user, one column per status.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT
+  user_id,
+  SUM(CASE WHEN status = 'completed' THEN amount ELSE 0 END) AS completed_rev,
+  SUM(CASE WHEN status = 'cancelled' THEN amount ELSE 0 END) AS cancelled_rev,
+  COUNT(CASE WHEN status = 'pending' THEN 1 END) AS pending_count
+FROM orders
+GROUP BY user_id;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">5.2</span>PIVOT / CROSSTAB</h3>
+<p class="note">Revenue by country x status, using the same conditional-aggregation pattern as 5.1.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT
+  u.country,
+  SUM(CASE WHEN o.status = 'completed' THEN o.amount ELSE 0 END) AS completed,
+  SUM(CASE WHEN o.status = 'pending' THEN o.amount ELSE 0 END) AS pending,
+  SUM(CASE WHEN o.status = 'cancelled' THEN o.amount ELSE 0 END) AS cancelled,
+  SUM(o.amount) AS grand_total
+FROM users u
+JOIN orders o ON u.id = o.user_id
+GROUP BY u.country
+ORDER BY grand_total DESC;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">5.3</span>NULL Handling</h3>
+<p class="note">COALESCE returns the first non-NULL value in its argument list.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT id, COALESCE(amount, 0) AS safe_amount FROM orders;</code></pre>
+</div>
+<p class="note">NULLIF returns NULL when its two arguments are equal — the standard trick for avoiding divide-by-zero.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT user_id, total / NULLIF(order_count, 0) AS avg_order
+FROM (
+  SELECT user_id, SUM(amount) AS total, COUNT(*) AS order_count
+  FROM orders
+  GROUP BY user_id
+) t;</code></pre>
+</div>
+<div class="trap"><b>Trap</b><code>total / order_count</code> throws a divide-by-zero error the moment any group has 0 rows counted a different way (e.g. a filtered COUNT). Wrapping the denominator in <code>NULLIF(..., 0)</code> turns that error into a harmless NULL result instead.</div>
+
+<h3 class="subhead"><span class="subhead-num">5.4</span>Date / Time Operations</h3>
+<p class="note">Extract parts of a timestamp.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT
+  id, created_at,
+  EXTRACT(YEAR FROM created_at) AS yr,
+  EXTRACT(MONTH FROM created_at) AS mo,
+  EXTRACT(DOW FROM created_at) AS dow
+FROM orders;</code></pre>
+</div>
+<p class="note">Truncate to a granularity — the classic "group by month" building block.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT DATE_TRUNC('month', created_at) AS month, COUNT(*) AS orders, SUM(amount) AS revenue
+FROM orders
+GROUP BY 1
+ORDER BY 1;</code></pre>
+</div>
+<p class="note">Date arithmetic.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT
+  id, created_at,
+  created_at + INTERVAL '30 days' AS expires_at,
+  CURRENT_DATE - created_at::DATE AS days_ago
+FROM orders;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">5.5</span>String Operations</h3>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT
+  name,
+  LOWER(name) AS lower_name,
+  UPPER(name) AS upper_name,
+  LENGTH(name) AS len,
+  SUBSTRING(name, 1, 3) AS first3,
+  CONCAT(name, ' (', country, ')') AS label,
+  TRIM('  Alice  ') AS trimmed,
+  REPLACE(email, '@ex.com', '') AS username
+FROM users;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">5.6</span>Set Operations — UNION, INTERSECT, EXCEPT</h3>
+<p class="note">Users who placed orders in June OR July.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT DISTINCT user_id FROM orders
+WHERE created_at &gt;= '2023-06-01' AND created_at &lt; '2023-07-01'
+UNION
+SELECT DISTINCT user_id FROM orders
+WHERE created_at &gt;= '2023-07-01' AND created_at &lt; '2023-08-01';</code></pre>
+</div>
+<p class="note">Users in BOTH months — swap UNION for INTERSECT.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT DISTINCT user_id FROM orders
+WHERE created_at &gt;= '2023-06-01' AND created_at &lt; '2023-07-01'
+INTERSECT
+SELECT DISTINCT user_id FROM orders
+WHERE created_at &gt;= '2023-07-01' AND created_at &lt; '2023-08-01';</code></pre>
+</div>
+<p class="note">Users who ordered in June but NOT July — swap in EXCEPT.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT DISTINCT user_id FROM orders
+WHERE created_at &gt;= '2023-06-01' AND created_at &lt; '2023-07-01'
+EXCEPT
+SELECT DISTINCT user_id FROM orders
+WHERE created_at &gt;= '2023-07-01' AND created_at &lt; '2023-08-01';</code></pre>
+</div>
+<div class="key-rule"><b>Key Rule</b>UNION / INTERSECT / EXCEPT all require the same number of columns with compatible types in both queries. Use UNION ALL instead of UNION when you don't need duplicates removed — it skips the dedup pass and is faster.</div>
+
+<h3 class="subhead"><span class="subhead-num">5.7</span>Query Optimization Mental Models</h3>
+<p class="note">EXPLAIN ANALYZE shows the actual execution plan a query used — always check it before assuming a query is "slow because SQL."</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">EXPLAIN ANALYZE SELECT * FROM orders WHERE user_id = 1;</code></pre>
+</div>
+<div class="key-rule"><b>Key Rule</b>
+<ul>
+<li><b>Index usage</b> — good: <code>WHERE user_id = 1</code> (uses an index directly). Bad: <code>WHERE YEAR(created_at) = 2023</code> (wrapping a column in a function blocks index usage).</li>
+<li><b>Avoid SELECT *</b> — only pull the columns you actually need; it reduces I/O and network transfer.</li>
+<li><b>Filter early</b> — push WHERE conditions down so fewer rows flow through JOINs and aggregations.</li>
+</ul>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">5.8</span>UPSERT patterns</h3>
+<p class="note">PostgreSQL INSERT ON CONFLICT — insert a row, or update it if the conflicting key already exists.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">INSERT INTO users (id, name, email, signup_date, country)
+VALUES (1, 'Alice Updated', 'alice@ex.com', '2023-01-10', 'US')
+ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name;</code></pre>
+</div>
+
+<div class="practice-block">
+  <h3 class="subhead"><span class="subhead-num">✎</span>Practice Problems</h3>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P1</span> Create a report showing daily revenue for July 2023. Columns: date, revenue, 7-day moving average.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">WITH daily AS (
+  SELECT DATE_TRUNC('day', created_at) AS day, SUM(amount) AS revenue
+  FROM orders
+  WHERE created_at &gt;= '2023-07-01' AND created_at &lt; '2023-08-01' AND status = 'completed'
+  GROUP BY 1
+)
+SELECT day, revenue,
+  AVG(revenue) OVER (ORDER BY day ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS ma7
+FROM daily
+ORDER BY day;</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P2</span> For each user, show their first purchase category.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Try it yourself</span></div>
+      <pre class="sql-block"><code class="sql-code">-- Hint: ROW_NUMBER() PARTITION BY user_id ORDER BY order created_at, join to
+-- order_items/products to get the category, then filter to rn = 1.</code></pre></div>
+    </div>
+  </div>
+  <div class="practice-item">
+    <div class="practice-q"><span class="qtag">P3</span> Find sessions where a user viewed a page AND purchased within the same session.</div>
+    <button class="reveal-btn">Show Answer</button>
+    <div class="answer-body hidden">
+      <div class="code-card"><div class="code-card-head"><span class="code-tag">Answer</span><button class="copy-btn">Copy</button></div>
+      <pre class="sql-block"><code class="sql-code">SELECT DISTINCT e.user_id, e.session_id
+FROM events e
+WHERE e.event_type = 'page_view'
+  AND EXISTS (
+    SELECT 1 FROM events e2
+    WHERE e2.user_id = e.user_id
+      AND e2.session_id = e.session_id
+      AND e2.event_type = 'purchase'
+  );</code></pre></div>
+    </div>
+  </div>
+</div>
+
+<div class="section-footer-nav">
+  <button class="foot-nav-btn" data-target="sec-mod4"><span class="dir">Back</span><span class="lbl">← Module 4 · Aggregations &amp; Subqueries</span></button>
+  <button class="foot-nav-btn next" data-target="sec-mod6"><span class="dir">Next</span><span class="lbl">Module 6 · Hard Interview Problems →</span></button>
+</div>
+    </section>
+
+    <!-- ═══════════════════════ MODULE 6 ═══════════════════════ -->
+    <section class="course-section" id="sec-mod6">
+      <div class="section-label">Module 6</div>
+<h2 class="section-title">Hard Interview Problems</h2>
+<p class="section-desc">10 classic problems that separate good from great — solved end to end</p>
+
+<div class="callout">
+  <div class="callout-label">Mental Model</div>
+  <pre>These are the classic problems that separate good from great.
+Each one below is fully worked: the question you'd hear in an interview, followed by the complete solution.</pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">H1</span>Nth Highest Value</h3>
+<p class="note">"Find the 2nd highest order amount."</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT DISTINCT amount
+FROM (
+  SELECT amount, DENSE_RANK() OVER (ORDER BY amount DESC) AS rnk
+  FROM orders
+) t
+WHERE rnk = 2;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">H2</span>Consecutive Days / Streak Detection</h3>
+<p class="note">"Find users who logged in for at least 3 consecutive days." (Island detection)</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH login_days AS (
+  SELECT DISTINCT user_id, event_time::DATE AS login_date
+  FROM events
+),
+with_groups AS (
+  SELECT user_id, login_date,
+         login_date - (ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date))::INT AS grp
+  FROM login_days
+),
+streak_lengths AS (
+  SELECT user_id, grp, COUNT(*) AS streak_len
+  FROM with_groups
+  GROUP BY user_id, grp
+)
+SELECT DISTINCT user_id
+FROM streak_lengths
+WHERE streak_len &gt;= 3;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">H3</span>Session Analysis</h3>
+<p class="note">"Group events into sessions where gap &gt; 30 min = new session"</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH with_prev AS (
+  SELECT user_id, event_time,
+         LAG(event_time) OVER (PARTITION BY user_id ORDER BY event_time) AS prev_time
+  FROM events
+),
+with_session_start AS (
+  SELECT user_id, event_time,
+         CASE WHEN prev_time IS NULL OR event_time - prev_time &gt; INTERVAL '30 minutes'
+              THEN 1 ELSE 0 END AS is_new_session
+  FROM with_prev
+),
+with_session_id AS (
+  SELECT user_id, event_time,
+         SUM(is_new_session) OVER (PARTITION BY user_id ORDER BY event_time) AS session_id
+  FROM with_session_start
+)
+SELECT user_id, session_id,
+       MIN(event_time) AS session_start,
+       MAX(event_time) AS session_end,
+       COUNT(*) AS events_in_session,
+       MAX(event_time) - MIN(event_time) AS duration
+FROM with_session_id
+GROUP BY user_id, session_id
+ORDER BY user_id, session_id;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">H4</span>Retention Analysis (Cohort)</h3>
+<p class="note">"What % of users who signed up in month M placed an order in month M+1?"</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH cohort AS (
+  SELECT u.id AS user_id, DATE_TRUNC('month', u.signup_date) AS cohort_month
+  FROM users u
+),
+orders_by_month AS (
+  SELECT user_id, DATE_TRUNC('month', created_at) AS order_month
+  FROM orders
+  WHERE status = 'completed'
+),
+retention AS (
+  SELECT c.cohort_month,
+         COUNT(DISTINCT c.user_id) AS cohort_size,
+         COUNT(DISTINCT o.user_id) AS retained_next_month
+  FROM cohort c
+  LEFT JOIN orders_by_month o
+    ON c.user_id = o.user_id
+    AND o.order_month = c.cohort_month + INTERVAL '1 month'
+  GROUP BY c.cohort_month
+)
+SELECT cohort_month, cohort_size, retained_next_month,
+       ROUND(100.0 * retained_next_month / NULLIF(cohort_size, 0), 1) AS retention_pct
+FROM retention
+ORDER BY cohort_month;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">H5</span>Median</h3>
+<p class="note">No built-in MEDIAN function in standard SQL — this is the portable way to compute it.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH ordered AS (
+  SELECT amount,
+         ROW_NUMBER() OVER (ORDER BY amount) AS rn,
+         COUNT(*) OVER () AS total
+  FROM orders
+  WHERE status = 'completed'
+)
+SELECT AVG(amount) AS median
+FROM ordered
+WHERE rn IN (FLOOR((total + 1) / 2.0), CEIL((total + 1) / 2.0));</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">H6</span>De-duplication</h3>
+<p class="note">Keep the latest record per key.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">SELECT user_id, event_type, event_time
+FROM (
+  SELECT *,
+         ROW_NUMBER() OVER (
+           PARTITION BY user_id, event_type
+           ORDER BY event_time DESC
+         ) AS rn
+  FROM events
+) t
+WHERE rn = 1;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">H7</span>Running Balance / Account Overdraft Detection</h3>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH transactions AS (
+  SELECT user_id, created_at,
+         CASE status
+           WHEN 'completed' THEN amount
+           WHEN 'cancelled' THEN -amount
+           ELSE 0
+         END AS txn_amount
+  FROM orders
+),
+running AS (
+  SELECT user_id, created_at, txn_amount,
+         SUM(txn_amount) OVER (
+           PARTITION BY user_id ORDER BY created_at
+           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+         ) AS running_balance
+  FROM transactions
+)
+SELECT DISTINCT user_id
+FROM running
+WHERE running_balance &lt; 0;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">H8</span>Funnel Analysis</h3>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH page_viewers AS (
+  SELECT DISTINCT user_id
+  FROM events
+  WHERE event_type = 'page_view'
+),
+clickers AS (
+  SELECT DISTINCT e.user_id
+  FROM events e
+  JOIN page_viewers pv ON e.user_id = pv.user_id
+  WHERE e.event_type = 'click'
+),
+purchasers AS (
+  SELECT DISTINCT e.user_id
+  FROM events e
+  JOIN clickers c ON e.user_id = c.user_id
+  WHERE e.event_type = 'purchase'
+)
+SELECT
+  (SELECT COUNT(*) FROM page_viewers) AS step1_views,
+  (SELECT COUNT(*) FROM clickers) AS step2_clicks,
+  (SELECT COUNT(*) FROM purchasers) AS step3_purchases,
+  ROUND(100.0 * (SELECT COUNT(*) FROM clickers) / NULLIF((SELECT COUNT(*) FROM page_viewers), 0), 1) AS view_to_click_pct,
+  ROUND(100.0 * (SELECT COUNT(*) FROM purchasers) / NULLIF((SELECT COUNT(*) FROM page_viewers), 0), 1) AS overall_conversion_pct;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">H9</span>Gaps and Islands</h3>
+<p class="note">Find gaps in a sequence of dates.</p>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH daily_order_dates AS (
+  SELECT DISTINCT created_at::DATE AS order_date
+  FROM orders
+),
+with_next AS (
+  SELECT order_date,
+         LEAD(order_date) OVER (ORDER BY order_date) AS next_order_date
+  FROM daily_order_dates
+)
+SELECT order_date AS gap_start,
+       next_order_date AS gap_end,
+       next_order_date - order_date - 1 AS gap_days
+FROM with_next
+WHERE next_order_date - order_date &gt; 1;</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">H10</span>Many-to-Many: Users Who Bought ALL Products in a Category</h3>
+<div class="code-card">
+  <div class="code-card-head"><span class="code-tag">SQL</span><button class="copy-btn">Copy</button></div>
+  <pre class="sql-block"><code class="sql-code">WITH digital_products AS (
+  SELECT id FROM products WHERE category = 'digital'
+),
+user_digital_purchases AS (
+  SELECT DISTINCT o.user_id, oi.product_id
+  FROM orders o
+  JOIN order_items oi ON o.id = oi.order_id
+  WHERE oi.product_id IN (SELECT id FROM digital_products)
+    AND o.status = 'completed'
+)
+SELECT user_id
+FROM user_digital_purchases
+GROUP BY user_id
+HAVING COUNT(DISTINCT product_id) = (SELECT COUNT(*) FROM digital_products);</code></pre>
+</div>
+
+<h3 class="subhead"><span class="subhead-num">☰</span>Quick Reference: Most Common Interview Patterns</h3>
+<div class="pattern-grid">
+  <div class="pattern-card"><span class="pnum">1</span><h4>Top-N Per Group</h4><p>ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...)</p></div>
+  <div class="pattern-card"><span class="pnum">2</span><h4>Deduplication</h4><p>ROW_NUMBER() rn=1</p></div>
+  <div class="pattern-card"><span class="pnum">3</span><h4>Consecutive/Streak</h4><p>date - ROW_NUMBER() = const island trick</p></div>
+  <div class="pattern-card"><span class="pnum">4</span><h4>LAG/LEAD Comparison</h4><p>prev/next row comparison for trends</p></div>
+  <div class="pattern-card"><span class="pnum">5</span><h4>Anti-Join</h4><p>LEFT JOIN + IS NULL or NOT EXISTS</p></div>
+  <div class="pattern-card"><span class="pnum">6</span><h4>Running Total</h4><p>SUM() OVER (ORDER BY ... ROWS UNBOUNDED PRECEDING)</p></div>
+  <div class="pattern-card"><span class="pnum">7</span><h4>Funnel</h4><p>chained CTEs, each qualifying prior step</p></div>
+  <div class="pattern-card"><span class="pnum">8</span><h4>Cohort Retention</h4><p>JOIN on cohort_month + interval</p></div>
+  <div class="pattern-card"><span class="pnum">9</span><h4>Median</h4><p>PERCENTILE_CONT or ROW_NUMBER + AVG</p></div>
+  <div class="pattern-card"><span class="pnum">10</span><h4>Divide-by-Zero</h4><p>NULLIF(denominator, 0)</p></div>
+</div>
+
+<div class="section-footer-nav">
+  <button class="foot-nav-btn" data-target="sec-mod5"><span class="dir">Back</span><span class="lbl">← Module 5 · Advanced Patterns</span></button>
+  <button class="foot-nav-btn next" data-target="sec-mock"><span class="dir">Next</span><span class="lbl">Mock Interview →</span></button>
+</div>
+    </section>
+
+    <!-- ═══════════════════════ MOCK INTERVIEW ═══════════════════════ -->
+    <section class="course-section" id="sec-mock">
+      <div class="section-label">Test Yourself</div>
+      <h2 class="section-title">Mock Interview: 10 Timed SQL Problems</h2>
+      <p class="section-desc">No peeking at answers. Set a timer for each problem before you start.</p>
+
+      <div class="callout">
+        <div class="callout-label">Rules</div>
+        <pre>Set a timer. Aim for 5–8 min per problem. No looking back at the modules mid-problem — simulate real interview pressure.</pre>
+      </div>
+
+      <h3 class="subhead"><span class="subhead-num">DB</span>Schema Reminder</h3>
+      <div class="schema-box">
+        <div class="schema-table"><span class="tname">users</span><div class="tcols">id<br>name<br>email<br>signup_date<br>country</div></div>
+        <div class="schema-table"><span class="tname">orders</span><div class="tcols">id<br>user_id<br>amount<br>status<br>created_at</div></div>
+        <div class="schema-table"><span class="tname">products</span><div class="tcols">id<br>name<br>category<br>price</div></div>
+        <div class="schema-table"><span class="tname">order_items</span><div class="tcols">order_id<br>product_id<br>quantity<br>unit_price</div></div>
+        <div class="schema-table"><span class="tname">events</span><div class="tcols">id<br>user_id<br>event_type<br>event_time<br>session_id</div></div>
+      </div>
+
+      <div class="diff-group">
+        <div class="diff-head"><span class="diff-badge warmup">Warm-up</span><span class="diff-time">2–3 min each · 2 pts each</span></div>
+        <div class="mock-problem"><span class="mqtag">Q1</span><p>Find the total revenue per country for completed orders. Sort by revenue descending.</p></div>
+        <div class="mock-problem"><span class="mqtag">Q2</span><p>List users who have never placed any order.</p></div>
+      </div>
+
+      <div class="diff-group">
+        <div class="diff-head"><span class="diff-badge core">Core</span><span class="diff-time">5–7 min each · 3 pts each</span></div>
+        <div class="mock-problem"><span class="mqtag">Q3</span><p>For each user, show their most expensive single order. Include user name, order_id, and amount.</p></div>
+        <div class="mock-problem"><span class="mqtag">Q4</span><p>Find the top 3 best-selling products by total revenue (quantity × unit_price). Include product name, category, total units sold, and total revenue.</p></div>
+        <div class="mock-problem"><span class="mqtag">Q5</span><p>Show month-over-month revenue growth. Columns: month, revenue, previous_month_revenue, growth_pct. Round to 1 decimal.</p></div>
+      </div>
+
+      <div class="diff-group">
+        <div class="diff-head"><span class="diff-badge hard">Hard</span><span class="diff-time">8–12 min each · 4 pts each</span></div>
+        <div class="mock-problem"><span class="mqtag">Q6</span><p>Funnel: Among users who had a page_view, what % also had a purchase event? Show both counts and the conversion rate.</p></div>
+        <div class="mock-problem"><span class="mqtag">Q7</span><p>Find users who placed orders in at least 2 different months. Show user_id, name, and the list of months ordered.</p></div>
+        <div class="mock-problem"><span class="mqtag">Q8</span><p>For each product, show: product name, its rank by revenue within its category, and whether it's in the top 2 of that category (yes/no).</p></div>
+      </div>
+
+      <div class="diff-group">
+        <div class="diff-head"><span class="diff-badge brutal">Brutal</span><span class="diff-time">10+ min each · 5 pts each · real FAANG-style</span></div>
+        <div class="mock-problem"><span class="mqtag">Q9</span><p>Detect "churned" users: users who placed orders in the first 3 months of data but placed NO orders in the last 3 months of data. Return user_id and name.</p></div>
+        <div class="mock-problem"><span class="mqtag">Q10</span><p>For each user, compute their "average time between orders" (in days). Only include users with 2+ orders. Sort by avg_days_between_orders ascending.</p></div>
+      </div>
+
+      <h3 class="subhead"><span class="subhead-num">%</span>Scoring Guide</h3>
+      <table class="scoring-table">
+        <thead><tr><th>Questions</th><th>Points</th><th>Tier</th></tr></thead>
+        <tbody>
+          <tr><td>Q1–Q2</td><td>2 pts each</td><td>Warm-up</td></tr>
+          <tr><td>Q3–Q5</td><td>3 pts each</td><td>Core</td></tr>
+          <tr><td>Q6–Q8</td><td>4 pts each</td><td>Hard</td></tr>
+          <tr><td>Q9–Q10</td><td>5 pts each</td><td>Brutal</td></tr>
+        </tbody>
+      </table>
+      <p class="note"><strong style="color:var(--text-bright)">Total: 35 pts</strong></p>
+      <div class="score-band">
+        <div><span class="n">28+</span><span class="d">Interview-ready</span></div>
+        <div><span class="n">20–27</span><span class="d">Good — review the hard patterns</span></div>
+        <div><span class="n">&lt; 20</span><span class="d">Drill modules 3 and 4 again</span></div>
+      </div>
+
+      <div class="section-footer-nav">
+        <button class="foot-nav-btn" data-target="sec-mod6"><span class="dir">Back</span><span class="lbl">← Module 6 · Hard Interview Problems</span></button>
+        <span></span>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ═══════════════ SQL SYNTAX HIGHLIGHTER ═══════════════
+(function(){
+  var KEYWORDS = new Set(("SELECT FROM WHERE GROUP BY ORDER HAVING LIMIT OFFSET DISTINCT AS AND OR NOT IN "
+    +"BETWEEN LIKE IS NULL INNER LEFT RIGHT FULL CROSS JOIN ON UNION ALL INTERSECT EXCEPT CASE WHEN THEN ELSE END "
+    +"WITH RECURSIVE EXISTS OVER PARTITION ROWS RANGE UNBOUNDED PRECEDING FOLLOWING ROW CURRENT INSERT INTO VALUES "
+    +"UPDATE SET DELETE CREATE TABLE INDEX EXPLAIN ANALYZE FILTER ROLLUP CUBE GROUPING SETS ASC DESC INTERVAL DATE "
+    +"TIMESTAMP CONFLICT DO RETURNING NULLS FIRST LAST EXCLUDED DOW YEAR MONTH DAY").split(/\s+/));
+
+  var TOKEN_RE = /(--[^\n]*)|('(?:[^']|'')*')|\b([A-Za-z_][A-Za-z0-9_]*)\s*(?=\()|\b(\d+(?:\.\d+)?)\b|\b([A-Za-z_][A-Za-z0-9_]*)\b/g;
+
+  function highlight(raw){
+    var escaped = raw.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return escaped.replace(TOKEN_RE, function(full, comment, str, fn, num, word){
+      if (comment !== undefined) return '<span class="tok-com">'+comment+'</span>';
+      if (str !== undefined) return '<span class="tok-str">'+str+'</span>';
+      if (fn !== undefined) return '<span class="tok-fn">'+fn+'</span>';
+      if (num !== undefined) return '<span class="tok-num">'+num+'</span>';
+      if (word !== undefined && KEYWORDS.has(word.toUpperCase())) return '<span class="tok-kw">'+word+'</span>';
+      return full;
+    });
+  }
+
+  function applyHighlighting(){
+    document.querySelectorAll('.sql-code').forEach(function(el){
+      if (el.dataset.highlighted) return;
+      var raw = el.textContent;
+      el.innerHTML = highlight(raw);
+      el.dataset.highlighted = '1';
+    });
+  }
+
+  // ═══════════════ COPY BUTTONS ═══════════════
+  function wireCopyButtons(){
+    document.querySelectorAll('.copy-btn').forEach(function(btn){
+      if (btn.dataset.wired) return;
+      btn.dataset.wired = '1';
+      btn.addEventListener('click', function(){
+        var card = btn.closest('.code-card');
+        var code = card.querySelector('.sql-code');
+        var text = code.textContent;
+        navigator.clipboard.writeText(text).then(function(){
+          var original = btn.textContent;
+          btn.textContent = 'Copied!';
+          btn.classList.add('copied');
+          setTimeout(function(){ btn.textContent = original; btn.classList.remove('copied'); }, 1400);
+        });
+      });
+    });
+  }
+
+  // ═══════════════ REVEAL ANSWER BUTTONS ═══════════════
+  function wireRevealButtons(){
+    document.querySelectorAll('.reveal-btn').forEach(function(btn){
+      if (btn.dataset.wired) return;
+      btn.dataset.wired = '1';
+      btn.addEventListener('click', function(){
+        var body = btn.parentElement.querySelector('.answer-body');
+        var hidden = body.classList.toggle('hidden');
+        btn.textContent = hidden ? 'Show Answer' : 'Hide Answer';
+      });
+    });
+  }
+
+  // ═══════════════ TAB NAVIGATION ═══════════════
+  var sections = document.querySelectorAll('.course-section');
+  var navButtons = document.querySelectorAll('.side-item, .module-card, .foot-nav-btn');
+
+  function showSection(id){
+    sections.forEach(function(s){ s.classList.toggle('active', s.id === id); });
+    document.querySelectorAll('.side-item').forEach(function(b){
+      b.classList.toggle('active', b.dataset.target === id);
+    });
+    applyHighlighting();
+    wireCopyButtons();
+    wireRevealButtons();
+    window.scrollTo({top:0, behavior:'instant' in window ? 'instant' : 'auto'});
+    closeSidebar();
+    try { history.replaceState(null, '', '#'+id); } catch(e){}
+  }
+
+  navButtons.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var target = btn.dataset.target;
+      if (target) showSection(target);
+    });
+  });
+
+  // ═══════════════ MOBILE SIDEBAR ═══════════════
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('sidebarBackdrop');
+  var menuToggle = document.getElementById('menuToggle');
+  function openSidebar(){ sidebar.classList.add('open'); backdrop.classList.add('open'); }
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('open'); }
+  menuToggle.addEventListener('click', function(){
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+  backdrop.addEventListener('click', closeSidebar);
+
+  // ═══════════════ PROGRESS TRACKING ═══════════════
+  var PROGRESS_KEY = 'sqlCrashCourseProgress';
+  var TRACKED = ['mod1','mod2','mod3','mod4','mod5','mod6','mock'];
+
+  function loadProgress(){
+    try { return JSON.parse(localStorage.getItem(PROGRESS_KEY)) || {}; } catch(e){ return {}; }
+  }
+  function saveProgress(p){
+    try { localStorage.setItem(PROGRESS_KEY, JSON.stringify(p)); } catch(e){}
+  }
+  function renderProgress(){
+    var p = loadProgress();
+    var done = 0;
+    TRACKED.forEach(function(key){
+      var el = document.querySelector('.side-check[data-check="'+key+'"]');
+      var isDone = !!p[key];
+      if (isDone) done++;
+      if (el) el.classList.toggle('done', isDone);
+    });
+    document.getElementById('progressCount').textContent = done + ' / ' + TRACKED.length;
+    document.getElementById('progressFill').style.width = (done / TRACKED.length * 100) + '%';
+  }
+  document.querySelectorAll('.side-check').forEach(function(chk){
+    chk.addEventListener('click', function(e){
+      e.stopPropagation();
+      var key = chk.dataset.check;
+      var p = loadProgress();
+      p[key] = !p[key];
+      saveProgress(p);
+      renderProgress();
+    });
+  });
+  document.getElementById('progressReset').addEventListener('click', function(){
+    saveProgress({});
+    renderProgress();
+  });
+
+  // ═══════════════ INIT ═══════════════
+  renderProgress();
+  var initial = (location.hash || '').replace('#','');
+  if (!initial || !document.getElementById(initial)) initial = 'sec-overview';
+  showSection(initial);
+})();
+</script>
+</body>
+</html>
