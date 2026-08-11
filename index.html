@@ -153,6 +153,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <li><a href="#about">About</a></li>
     <li><a href="#courses">Courses</a></li>
     <li><a href="#projects">Projects</a></li>
+    <li><a href="#opensource">Open Source</a></li>
     <li><a href="blog/index.html">Blog</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
@@ -328,6 +329,76 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         </div>
       </a>
     </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Open Source -->
+<section class="section" id="opensource">
+  <div class="section-inner reveal">
+    <div class="section-label">Contributing</div>
+    <h2 class="section-title">Open Source Contributions</h2>
+    <p class="section-desc">63+ merged pull requests across projects real teams run in production — from embedded RTOS kernels to the LLM inference stack. Every link below goes straight to the merged PRs on GitHub.</p>
+
+    <div class="projects-grid">
+      <a class="project-card" href="https://github.com/zephyrproject-rtos/zephyr/pulls?q=is%3Apr+author%3Apunitvara+is%3Amerged" target="_blank" rel="noopener">
+        <h4>Zephyr Project — Linux Foundation RTOS</h4>
+        <p>30+ merged PRs: APDS9960 and BMM150 sensor drivers, POSIX semaphore/mutex API implementation, and migrating dozens of legacy tests to the ztest framework.</p>
+        <div class="project-tags">
+          <span class="project-tag">C</span>
+          <span class="project-tag">RTOS</span>
+          <span class="project-tag">Device Drivers</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/vllm-project/vllm/pulls?q=is%3Apr+author%3Apunitvara+is%3Amerged" target="_blank" rel="noopener">
+        <h4>vLLM</h4>
+        <p>Contributed to the high-throughput LLM inference engine widely used in production for serving large language models.</p>
+        <div class="project-tags">
+          <span class="project-tag">LLM Inference</span>
+          <span class="project-tag">Python</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/explosion/spaCy/pulls?q=is%3Apr+author%3Apunitvara+is%3Amerged" target="_blank" rel="noopener">
+        <h4>spaCy</h4>
+        <p>Added a Gujarati language class to the industrial-strength NLP library, extending tokenization support to a new language.</p>
+        <div class="project-tags">
+          <span class="project-tag">NLP</span>
+          <span class="project-tag">Python</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/pandas-dev/pandas/pulls?q=is%3Apr+author%3Apunitvara+is%3Amerged" target="_blank" rel="noopener">
+        <h4>pandas</h4>
+        <p>Fixed namespace consistency issues in the core data analysis library used across the Python data science ecosystem.</p>
+        <div class="project-tags">
+          <span class="project-tag">Python</span>
+          <span class="project-tag">Data</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/kedro-org/kedro/pulls?q=is%3Apr+author%3Apunitvara+is%3Amerged" target="_blank" rel="noopener">
+        <h4>Kedro</h4>
+        <p>Improved documentation for the JSONDataSet class in this production ML pipeline framework.</p>
+        <div class="project-tags">
+          <span class="project-tag">MLOps</span>
+          <span class="project-tag">Python</span>
+        </div>
+      </a>
+
+      <a class="project-card" href="https://github.com/microsoft/EdgeML/pulls?q=is%3Apr+author%3Apunitvara+is%3Amerged" target="_blank" rel="noopener">
+        <h4>Microsoft EdgeML</h4>
+        <p>Contributed to Microsoft's library for machine learning on edge and resource-constrained devices.</p>
+        <div class="project-tags">
+          <span class="project-tag">ML</span>
+          <span class="project-tag">Edge Computing</span>
+        </div>
+      </a>
+    </div>
+
+    <p style="margin-top:2rem;font-size:.85rem"><a href="https://github.com/search?q=author%3Apunitvara+type%3Apr+is%3Amerged&type=pullrequests" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">See all merged pull requests on GitHub →</a></p>
   </div>
 </section>
 
