@@ -98,6 +98,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .highlight-icon.gold{background:rgba(201,167,106,0.1);border:1px solid rgba(201,167,106,0.2)}
 .highlight-icon.green{background:rgba(86,211,100,0.1);border:1px solid rgba(86,211,100,0.2)}
 .highlight-icon.blue{background:rgba(88,166,255,0.1);border:1px solid rgba(88,166,255,0.2)}
+.highlight-icon.purple{background:rgba(179,136,255,0.1);border:1px solid rgba(179,136,255,0.2)}
 .highlight h4{font-size:.88rem;color:var(--text-bright);margin-bottom:.25rem;font-weight:600}
 .highlight p{font-size:.8rem;color:var(--text-dim);line-height:1.5;margin:0}
 
@@ -153,6 +154,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <li><a href="#about">About</a></li>
     <li><a href="#courses">Courses</a></li>
     <li><a href="#projects">Projects</a></li>
+    <li><a href="#opensource">Open Source</a></li>
     <li><a href="blog/index.html">Blog</a></li>
     <li><a href="#contact">Contact</a></li>
   </ul>
@@ -165,9 +167,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="hero-glow"></div>
   </div>
   <div class="hero-content">
-    <div class="hero-overline">Engineer · Builder · Learner</div>
+    <div class="hero-overline">ML Systems · GPU Infra · Builder</div>
     <h1>Hi, I'm Punit.<br>I build things that <em>matter</em>.</h1>
-    <p class="hero-desc">ML/GPU engineer, former Google Summer of Code student & mentor. Passionate about systems programming, machine learning infrastructure, and making complex things simple.</p>
+    <p class="hero-desc">ML systems engineer specializing in GPU-accelerated inference and distributed AI infrastructure — currently a Staff ML Engineer at Visa, and a contributor to vLLM's production stack. I like understanding systems from first principles, from transistors to transformer inference.</p>
     <div class="hero-actions">
       <a href="#courses" class="btn btn-primary">Explore Courses ↓</a>
       <a href="#about" class="btn btn-ghost">About Me</a>
@@ -215,15 +217,22 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="about-text">
         <p>I'm a software engineer who started with blinking LEDs and ended up building ML infrastructure at scale. The journey from soldering 8051 microcontrollers to deploying GPU workloads on Kubernetes has been anything but linear — and that's what makes it fun.</p>
         <p>My background spans embedded systems, Linux kernel development, real-time operating systems, and now machine learning platforms. I believe the best engineers are the ones who understand the full stack — from transistors to transformers.</p>
-        <p>When I'm not writing code, I'm writing about it. These courses are my way of giving back — distilling years of learning into structured, accessible content.</p>
+        <p>Lately that's meant going deeper into LLM inference internals — KV cache, quantization, speculative decoding — and GPU communication primitives like NCCL, rather than stopping at the framework API. When I'm not writing code, I'm writing about it — these courses are my way of giving back.</p>
       </div>
 
       <div class="about-highlights">
         <div class="highlight">
           <div class="highlight-icon gold">🏢</div>
           <div>
-            <h4>ML Platform Engineer</h4>
-            <p>Building ML infrastructure, GPU workload orchestration, and Kubernetes-based ML pipelines.</p>
+            <h4>Staff ML Engineer, Visa</h4>
+            <p>Architecting on-premise and cloud ML training infrastructure and building agentic AI systems at scale.</p>
+          </div>
+        </div>
+        <div class="highlight">
+          <div class="highlight-icon purple">⚡</div>
+          <div>
+            <h4>vLLM Contributor</h4>
+            <p>Merged a priority-routing feature into vLLM's production-stack, plus doc and benchmark contributions to vLLM itself — open-source LLM serving infrastructure.</p>
           </div>
         </div>
         <div class="highlight">
@@ -255,7 +264,18 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <p class="section-desc">A mix of hardware and software — from microcontroller boards to open-source operating systems.</p>
 
     <div class="projects-grid">
-      <div class="project-card">
+      <a href="https://github.com/vllm-project/production-stack/pull/996" class="project-card">
+        <h4>vLLM Production Stack — Priority Routing</h4>
+        <p>Merged feature contribution adding priority-based request routing to vLLM's production-stack, an open-source LLM serving infrastructure project.</p>
+        <div class="project-tags">
+          <span class="project-tag">Python</span>
+          <span class="project-tag">LLM Serving</span>
+          <span class="project-tag">vLLM</span>
+          <span class="project-tag">Open Source</span>
+        </div>
+      </a>
+
+      <a href="https://summerofcode.withgoogle.com/archive/2016/organizations/6376577017315328" class="project-card">
         <h4>GSoC — BeagleBone BSP for RTEMS</h4>
         <p>Built GPIO test code, PWM driver, and I2C driver for BeagleBone Black within the RTEMS real-time OS. Mentored by Worth Burruss and Dr. Joel.</p>
         <div class="project-tags">
@@ -264,7 +284,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <span class="project-tag">BeagleBone</span>
           <span class="project-tag">Open Source</span>
         </div>
-      </div>
+      </a>
 
       <div class="project-card">
         <h4>NTP Client for Embedded Relays</h4>
@@ -276,6 +296,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         </div>
       </div>
 
+      <!--
       <div class="project-card">
         <h4>Elevator Control System</h4>
         <p>Final-year thesis: elevator prototype using CPLD boards with custom hardware programming. Designed power supply and real-time motor switching circuits.</p>
@@ -295,6 +316,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <span class="project-tag">ADC</span>
         </div>
       </div>
+      -->
 
       <div class="project-card">
         <h4>Auto-Wiki</h4>
@@ -307,6 +329,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         </div>
       </div>
 
+      <!--
       <div class="project-card">
         <h4>3D Blender Models</h4>
         <p>Explored 3D modeling with Blender — created various objects including a photorealistic cup model published on Sketchfab.</p>
@@ -316,7 +339,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <span class="project-tag">Creative</span>
         </div>
       </div>
+      -->
     </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- Open Source -->
+<section class="section" id="opensource">
+  <div class="section-inner reveal">
+    <div class="section-label">Contribute</div>
+    <h2 class="section-title">Open Source Contributions</h2>
+    <p class="section-desc">Live-synced from GitHub — merged pull requests to projects I don't maintain.</p>
+
+    <div class="projects-grid" id="oss-grid"></div>
   </div>
 </section>
 
@@ -345,7 +382,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <!-- Footer -->
 <footer class="footer">
   <p>Built with curiosity. No frameworks, no dependencies — just code.</p>
-  <p style="margin-top:.5rem;color:var(--text-dim)">© 2024 Punit Vara</p>
+  <p style="margin-top:.5rem;color:var(--text-dim)">© 2026 Punit Vara</p>
 </footer>
 
 <!-- Scripts -->
@@ -399,6 +436,66 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 });
+
+// Open source contributions — live-synced from GitHub
+(async function loadOpenSourceContributions() {
+  const GITHUB_USERNAME = 'punitvara';
+  const MAX_ITEMS = 6;
+  // Repos to leave out of the auto-synced list (format: "owner/repo").
+  const EXCLUDED_REPOS = [
+    'punitvara/punitvara.github.io',
+  ];
+
+  const grid = document.getElementById('oss-grid');
+  const section = document.getElementById('opensource');
+  if (!grid) return;
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  try {
+    const query = `author:${GITHUB_USERNAME}+type:pr+is:merged`;
+    const res = await fetch(`https://api.github.com/search/issues?q=${query}&sort=updated&order=desc&per_page=30`, {
+      headers: { 'Accept': 'application/vnd.github+json' }
+    });
+    if (!res.ok) throw new Error('GitHub API error ' + res.status);
+    const data = await res.json();
+
+    const items = (data.items || [])
+      .map(item => {
+        const match = item.repository_url.match(/repos\/(.+)$/);
+        return Object.assign({}, item, { repo: match ? match[1] : '' });
+      })
+      .filter(item => item.repo && !EXCLUDED_REPOS.includes(item.repo))
+      .slice(0, MAX_ITEMS);
+
+    if (items.length === 0) {
+      if (section) section.style.display = 'none';
+      return;
+    }
+
+    grid.innerHTML = items.map(item => {
+      const mergedAt = item.pull_request && item.pull_request.merged_at ? new Date(item.pull_request.merged_at) : null;
+      const dateStr = mergedAt ? mergedAt.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '';
+      return `
+        <a href="${item.html_url}" class="project-card" target="_blank" rel="noopener">
+          <h4>${escapeHtml(item.title)}</h4>
+          <p>Merged pull request${dateStr ? ' · ' + dateStr : ''}</p>
+          <div class="project-tags">
+            <span class="project-tag">${escapeHtml(item.repo)}</span>
+            <span class="project-tag">#${item.number}</span>
+          </div>
+        </a>
+      `;
+    }).join('');
+  } catch (err) {
+    console.warn('Could not load open source contributions:', err);
+    if (section) section.style.display = 'none';
+  }
+})();
 </script>
 
 </body>
