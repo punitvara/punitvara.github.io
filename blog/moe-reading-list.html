@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mixture-of-Experts (MoE): Papers to Read — Blog — Punit Vara</title>
+<meta name="description" content="A bottom-up reading list for understanding sparse Mixture-of-Experts models — from the 1991 origins through modern sparse LLMs (Mixtral, DeepSeek-V3, Grok), routing algorithms, load balancing, scaling laws, and the systems that make expert parallelism fast.">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#ffffff;--bg2:#f7f7f8;--bg3:#f0f0f1;--bg4:#e4e4e7;
+  --text:#3f3f46;--text-bright:#111111;--text-dim:#8a8a8f;
+  --accent:#111111;--accent2:#000000;--accent-glow:rgba(17,17,17,0.05);
+  --green:#1a7f37;--blue:#0969da;
+  --border:#e4e4e7;--border-accent:#111111;
+  --serif:Georgia,'Palatino Linotype','Book Antiqua',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'SF Mono','Menlo','Consolas','Liberation Mono',monospace;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --topbar-h:60px;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--text-dim)}
+a{color:var(--text-bright);text-decoration:underline;text-decoration-color:var(--border-accent);text-underline-offset:2px}
+a:hover{color:var(--blue)}
+
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.topbar-left{display:flex;align-items:center;gap:1.2rem;min-width:0}
+.home-link,.back-link{font-family:var(--mono);font-size:.78rem;color:var(--text-dim);text-decoration:none;letter-spacing:.05em;white-space:nowrap;transition:color .2s var(--ease)}
+.home-link:hover,.back-link:hover{color:var(--text-bright)}
+.topbar-title{font-family:var(--sans);font-weight:600;font-size:1.02rem;color:var(--text-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-title em{font-style:normal;color:var(--text-dim)}
+
+.wrap{max-width:760px;margin:0 auto;padding:calc(var(--topbar-h) + 4rem) 1.5rem 6rem}
+
+.section-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.8rem}
+.page-title{font-family:var(--sans);font-size:clamp(1.9rem,4vw,2.6rem);font-weight:700;color:var(--text-bright);line-height:1.2;margin-bottom:1rem;letter-spacing:-.02em}
+.page-desc{color:var(--text);max-width:640px;margin-bottom:2.5rem;font-size:1rem}
+
+.post-meta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;color:var(--text-dim);margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border)}
+.post-date{color:var(--text-dim)}
+.tag{font-size:.68rem;padding:.25rem .65rem;border-radius:20px;background:var(--bg2);border:1px solid var(--border);color:var(--text-dim);letter-spacing:.03em;font-family:var(--mono)}
+
+.article h2{font-family:var(--sans);font-size:1.5rem;color:var(--text-bright);font-weight:700;margin:2.2rem 0 1rem;letter-spacing:-.01em}
+.article h3{font-family:var(--sans);font-size:1.2rem;color:var(--text-bright);font-weight:700;margin:2rem 0 .8rem}
+.article h4{font-family:var(--sans);font-size:1.05rem;color:var(--text-bright);font-weight:700;margin:1.6rem 0 .6rem}
+.article p{font-size:.98rem;color:var(--text);line-height:1.85;margin-bottom:1.3rem}
+.article ul,.article ol{margin:0 0 1.3rem 1.4rem;color:var(--text);font-size:.98rem;line-height:1.85}
+.article li{margin-bottom:.5rem}
+.article blockquote{border-left:3px solid var(--border-accent);background:var(--bg2);padding:.9rem 1.3rem;margin:0 0 1.3rem;border-radius:0 8px 8px 0;color:var(--text);font-style:italic}
+.article hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
+.article code{font-family:var(--mono);font-size:.85em;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:.1rem .4rem;color:#b5121b}
+.article strong{color:var(--text-bright)}
+
+.code-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin:0 0 1.6rem;overflow:hidden}
+.code-card-head{display:flex;align-items:center;padding:.5rem .9rem;background:var(--bg3);border-bottom:1px solid var(--border)}
+.code-tag{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase}
+.code-block{padding:1rem 1.2rem;overflow-x:auto}
+.code-block code{font-family:var(--mono);font-size:.83rem;line-height:1.65;color:var(--text);white-space:pre;background:none;border:none;padding:0}
+
+.article-footer-nav{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.footer-note{padding:3rem 1.5rem;text-align:center;font-size:.75rem;color:var(--text-dim)}
+
+.post-grid{display:grid;gap:1.3rem;margin-top:2.5rem}
+.post-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.8rem 2rem;transition:all .3s var(--ease);text-decoration:none;display:block}
+.post-card:hover{border-color:var(--border-accent);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.06)}
+.post-card-date{font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;color:var(--text-dim);margin-bottom:.6rem}
+.post-card h3{font-family:var(--sans);font-size:1.25rem;color:var(--text-bright);font-weight:700;margin-bottom:.6rem}
+.post-card p{font-size:.9rem;color:var(--text);line-height:1.65;margin-bottom:1rem}
+.post-card .post-tags{display:flex;gap:.5rem;flex-wrap:wrap}
+
+.empty-state{text-align:center;padding:5rem 1.5rem;border:1px dashed var(--border);border-radius:12px;margin-top:2.5rem}
+.empty-state p{font-size:1rem;color:var(--text-dim)}
+
+@media(max-width:600px){
+  .wrap{padding:calc(var(--topbar-h) + 2.5rem) 1.2rem 4rem}
+  .post-card{padding:1.4rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar" aria-label="Blog">
+  <div class="topbar-left"><a href="index.html" class="back-link">&larr; Back to Blog</a><span style="color:var(--border)" aria-hidden="true">|</span><a href="../index.html" class="home-link">&larr; punitvara.com</a></div>
+  <div class="topbar-title">Blog &middot; <em>Mixture-of-Experts (MoE): Papers to Read</em></div>
+</nav>
+
+<main class="wrap">
+  <article class="reveal">
+    <div class="section-label">Blog Post</div>
+    <h1 class="page-title">Mixture-of-Experts (MoE): Papers to Read</h1>
+    <div class="post-meta"><span class="post-date">August 11, 2026</span><span class="tag">moe</span><span class="tag">llm</span><span class="tag">papers</span><span class="tag">reading-list</span></div>
+    <div class="article">
+<p>A bottom-up reading list for understanding sparse Mixture-of-Experts models: from the 1991 origins through modern sparse LLMs (Mixtral, DeepSeek-V3, Grok), routing algorithms, load balancing, scaling laws, and the systems that make expert parallelism fast. I'll keep adding to this over time rather than starting a new post for every batch.</p>
+<p><strong>Type key:</strong> <code>paper</code> = peer-reviewed / arxiv preprint · <code>blog</code> = blog/post · <code>report</code> = technical report · <code>book</code> = textbook/chapter · <code>survey</code> = survey paper · <code>website</code> = tool/org site</p>
+<hr>
+<h3>Part 1 - Origins &amp; Foundations</h3>
+<ul><li><a href="https://www.cs.toronto.edu/~hinton/absps/jjnh91.pdf">Adaptive Mixtures of Local Experts</a> - Jacobs, Jordan, Nowlan &amp; Hinton (1991) · the original MoE · <code>paper</code></li><li><a href="https://www.cs.toronto.edu/~fritz/absps/hme.pdf">Hierarchical Mixtures of Experts and the EM Algorithm</a> - Jordan &amp; Jacobs (1994) · tree-structured gating trained with EM · <code>paper</code></li><li><a href="https://ieeexplore.ieee.org/document/6215056">Twenty Years of Mixture of Experts</a> - Yuksel, Wilson &amp; Gader (2012) · survey of the classical era · <code>survey</code></li><li><a href="https://arxiv.org/pdf/1312.4314.pdf">Learning Factored Representations in a Deep Mixture of Experts</a> - Eigen, Ranzato &amp; Sutskever (2013) · stacking MoE layers · <code>paper</code></li></ul>
+<hr>
+<h3>Part 2 - Sparse MoE for Deep Learning (2017–2021)</h3>
+<ul><li><a href="https://arxiv.org/pdf/1701.06538.pdf">Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer</a> - Shazeer et al., Google (2017) · top-k gating, noisy routing, aux load-balance loss · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2006.16668.pdf">GShard: Scaling Giant Models with Conditional Computation and Automatic Sharding</a> - Lepikhin et al., Google (2020) · 600B-param MoE translation; expert parallelism · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2101.03961.pdf">Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity</a> - Fedus, Zoph &amp; Shazeer, Google (2021) · top-1 routing, simplified + stable · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2112.06905.pdf">GLaM: Efficient Scaling of Language Models with Mixture-of-Experts</a> - Du et al., Google (2021) · 1.2T params, ⅓ the training energy of GPT-3 · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2106.05974.pdf">Scaling Vision with Sparse Mixture of Experts (V-MoE)</a> - Riquelme et al., Google (2021) · MoE for vision transformers · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2112.10684.pdf">Efficient Large Scale Language Modeling with Mixtures of Experts</a> - Artetxe et al., Meta (2021) · <code>paper</code></li></ul>
+<hr>
+<h3>Part 3 - Routing Algorithms</h3>
+<ul><li><a href="https://arxiv.org/pdf/2103.16716.pdf">BASE Layers: Simplifying Training of Large, Sparse Models</a> - Lewis et al., Meta (2021) · routing as a linear assignment problem, no aux loss · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2106.04426.pdf">Hash Layers For Large Sparse Models</a> - Roller et al., Meta (2021) · deterministic hash routing, no learned gate · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2202.09368.pdf">Mixture-of-Experts with Expert Choice Routing</a> - Zhou et al., Google (2022) · experts pick tokens (guarantees balance) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2202.08906.pdf">ST-MoE: Designing Stable and Transferable Sparse Expert Models</a> - Zoph et al., Google (2022) · router z-loss, fine-tuning recipes · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2204.08396.pdf">StableMoE: Stable Routing Strategy for Mixture of Experts</a> (2022) · addresses routing fluctuation · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2308.00951.pdf">Soft MoE: From Sparse to Soft Mixtures of Experts</a> - Puigcerver et al., Google (2023) · fully-differentiable soft token-slot assignment · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2408.15664.pdf">Auxiliary-Loss-Free Load Balancing Strategy for Mixture-of-Experts</a> - Wang et al., DeepSeek (2024) · bias-based balancing without aux-loss gradient interference · <code>paper</code></li></ul>
+<hr>
+<h3>Part 4 - Modern Sparse LLMs</h3>
+<ul><li><a href="https://arxiv.org/pdf/2401.04088.pdf">Mixtral of Experts</a> - Jiang et al., Mistral (2024) · 8×7B, first strong open-weight MoE LLM · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2401.06066.pdf">DeepSeekMoE: Towards Ultimate Expert Specialization</a> - Dai et al., DeepSeek (2024) · fine-grained experts + shared experts · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2405.04434.pdf">DeepSeek-V2: A Strong, Economical, and Efficient MoE Language Model</a> - DeepSeek (2024) · 236B (21B active), MLA + DeepSeekMoE · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2412.19437.pdf">DeepSeek-V3 Technical Report</a> - DeepSeek (2024) · 671B (37B active), aux-loss-free balancing, FP8 training · <code>report</code></li><li><a href="https://arxiv.org/pdf/2409.02060.pdf">OLMoE: Open Mixture-of-Experts Language Models</a> - AI2 (2024) · fully-open MoE with training data, code, logs · <code>paper</code></li><li><a href="https://qwenlm.github.io/blog/qwen-moe/">Qwen2-MoE / Qwen1.5-MoE</a> - Alibaba (2024) · upcycled fine-grained MoE · <code>blog</code></li><li><a href="https://x.ai/blog/grok-os">Grok-1 Open Release</a> - xAI (2024) · 314B MoE, open weights · <code>blog</code></li><li><a href="https://www.databricks.com/blog/introducing-dbrx-new-state-art-open-llm">DBRX Technical Blog</a> - Databricks (2024) · 132B fine-grained MoE (16 experts, 4 active) · <code>blog</code></li><li><a href="https://www.snowflake.com/en/blog/arctic-open-efficient-foundation-language-models-snowflake/">Snowflake Arctic: Efficient, Dense-MoE Hybrid</a> - Snowflake (2024) · dense + many-expert hybrid · <code>blog</code></li><li><a href="https://arxiv.org/pdf/2403.19887.pdf">Jamba: A Hybrid Transformer-Mamba Language Model</a> - AI21 (2024) · MoE layers interleaved with Mamba + attention · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2501.08313.pdf">MiniMax-01: Scaling Foundation Models with Lightning Attention</a> - MiniMax (2025) · 456B MoE + linear attention, 4M context · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2404.14219.pdf">Phi-3.5-MoE</a> - Microsoft (2024) · 16×3.8B small-but-strong MoE · <code>report</code></li></ul>
+<hr>
+<h3>Part 5 - Upcycling &amp; Merging Dense Models into MoE</h3>
+<ul><li><a href="https://arxiv.org/pdf/2212.05055.pdf">Sparse Upcycling: Training Mixture-of-Experts from Dense Checkpoints</a> - Komatsuzaki et al., Google (2022) · reuse a dense model to warm-start MoE · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2208.03306.pdf">Branch-Train-Merge: Embarrassingly Parallel Training of Expert LMs</a> - Li et al., Meta (2022) · train domain experts independently, merge · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2403.07816.pdf">Branch-Train-MiX: Mixing Expert LLMs into a Mixture-of-Experts LLM (BTX)</a> - Sukhbaatar et al., Meta (2024) · combine BTM experts into a routed MoE · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2405.03133.pdf">Lory: Fully Differentiable MoE via Soft Merging of Experts</a> (2024) · autoregressive-friendly soft expert merging · <code>paper</code></li></ul>
+<hr>
+<h3>Part 6 - Scaling Laws &amp; Analysis</h3>
+<ul><li><a href="https://arxiv.org/pdf/2202.01169.pdf">Unified Scaling Laws for Routed Language Models</a> - Clark et al., DeepMind (2022) · scaling behaviour as a function of expert count · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2402.07871.pdf">Scaling Laws for Fine-Grained Mixture of Experts</a> - Krajewski et al. (2024) · granularity as a new scaling axis · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2208.02813.pdf">Toward Understanding the Mixture-of-Experts Layer in Deep Learning</a> - Chen et al. (2022) · theory of why routing helps · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2209.01667.pdf">A Review of Sparse Expert Models in Deep Learning</a> - Fedus, Dean &amp; Zoph, Google (2022) · the canonical MoE survey · <code>survey</code></li><li><a href="https://arxiv.org/pdf/2402.07033.pdf">MoE Inference Economics / Scaling Laws (from Chinchilla to MoE)</a> (2024) · training vs inference cost tradeoffs · <code>paper</code></li></ul>
+<hr>
+<h3>Part 7 - Efficiency Variants &amp; Alternatives</h3>
+<ul><li><a href="https://arxiv.org/pdf/2404.02258.pdf">Mixture-of-Depths: Dynamically Allocating Compute in Transformers</a> - Raposo et al., DeepMind (2024) · route tokens to skip layers (depth sparsity) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2407.04153.pdf">Mixture of a Million Experts (PEER)</a> - He, DeepMind (2024) · product-key retrieval over huge expert pools · <code>paper</code></li><li><a href="https://arxiv.org/pdf/1907.05242.pdf">PEER / Product Key Memory Layers</a> - Lample et al., Meta (2019) · precursor: sparse memory access at scale · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2206.02770.pdf">LIMoE: Multimodal Contrastive Learning with a Sparse MoE</a> - Mustafa et al., Google (2022) · one MoE for images + text · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2308.00951.pdf">From Sparse to Soft Mixtures of Experts (Soft MoE)</a> - Google (2023) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2404.15045.pdf">Multi-Head Mixture-of-Experts</a> - Microsoft (2024) · split tokens into sub-tokens routed to different experts · <code>paper</code></li></ul>
+<hr>
+<h3>Part 8 - Systems &amp; Serving</h3>
+<ul><li><a href="https://arxiv.org/pdf/2201.05596.pdf">DeepSpeed-MoE: Advancing MoE Inference and Training to Power Next-Gen AI Scale</a> - Rajbhandari et al., Microsoft (2022) · MoE inference optimization + distillation · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2206.03382.pdf">Tutel: Adaptive Mixture-of-Experts at Scale</a> - Hwang et al., Microsoft (2022) · dynamic parallelism switching · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2211.15841.pdf">MegaBlocks: Efficient Sparse Training with Mixture-of-Experts</a> - Gale et al., Stanford (2022) · block-sparse GPU kernels, no token dropping · <code>paper</code></li><li><a href="https://dl.acm.org/doi/10.1145/3503221.3508418">FasterMoE: Modeling and Optimizing Training of Large-Scale Dynamic MoE</a> - He et al., Tsinghua (2022) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2502.19811.pdf">Comet: Fine-grained Computation-Communication Overlap for MoE</a> - ByteDance (2025) · overlapping expert-parallel all-to-all with compute · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2412.19437.pdf">DeepSeek-V3 DualPipe &amp; Expert Parallel Load Balancer</a> - DeepSeek (2024) · production-scale MoE systems engineering · <code>report</code></li><li><a href="https://arxiv.org/pdf/1909.08053.pdf">Megatron-LM / Megatron-Core MoE</a> - NVIDIA (2019, MoE support later) · tensor + expert parallelism · <code>paper</code></li></ul>
+<hr>
+<h3>Part 9 - Surveys &amp; Big-Picture Reading</h3>
+<ul><li><a href="https://arxiv.org/pdf/2209.01667.pdf">A Review of Sparse Expert Models in Deep Learning</a> - Fedus, Dean &amp; Zoph (2022) · <code>survey</code></li><li><a href="https://arxiv.org/pdf/2407.06204.pdf">A Survey on Mixture of Experts in Large Language Models</a> - Cai et al. (2024) · algorithm + system + application taxonomy · <code>survey</code></li><li><a href="https://huggingface.co/blog/moe">Mixture of Experts Explained</a> - Hugging Face (2023) · accessible intro with diagrams · <code>blog</code></li><li><a href="https://research.google/blog/more-efficient-in-context-learning-with-glam/">Switch Transformers &amp; Sparsity (Google AI Blog)</a> - Google (2021) · <code>blog</code></li><li><a href="https://arxiv.org/pdf/2412.19437.pdf">How DeepSeek-V3 Trains a 671B MoE for $5.5M</a> - DeepSeek (2024) · read alongside the systems section · <code>report</code></li><li><a href="http://www.incompleteideas.net/IncIdeas/BitterLesson.html">The Bitter Lesson</a> - Rich Sutton (2019) · conditional-compute framing for why sparse scaling wins · <code>blog</code></li></ul>
+    </div>
+  </article>
+
+  <div class="article-footer-nav">
+    <a href="index.html" class="back-link">&larr; Back to all posts</a>
+  </div>
+</main>
+
+<footer class="footer-note">
+  <p>Built with curiosity. No frameworks, no dependencies — just code.</p>
+</footer>
+
+</body>
+</html>

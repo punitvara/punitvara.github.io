@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reasoning Models: Papers to Read — Blog — Punit Vara</title>
+<meta name="description" content="A bottom-up reading list for understanding reasoning in LLMs — from chain-of-thought prompting through process reward models, RL-trained reasoners (o1 / R1 style), test-time compute scaling, and self-improvement.">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#ffffff;--bg2:#f7f7f8;--bg3:#f0f0f1;--bg4:#e4e4e7;
+  --text:#3f3f46;--text-bright:#111111;--text-dim:#8a8a8f;
+  --accent:#111111;--accent2:#000000;--accent-glow:rgba(17,17,17,0.05);
+  --green:#1a7f37;--blue:#0969da;
+  --border:#e4e4e7;--border-accent:#111111;
+  --serif:Georgia,'Palatino Linotype','Book Antiqua',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  --mono:'SF Mono','Menlo','Consolas','Liberation Mono',monospace;
+  --ease:cubic-bezier(.4,0,.2,1);
+  --topbar-h:60px;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7;-webkit-font-smoothing:antialiased;min-height:100vh}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:var(--text-dim)}
+a{color:var(--text-bright);text-decoration:underline;text-decoration-color:var(--border-accent);text-underline-offset:2px}
+a:hover{color:var(--blue)}
+
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-h);z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 1.5rem;background:rgba(255,255,255,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.topbar-left{display:flex;align-items:center;gap:1.2rem;min-width:0}
+.home-link,.back-link{font-family:var(--mono);font-size:.78rem;color:var(--text-dim);text-decoration:none;letter-spacing:.05em;white-space:nowrap;transition:color .2s var(--ease)}
+.home-link:hover,.back-link:hover{color:var(--text-bright)}
+.topbar-title{font-family:var(--sans);font-weight:600;font-size:1.02rem;color:var(--text-bright);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.topbar-title em{font-style:normal;color:var(--text-dim)}
+
+.wrap{max-width:760px;margin:0 auto;padding:calc(var(--topbar-h) + 4rem) 1.5rem 6rem}
+
+.section-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.8rem}
+.page-title{font-family:var(--sans);font-size:clamp(1.9rem,4vw,2.6rem);font-weight:700;color:var(--text-bright);line-height:1.2;margin-bottom:1rem;letter-spacing:-.02em}
+.page-desc{color:var(--text);max-width:640px;margin-bottom:2.5rem;font-size:1rem}
+
+.post-meta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;font-family:var(--mono);font-size:.78rem;color:var(--text-dim);margin-bottom:2.5rem;padding-bottom:2rem;border-bottom:1px solid var(--border)}
+.post-date{color:var(--text-dim)}
+.tag{font-size:.68rem;padding:.25rem .65rem;border-radius:20px;background:var(--bg2);border:1px solid var(--border);color:var(--text-dim);letter-spacing:.03em;font-family:var(--mono)}
+
+.article h2{font-family:var(--sans);font-size:1.5rem;color:var(--text-bright);font-weight:700;margin:2.2rem 0 1rem;letter-spacing:-.01em}
+.article h3{font-family:var(--sans);font-size:1.2rem;color:var(--text-bright);font-weight:700;margin:2rem 0 .8rem}
+.article h4{font-family:var(--sans);font-size:1.05rem;color:var(--text-bright);font-weight:700;margin:1.6rem 0 .6rem}
+.article p{font-size:.98rem;color:var(--text);line-height:1.85;margin-bottom:1.3rem}
+.article ul,.article ol{margin:0 0 1.3rem 1.4rem;color:var(--text);font-size:.98rem;line-height:1.85}
+.article li{margin-bottom:.5rem}
+.article blockquote{border-left:3px solid var(--border-accent);background:var(--bg2);padding:.9rem 1.3rem;margin:0 0 1.3rem;border-radius:0 8px 8px 0;color:var(--text);font-style:italic}
+.article hr{border:none;border-top:1px solid var(--border);margin:2.5rem 0}
+.article code{font-family:var(--mono);font-size:.85em;background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:.1rem .4rem;color:#b5121b}
+.article strong{color:var(--text-bright)}
+
+.code-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;margin:0 0 1.6rem;overflow:hidden}
+.code-card-head{display:flex;align-items:center;padding:.5rem .9rem;background:var(--bg3);border-bottom:1px solid var(--border)}
+.code-tag{font-family:var(--mono);font-size:.65rem;letter-spacing:.1em;color:var(--text-dim);text-transform:uppercase}
+.code-block{padding:1rem 1.2rem;overflow-x:auto}
+.code-block code{font-family:var(--mono);font-size:.83rem;line-height:1.65;color:var(--text);white-space:pre;background:none;border:none;padding:0}
+
+.article-footer-nav{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--border)}
+.footer-note{padding:3rem 1.5rem;text-align:center;font-size:.75rem;color:var(--text-dim)}
+
+.post-grid{display:grid;gap:1.3rem;margin-top:2.5rem}
+.post-card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.8rem 2rem;transition:all .3s var(--ease);text-decoration:none;display:block}
+.post-card:hover{border-color:var(--border-accent);transform:translateY(-2px);box-shadow:0 10px 30px rgba(0,0,0,.06)}
+.post-card-date{font-family:var(--mono);font-size:.72rem;letter-spacing:.05em;color:var(--text-dim);margin-bottom:.6rem}
+.post-card h3{font-family:var(--sans);font-size:1.25rem;color:var(--text-bright);font-weight:700;margin-bottom:.6rem}
+.post-card p{font-size:.9rem;color:var(--text);line-height:1.65;margin-bottom:1rem}
+.post-card .post-tags{display:flex;gap:.5rem;flex-wrap:wrap}
+
+.empty-state{text-align:center;padding:5rem 1.5rem;border:1px dashed var(--border);border-radius:12px;margin-top:2.5rem}
+.empty-state p{font-size:1rem;color:var(--text-dim)}
+
+@media(max-width:600px){
+  .wrap{padding:calc(var(--topbar-h) + 2.5rem) 1.2rem 4rem}
+  .post-card{padding:1.4rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar" aria-label="Blog">
+  <div class="topbar-left"><a href="index.html" class="back-link">&larr; Back to Blog</a><span style="color:var(--border)" aria-hidden="true">|</span><a href="../index.html" class="home-link">&larr; punitvara.com</a></div>
+  <div class="topbar-title">Blog &middot; <em>Reasoning Models: Papers to Read</em></div>
+</nav>
+
+<main class="wrap">
+  <article class="reveal">
+    <div class="section-label">Blog Post</div>
+    <h1 class="page-title">Reasoning Models: Papers to Read</h1>
+    <div class="post-meta"><span class="post-date">August 11, 2026</span><span class="tag">reasoning</span><span class="tag">llm</span><span class="tag">papers</span><span class="tag">reading-list</span></div>
+    <div class="article">
+<p>A bottom-up reading list for understanding reasoning in LLMs: from chain-of-thought prompting through process reward models, RL-trained reasoners (o1 / R1 style), test-time compute scaling, and self-improvement. I'll keep adding to this over time rather than starting a new post for every batch.</p>
+<p><strong>Type key:</strong> <code>paper</code> = peer-reviewed / arxiv preprint · <code>blog</code> = blog/post · <code>report</code> = technical report · <code>book</code> = textbook/chapter · <code>survey</code> = survey paper · <code>website</code> = tool/org site · <code>dataset</code> = data/benchmark release</p>
+<hr>
+<h3>Part 1 - Chain-of-Thought &amp; Prompting Foundations</h3>
+<ul><li><a href="https://arxiv.org/pdf/2201.11903.pdf">Chain-of-Thought Prompting Elicits Reasoning in Large Language Models</a> - Wei et al., Google (2022) · the paper that started it all · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2205.11916.pdf">Large Language Models are Zero-Shot Reasoners</a> - Kojima et al. (2022) · "Let's think step by step" · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2203.11171.pdf">Self-Consistency Improves Chain of Thought Reasoning</a> - Wang et al., Google (2022) · sample many chains, majority-vote the answer · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2205.10625.pdf">Least-to-Most Prompting Enables Complex Reasoning</a> - Zhou et al., Google (2022) · decompose into easier subproblems · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2210.00720.pdf">Complexity-Based Prompting for Multi-step Reasoning</a> - Fu et al. (2022) · pick more complex exemplars · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2112.00114.pdf">Show Your Work: Scratchpads for Intermediate Computation</a> - Nye et al., Google (2021) · precursor to CoT for algorithmic tasks · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2210.03493.pdf">Automatic Chain of Thought Prompting (Auto-CoT)</a> - Zhang et al. (2022) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2202.12837.pdf">Rethinking the Role of Demonstrations</a> - Min et al. (2022) · what actually makes in-context examples work · <code>paper</code></li></ul>
+<hr>
+<h3>Part 2 - Structured &amp; Search-Based Reasoning</h3>
+<ul><li><a href="https://arxiv.org/pdf/2305.10601.pdf">Tree of Thoughts: Deliberate Problem Solving with LLMs</a> - Yao et al., Princeton/Google (2023) · search over a tree of reasoning states · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2308.09687.pdf">Graph of Thoughts: Solving Elaborate Problems with LLMs</a> - Besta et al. (2023) · arbitrary graph of thought dependencies · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2203.11171.pdf">Self-Consistency (majority vote)</a> - Wang et al. (2022) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2305.14992.pdf">Reasoning via Planning (RAP)</a> - Hao et al. (2023) · MCTS with LLM as world model · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2305.11860.pdf">Let's Sample Step by Step: Adaptive Consistency</a> (2023) · dynamic sample budget · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2308.04371.pdf">Cumulative Reasoning with Large Language Models</a> (2023) · <code>paper</code></li></ul>
+<hr>
+<h3>Part 3 - Tool Use &amp; Program-Aided Reasoning</h3>
+<ul><li><a href="https://arxiv.org/pdf/2210.03629.pdf">ReAct: Synergizing Reasoning and Acting in Language Models</a> - Yao et al., Princeton/Google (2022) · interleave reasoning traces with actions · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2211.10435.pdf">PAL: Program-Aided Language Models</a> - Gao et al., CMU (2022) · offload computation to a Python interpreter · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2211.12588.pdf">Program of Thoughts (PoT)</a> - Chen et al. (2022) · separate reasoning from computation · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2302.04761.pdf">Toolformer: Language Models Can Teach Themselves to Use Tools</a> - Schick et al., Meta (2023) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2303.17651.pdf">Self-Refine: Iterative Refinement with Self-Feedback</a> - Madaan et al. (2023) · model critiques and revises its own output · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2303.11366.pdf">Reflexion: Language Agents with Verbal Reinforcement Learning</a> - Shinn et al. (2023) · self-reflection stored in episodic memory · <code>paper</code></li></ul>
+<hr>
+<h3>Part 4 - Self-Improvement &amp; Bootstrapping</h3>
+<ul><li><a href="https://arxiv.org/pdf/2203.14465.pdf">STaR: Bootstrapping Reasoning With Reasoning</a> - Zelikman et al., Stanford (2022) · fine-tune on self-generated correct rationales · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2403.09629.pdf">Quiet-STaR: Language Models Can Teach Themselves to Think Before Speaking</a> - Zelikman et al. (2024) · learn to generate rationales at every token · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2210.11610.pdf">Large Language Models Can Self-Improve</a> - Huang et al., Google (2022) · self-consistency + fine-tuning loop · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2312.06585.pdf">ReST-EM: Beyond Human Data - Scaling Self-Training for Problem-Solving</a> - Singh et al., DeepMind (2023) · expectation-maximization self-training · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2402.06457.pdf">V-STaR: Training Verifiers for Self-Taught Reasoners</a> (2024) · use both correct and incorrect solutions · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2501.04519.pdf">rStar-Math: Small LLMs Can Master Math Reasoning with Self-Evolved Deep Thinking</a> - Microsoft (2025) · MCTS + process preference model self-evolution · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2407.18219.pdf">Recursive Introspection (RISE): Teaching LMs to Self-Improve</a> (2024) · <code>paper</code></li></ul>
+<hr>
+<h3>Part 5 - Verification &amp; Process Reward Models</h3>
+<ul><li><a href="https://arxiv.org/pdf/2110.14168.pdf">Training Verifiers to Solve Math Word Problems (GSM8K)</a> - Cobbe et al., OpenAI (2021) · introduced GSM8K + outcome verifiers · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2305.20050.pdf">Let's Verify Step by Step</a> - Lightman et al., OpenAI (2023) · process reward beats outcome reward; PRM800K dataset · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2312.08935.pdf">Math-Shepherd: Verify and Reinforce LLMs Step-by-step without Human Annotations</a> - Wang et al. (2024) · automatic process supervision · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2211.14275.pdf">Solving Math Word Problems with Process- and Outcome-Based Feedback</a> - Uesato et al., DeepMind (2022) · early process-vs-outcome study · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2501.07301.pdf">The Lessons of Developing Process Reward Models in Mathematical Reasoning</a> - Qwen team (2025) · pitfalls of PRM training + data · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2408.15240.pdf">Generative Verifiers: Reward Modeling as Next-Token Prediction</a> - DeepMind (2024) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2310.08118.pdf">Can Large Language Models Really Improve by Self-critiquing Their Own Plans?</a> (2023) · skeptical take on self-correction · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2310.01798.pdf">Large Language Models Cannot Self-Correct Reasoning Yet</a> - Huang et al., DeepMind (2023) · intrinsic self-correction fails without oracle · <code>paper</code></li></ul>
+<hr>
+<h3>Part 6 - RL for Reasoning (o1 / R1 Era)</h3>
+<ul><li><a href="https://arxiv.org/pdf/2402.03300.pdf">DeepSeekMath: Pushing the Limits of Mathematical Reasoning (GRPO)</a> - Shao et al., DeepSeek (2024) · introduced Group Relative Policy Optimization · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2501.12948.pdf">DeepSeek-R1: Incentivizing Reasoning Capability in LLMs via Reinforcement Learning</a> - DeepSeek (2025) · pure-RL reasoning (R1-Zero) + emergent long CoT · <code>paper</code></li><li><a href="https://openai.com/index/learning-to-reason-with-llms/">Learning to Reason with LLMs (o1)</a> - OpenAI (2024) · announcement of RL-trained reasoning + test-time scaling · <code>blog</code></li><li><a href="https://cdn.openai.com/o1-system-card.pdf">OpenAI o1 System Card</a> - OpenAI (2024) · <code>report</code></li><li><a href="https://arxiv.org/pdf/2501.12599.pdf">Kimi k1.5: Scaling Reinforcement Learning with LLMs</a> - Moonshot AI (2025) · long-context RL, length penalty, partial rollouts · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2411.15124.pdf">Tülu 3: Pushing Frontiers in Open Language Model Post-Training (RLVR)</a> - AI2 (2024) · reinforcement learning with verifiable rewards · <code>paper</code></li><li><a href="https://arxiv.org/pdf/1707.06347.pdf">PPO: Proximal Policy Optimization Algorithms</a> - Schulman et al., OpenAI (2017) · the RL backbone · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2203.02155.pdf">Training Language Models to Follow Instructions with Human Feedback (InstructGPT/RLHF)</a> - Ouyang et al., OpenAI (2022) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2503.14476.pdf">DAPO: An Open-Source LLM Reinforcement Learning System at Scale</a> - ByteDance/Tsinghua (2025) · decoupled clip + dynamic sampling fixes for GRPO · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2503.20783.pdf">Understanding R1-Zero-Like Training: A Critical Perspective</a> (2025) · what actually drives RL reasoning gains · <code>paper</code></li></ul>
+<hr>
+<h3>Part 7 - Test-Time Compute Scaling</h3>
+<ul><li><a href="https://arxiv.org/pdf/2408.03314.pdf">Scaling LLM Test-Time Compute Optimally can be More Effective than Scaling Parameters</a> - Snell et al., DeepMind/Berkeley (2024) · compute-optimal test-time allocation · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2407.21787.pdf">Large Language Monkeys: Scaling Inference Compute with Repeated Sampling</a> - Brown et al., Stanford (2024) · coverage scales with samples as a power law · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2501.19393.pdf">s1: Simple Test-Time Scaling</a> - Muennighoff et al., Stanford (2025) · 1K examples + "budget forcing" via "Wait" · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2502.03387.pdf">LIMO: Less is More for Reasoning</a> - Ye et al. (2025) · 817 curated examples elicit strong reasoning · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2402.12875.pdf">Chain of Thought Empowers Transformers to Solve Inherently Serial Problems</a> - Li et al. (2024) · theoretical: CoT expands expressivity · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2408.00724.pdf">An Empirical Analysis of Compute-Optimal Inference for Problem-Solving</a> (2024) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2408.16737.pdf">Inference Scaling Laws / Compute-Optimal Sampling</a> (2024) · <code>paper</code></li></ul>
+<hr>
+<h3>Part 8 - Distillation &amp; Small Reasoners</h3>
+<ul><li><a href="https://arxiv.org/pdf/2212.00193.pdf">Distilling Reasoning Capabilities into Smaller Language Models</a> (2022) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2212.08410.pdf">Teaching Small Language Models to Reason</a> - Magister et al., DeepMind (2022) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2212.10071.pdf">Large Language Models Are Reasoning Teachers (Fine-tune-CoT)</a> (2022) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2306.02707.pdf">Orca: Progressive Learning from Complex Explanation Traces</a> - Microsoft (2023) · imitate reasoning traces of larger models · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2501.12948.pdf">DeepSeek-R1 Distilled Models</a> - DeepSeek (2025) · distilling R1 reasoning into Qwen/Llama · <code>paper</code></li><li><a href="https://novasky-ai.github.io/posts/sky-t1/">Sky-T1: Train Your Own O1 Preview Model Within $450</a> - NovaSky, Berkeley (2025) · cheap open reasoning replication · <code>blog</code></li></ul>
+<hr>
+<h3>Part 9 - Faithfulness &amp; Interpretability of Reasoning</h3>
+<ul><li><a href="https://arxiv.org/pdf/2307.13702.pdf">Measuring Faithfulness in Chain-of-Thought Reasoning</a> - Anthropic (2023) · does the CoT reflect the real computation? · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2305.04388.pdf">Language Models Don't Always Say What They Think</a> - Turpin et al., Anthropic (2023) · biased reasoning with unfaithful explanations · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2505.05410.pdf">Reasoning Models Don't Always Say What They Think</a> - Anthropic (2025) · CoT faithfulness in RL-trained reasoners · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2404.15758.pdf">Let's Think Dot by Dot: Hidden Computation in Transformers</a> (2024) · filler tokens can substitute for CoT · <code>paper</code></li></ul>
+<hr>
+<h3>Part 10 - Math &amp; Theorem Proving</h3>
+<ul><li><a href="https://arxiv.org/pdf/2103.03874.pdf">Measuring Mathematical Problem Solving With the MATH Dataset</a> - Hendrycks et al. (2021) · the MATH benchmark · <code>dataset</code></li><li><a href="https://arxiv.org/pdf/2206.14858.pdf">Solving Quantitative Reasoning Problems with Language Models (Minerva)</a> - Lewkowycz et al., Google (2022) · <code>paper</code></li><li><a href="https://www.nature.com/articles/s41586-023-06747-5">AlphaGeometry: Solving Olympiad Geometry without Human Demonstrations</a> - Trinh et al., DeepMind, Nature (2024) · neuro-symbolic olympiad geometry · <code>paper</code></li><li><a href="https://deepmind.google/discover/blog/ai-solves-imo-problems-at-silver-medal-level/">AI Achieves Silver-Medal Standard at IMO (AlphaProof &amp; AlphaGeometry 2)</a> - DeepMind (2024) · <code>blog</code></li><li><a href="https://arxiv.org/pdf/2405.14333.pdf">DeepSeek-Prover: Advancing Theorem Proving via Large-Scale Synthetic Data</a> - DeepSeek (2024) · Lean 4 formal proofs · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2202.01344.pdf">Formal Mathematics Statement Curriculum Learning</a> - OpenAI (2022) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2310.10631.pdf">Llemma: An Open Language Model For Mathematics</a> - EleutherAI/Princeton (2023) · <code>paper</code></li></ul>
+<hr>
+<h3>Part 11 - Benchmarks for Reasoning</h3>
+<ul><li><a href="https://arxiv.org/pdf/2110.14168.pdf">GSM8K: Grade School Math</a> - Cobbe et al., OpenAI (2021) · <code>dataset</code></li><li><a href="https://arxiv.org/pdf/2103.03874.pdf">MATH: Competition Mathematics</a> - Hendrycks et al. (2021) · <code>dataset</code></li><li><a href="https://arxiv.org/pdf/2311.12022.pdf">GPQA: A Graduate-Level Google-Proof Q&amp;A Benchmark</a> - Rein et al. (2023) · <code>dataset</code></li><li><a href="https://arxiv.org/pdf/2411.04872.pdf">FrontierMath: A Benchmark for Evaluating Advanced Mathematical Reasoning</a> - Epoch AI (2024) · research-level unpublished problems · <code>dataset</code></li><li><a href="https://arxiv.org/pdf/2501.14249.pdf">Humanity's Last Exam</a> - CAIS + Scale AI (2025) · frontier multi-domain expert questions · <code>dataset</code></li><li><a href="https://arxiv.org/pdf/1911.01547.pdf">ARC-AGI: Abstraction and Reasoning Corpus</a> - Chollet (2019) · "On the Measure of Intelligence" · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2410.05229.pdf">GSM-Symbolic: Understanding the Limitations of Mathematical Reasoning</a> - Apple (2024) · fragility to surface perturbations · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2506.06941.pdf">The Illusion of Thinking: Reasoning Model Behavior on Controllable Puzzles</a> - Apple (2025) · accuracy collapse past a complexity threshold · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2305.18654.pdf">Faith and Fate: Limits of Transformers on Compositionality</a> (2023) · <code>paper</code></li><li><a href="https://arxiv.org/pdf/2206.10498.pdf">PlanBench: Evaluating LLMs on Planning and Reasoning about Change</a> (2022) · <code>paper</code></li></ul>
+<hr>
+<h3>Part 12 - Surveys &amp; Big-Picture Reading</h3>
+<ul><li><a href="https://arxiv.org/pdf/2212.10403.pdf">Towards Reasoning in Large Language Models: A Survey</a> - Huang &amp; Chang (2022) · <code>survey</code></li><li><a href="https://arxiv.org/pdf/2312.11562.pdf">A Survey of Reasoning with Foundation Models</a> (2023) · <code>survey</code></li><li><a href="https://arxiv.org/pdf/2407.11511.pdf">Reasoning with Large Language Models, a Survey</a> (2024) · <code>survey</code></li><li><a href="https://arxiv.org/pdf/2502.17419.pdf">From System 1 to System 2: A Survey of Reasoning LLMs</a> (2025) · covers o1/R1-style test-time reasoning · <code>survey</code></li><li><a href="http://www.incompleteideas.net/IncIdeas/BitterLesson.html">The Bitter Lesson</a> - Rich Sutton (2019) · why search + learning beats hand-crafted structure · <code>blog</code></li><li><a href="https://openai.com/index/learning-to-reason-with-llms/">Noam Brown on Test-Time Compute &amp; Search</a> - OpenAI (2024) · framing for the o1 paradigm · <code>blog</code></li><li><a href="https://magazine.sebastianraschka.com/p/understanding-reasoning-llms">Sebastian Raschka: Understanding Reasoning LLMs</a> - Raschka (2025) · practical taxonomy of building reasoning models · <code>blog</code></li><li><a href="https://lilianweng.github.io/posts/2025-05-01-thinking/">Lilian Weng: Why We Think (test-time compute &amp; CoT)</a> - Weng (2025) · <code>blog</code></li></ul>
+    </div>
+  </article>
+
+  <div class="article-footer-nav">
+    <a href="index.html" class="back-link">&larr; Back to all posts</a>
+  </div>
+</main>
+
+<footer class="footer-note">
+  <p>Built with curiosity. No frameworks, no dependencies — just code.</p>
+</footer>
+
+</body>
+</html>
