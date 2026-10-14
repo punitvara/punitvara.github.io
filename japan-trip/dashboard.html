@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3e7a">
+<title>Japan Trip Dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="hero"><div class="wrap">
+  <div class="jp">日本 · 旅</div>
+  <h1 id="title"></h1>
+  <div class="chips" id="chips"></div>
+  <nav class="links"><a class="on" href="dashboard.html">Dashboard</a><a href="maps.html">Maps &amp; heat maps</a><a href="trains.html">Train guide</a></nav>
+</div></div>
+<main class="wrap">
+  <div class="stats" id="stats"></div>
+
+  <section style="--c:var(--sakura)"><h2>🧭 Explore</h2><div class="hub"><a href="maps.html" style="--c:var(--sky)"><b>🗺️ Maps &amp; heat maps</b><span>Route, Tokyo, Kyoto, crowd calendar, effort, distances</span></a><a href="trains.html" style="--c:var(--vermilion)"><b>🚄 Train guide</b><span>Exact trains, platforms, timings, tickets, booking sites</span></a><a href="#itin" style="--c:var(--sakura)"><b>🌸 Itinerary</b><span>Day-by-day plan below</span></a><a href="#opts" style="--c:var(--indigo)"><b>⚖️ Options</b><span>Flights, hotels, transit comparison below</span></a></div></section>
+
+  <section style="--c:var(--gold)"><h2>📝 Notes & decisions</h2><ul class="todo" id="notes"></ul></section>
+
+  <section style="--c:var(--vermilion)"><h2>🗓️ Timeline</h2><div class="tl" id="timeline"></div><div class="sub" id="tlnote" style="margin-top:8px"></div></section>
+
+  <section style="--c:var(--sky)"><h2>🗺️ Map</h2>
+    <div class="legend" id="legend"></div><div id="map"></div></section>
+
+  <section style="--c:var(--plum)"><h2>📌 Booking status board</h2><div class="board" id="board"></div></section>
+
+  <div class="grid two">
+    <section style="--c:var(--gold)"><h2>✅ To-do / deadlines</h2><ul class="todo" id="todo"></ul></section>
+    <section style="--c:var(--matcha)"><h2>💴 Budget (INR)</h2><div id="budget"></div></section>
+  </div>
+
+  <section style="--c:var(--sakura)"><h2>🌸 Day-by-day plan</h2><table id="itin" class="stack"></table></section>
+  <section style="--c:var(--indigo)"><h2>⚖️ Options comparison</h2><table id="opts" class="stack"></table></section>
+  <section style="--c:var(--matcha)"><h2>🎫 Confirmed bookings</h2><div id="bookings"></div></section>
+</main>
+
+<script src="data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const COLORS = {idea:'#9aa4b8', shortlisted:'#e8a93a', booked:'#4fa3d1', confirmed:'#6fae78'};
+const pill = s => `<span class="pill" style="background:${COLORS[s]||'#999'}">${s}</span>`;
+const inr = n => n==null ? '—' : '₹' + n.toLocaleString('en-IN');
+
+$('title').textContent = TRIP.title;
+const nights = TRIP.startDate && TRIP.endDate ? Math.round((new Date(TRIP.endDate)-new Date(TRIP.startDate))/864e5) : null;
+const daysTo = TRIP.startDate ? Math.ceil((new Date(TRIP.startDate)-new Date())/864e5) : null;
+$('chips').innerHTML = [TRIP.travelers, TRIP.passport+' passport', TRIP.startDate ? TRIP.startDate+' → '+TRIP.endDate : 'dates TBD (April)'].map(t=>'<span class="chip">'+t+'</span>').join('');
+const planned = BUDGET.reduce((a,b)=>a+(b.planned||0),0);
+const todoDone = TODO.filter(t=>t.done).length;
+$('stats').innerHTML = [
+  ['var(--vermilion)', daysTo!=null ? daysTo : '—', 'days to depart'],
+  ['var(--sky)', nights!=null ? nights : '—', 'nights total'],
+  ['var(--plum)', OPTIONS.length+BOOKINGS.length, 'options tracked'],
+  ['var(--matcha)', BOOKINGS.length, 'confirmed bookings'],
+  ['var(--gold)', todoDone+'/'+TODO.length, 'to-dos done'],
+  ['var(--sakura)', inr(planned||null), 'planned budget']
+].map(s=>'<div class="stat" style="--c:'+s[0]+'"><b>'+s[1]+'</b><span>'+s[2]+'</span></div>').join('');
+
+// Timeline
+const total = TIMELINE.reduce((a,b)=>a+b.days,0);
+$('timeline').innerHTML = TIMELINE.map(t =>
+  `<div class="${t.type}" style="flex:${t.days}">${t.label}<br><small>${t.days}d</small></div>`).join('');
+$('tlnote').textContent = `${total} days total`;
+
+// Map
+const map = L.map('map');
+L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {subdomains:'abcd', attribution:'© OpenStreetMap contributors © CARTO'}).addTo(map);
+const KC = {airport:'#8e5fb3', station:'#4fa3d1', sight:'#e0483e', hotel:'#6fae78'};
+$('legend').innerHTML = Object.entries(KC).map(([k,c])=>`<span><i class="dot" style="background:${c}"></i>${k}</span>`).join('');
+const pts = PLACES.map(p => {
+  L.circleMarker([p.lat,p.lng], {radius:8, color:KC[p.kind], fillOpacity:.85})
+    .addTo(map).bindPopup(`<b>${p.name}</b><br>${p.city} · Day ${p.day}`);
+  return [p.lat,p.lng];
+});
+map.fitBounds(pts, {padding:[30,30]});
+
+// Board
+$('board').innerHTML = ['idea','shortlisted','booked','confirmed'].map(s => {
+  const items = [...OPTIONS, ...BOOKINGS].filter(o => o.status===s);
+  return `<div class="col" style="--c:${COLORS[s]}"><h3>${s} (${items.length})</h3>` +
+    items.map(o=>`<div class="item"><b>${o.category||o.type}</b><br>${o.name}</div>`).join('') + `</div>`;
+}).join('');
+
+// Notes
+$('notes').innerHTML = NOTES.map(n => `<li>${{decision:"✅",tip:"💡",warning:"⚠️"}[n.level]||"•"} ${n.text}</li>`).join("");
+
+// Todo
+$('todo').innerHTML = TODO.map(t =>
+  `<li class="${t.done?'done':''}">${t.done?'☑':'☐'} ${t.task}${t.date?` <small class="sub">· by ${t.date}</small>`:''}</li>`).join('');
+
+// Budget
+const max = Math.max(1, ...BUDGET.map(b => Math.max(b.planned||0, b.actual||0)));
+$('budget').innerHTML = BUDGET.map(b => `
+  <div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between">
+    <span>${b.cat}</span><small class="sub">plan ${inr(b.planned)} · actual ${inr(b.actual)}</small></div>
+    <div class="bar" style="width:${(b.planned||0)/max*100}%"></div>
+    <div class="bar act" style="width:${(b.actual||0)/max*100}%"></div></div>`).join('') +
+  `<b>Planned total: ${inr(BUDGET.reduce((a,b)=>a+(b.planned||0),0))}</b>`;
+
+// Itinerary
+$('itin').innerHTML = '<tr><th>Day</th><th>City</th><th>Morning</th><th>Afternoon</th><th>Evening</th></tr>' +
+  ITINERARY.map(d=>`<tr><td data-label="Day"><b>${d.day}</b></td><td data-label="City">${d.city}</td><td data-label="Morning">${d.morning}</td><td data-label="Afternoon">${d.afternoon}</td><td data-label="Evening">${d.evening}</td></tr>`).join('');
+
+// Options
+$('opts').innerHTML = '<tr><th>Type</th><th>Option</th><th>Price</th><th>Notes</th><th>Status</th></tr>' +
+  OPTIONS.map(o=>`<tr><td data-label="Type">${o.category}</td><td data-label="Option"><b>${o.name}</b></td><td data-label="Price">${inr(o.price)}</td><td data-label="Notes">${o.notes}</td><td data-label="Status">${pill(o.status)}</td></tr>`).join('');
+
+// Bookings
+$('bookings').innerHTML = BOOKINGS.length ?
+  '<table><tr><th>Type</th><th>Name</th><th>Dates</th><th>Ref</th><th>File</th></tr>' +
+  BOOKINGS.map(b=>`<tr><td>${b.type}</td><td>${b.name}</td><td>${b.dates}</td><td>${b.ref}</td><td><a href="${b.file}">open</a></td></tr>`).join('') + '</table>'
+  : '<span class="sub">Nothing confirmed yet. Add entries to BOOKINGS in data.js and drop files in 04-bookings/.</span>';
+</script>
+</body>
+</html>

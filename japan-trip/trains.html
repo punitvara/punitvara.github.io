@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3e7a">
+<title>Train Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+  .steps { list-style:none; padding:0; margin:0; counter-reset:s; }
+  .steps li { position:relative; padding:12px 14px 12px 56px; margin:10px 0; background:var(--bg); border-radius:14px; counter-increment:s; }
+  .steps li::before { content:counter(s); position:absolute; left:14px; top:12px; width:30px; height:30px; border-radius:50%;
+    background:var(--c,var(--sakura)); color:#fff; font-weight:700; display:grid; place-items:center; }
+  .train { display:inline-block; padding:2px 10px; border-radius:8px; color:#fff; font-weight:700; font-size:13px; }
+  .chuo { background:#e8731a; } .nozomi { background:#2f3e7a; } .haruka { background:#6fae78; }
+  .meta { display:flex; flex-wrap:wrap; gap:8px; margin:8px 0 14px; }
+  .meta span { background:var(--sakura-soft); padding:3px 12px; border-radius:99px; font-size:13px; }
+  .warn { border-left:4px solid var(--gold); background:var(--bg); padding:10px 14px; border-radius:10px; margin:10px 0; }
+  .conf { font-size:11px; font-weight:700; padding:1px 8px; border-radius:99px; color:#fff; background:var(--gold); margin-left:6px; }
+  a { color:var(--indigo); } @media (prefers-color-scheme: dark){ a { color:#9fb4ff; } }
+  ul.sites { padding-left:18px; } ul.sites li { margin:8px 0; }
+  h3.jt { font-size:15px; margin:16px 0 8px; }
+  .gantt { display:flex; width:100%; border-radius:10px; overflow:hidden; box-shadow:var(--shadow); }
+  .gantt div { padding:8px 4px; font-size:11px; line-height:1.25; text-align:center; color:#fff; min-width:0; overflow:hidden; word-break:break-word; }
+  .gantt div b { display:block; font-size:12px; }
+  .total { margin:8px 0 4px; font-size:14px; }
+  @media (max-width:640px){ .gantt { flex-direction:column; } .gantt div { text-align:left; padding:8px 12px; flex:none !important; display:flex; justify-content:space-between; font-size:13px; } .gantt div b { display:inline; } }
+</style>
+</head>
+<body>
+<div class="hero"><div class="wrap">
+  <div class="jp">電車 · TRAINS</div>
+  <h1>Exact trains: Shinjuku → Kyoto → Kansai Airport</h1>
+  <div class="chips"><span class="chip">Mon 6 Apr: Tokyo → Kyoto</span><span class="chip">Sat 10 Apr: Kyoto → KIX</span></div>
+  <nav class="links"><a href="dashboard.html">Dashboard</a><a href="maps.html">Maps &amp; heat maps</a><a class="on" href="trains.html">Train guide</a></nav>
+</div></div>
+<main class="wrap">
+
+  <section style="--c:var(--indigo)">
+    <h2>🚄 Leg 1 · 6 April · Shinjuku → Kyoto Station</h2>
+    <div class="meta"><span>Door to door ≈ 3 h</span><span>Train time ≈ 2h15 (Nozomi)</span><span>1 transfer</span><span>≈ ¥14,170–14,370 per adult</span></div>
+    <ol class="steps" style="--c:var(--indigo)">
+      <li><b>Shinjuku → Tokyo Station</b><br>
+        Take the <span class="train chuo">JR Chuo Line Rapid (orange)</span> bound for <b>Tokyo</b>. Platforms 7 or 8 at Shinjuku. Ride ≈ 14 min, no stops to worry about.
+        <span class="conf">verify platform</span></li>
+      <li><b>Change at Tokyo Station (allow 15 min)</b><br>
+        The Chuo Line platforms are upstairs, on the opposite side from the bullet trains. Follow the signs to the <b>Tokaido Shinkansen</b> transfer gate. With luggage and a baby, use the elevators.</li>
+      <li><b>Tokyo → Kyoto</b><br>
+        Board the <span class="train nozomi">Tokaido Shinkansen Nozomi</span> bound for <b>Shin-Osaka</b> (or Hakata). Pick a <b>reserved seat</b>. Ride ≈ 2h15–2h20. Kyoto is the stop after Nagoya.
+        <span class="conf">Tokyo platform usually 14–19</span></li>
+      <li><b>Arrive Kyoto Station</b><br>
+        Shinkansen platforms 11–14 (south side, Hachijo). Walk to the main concourse for your hotel exit, or take the Karasuma (north) exit for central Kyoto.</li>
+    </ol>
+    <div class="warn"><b>Tip:</b> Nozomi is not covered by the JR Pass. Hikari (~2h40) is a calmer, slightly cheaper option. Book the earliest reasonable train so you arrive at Kyoto by midday.</div>
+    <div class="warn"><b>Luggage:</b> large suitcases may need an oversize-baggage reservation. Alternatively forward bags with <i>takkyubin</i> from your Shinjuku hotel.</div>
+  </section>
+
+  <section style="--c:var(--matcha)">
+    <h2>✈️ Leg 2 · 10 April · Kyoto Station → Kansai Airport (KIX)</h2>
+    <div class="meta"><span>≈ 75–85 min</span><span>Direct, no change</span><span>Every ~30 min</span><span>≈ ¥2,850–3,490 per adult</span></div>
+    <ol class="steps" style="--c:var(--matcha)">
+      <li><b>Buy ticket and go to Platform 30</b><br>
+        Take the <span class="train haruka">JR Haruka Limited Express</span> bound for <b>Kansai Airport</b>. Haruka usually leaves from <b>Platform 30</b> at Kyoto Station (check the board).
+        <span class="conf">verify platform</span></li>
+      <li><b>Ride ≈ 75–85 min</b><br>
+        The train runs straight to Kansai Airport, with big luggage racks at the end of each car. Pick a reserved seat for easier travel with a baby.</li>
+      <li><b>Arrive Kansai Airport Station (KIX)</b><br>
+        Walk to Terminal 1, check in and drop bags. Allow 2.5–3 h before the flight.</li>
+    </ol>
+    <div class="warn"><b>Timing:</b> the first Haruka from Kyoto is about 05:45. The last is around 20:15–20:30. Leave Kyoto at least 4 h before your flight.</div>
+    <div class="warn"><b>Cheaper but not advised:</b> JR Special Rapid + Kansai Airport Rapid via Osaka costs less but needs a change with bags and a baby.</div>
+  </section>
+
+  <section style="--c:var(--vermilion)">
+    <h2>⏱️ Journey timing</h2>
+    <div class="sub">Approximate minutes for each step. Bar widths are proportional (mid-point). Add buffer for a baby and luggage.</div>
+
+    <h3 class="jt">6 Apr · Shinjuku hotel → Kyoto hotel</h3>
+    <div class="gantt" id="g1"></div>
+    <div class="total">Total ≈ <b>3h 05 – 3h 40</b></div>
+
+    <h3 class="jt">10 Apr · Kyoto hotel → Kansai Airport check-in</h3>
+    <div class="gantt" id="g2"></div>
+    <div class="total">Total ≈ <b>1h 55 – 2h 25</b> to the airport. Add <b>2.5–3 h</b> before the flight, so leave the hotel about <b>4h 30m</b> before departure.</div>
+
+    <h3 class="jt">3 Apr · Airport → Shinjuku hotel (arrival day) <span class="conf">typical, verify</span></h3>
+    <div class="gantt" id="g3"></div>
+    <div class="total">Haneda ≈ <b>45–70 min</b> by train or limousine bus. Narita ≈ <b>80–100 min</b> by Narita Express. Allow extra after immigration and baggage.</div>
+  </section>
+
+  <section style="--c:var(--gold)">
+    <h2>🎟️ Ticket estimate · 3 adults + 1 infant</h2>
+    <div class="sub">Yen amounts are from the sources below and may change. INR uses a rough ¥1 ≈ ₹0.55–0.62 (check the live rate).</div>
+    <table class="stack">
+      <tr><th>Leg</th><th>Per adult</th><th>3 adults</th><th>Infant</th></tr>
+      <tr><td data-label="Leg">Shinjuku → Tokyo (Chuo Rapid, 6 Apr)</td><td data-label="Per adult">~¥210</td><td data-label="3 adults">~¥630</td><td data-label="Infant">Free</td></tr>
+      <tr><td data-label="Leg">Tokyo → Kyoto Nozomi, reserved (6 Apr)</td><td data-label="Per adult">¥14,170–14,370</td><td data-label="3 adults">¥42,510–43,110</td><td data-label="Infant">Free on lap</td></tr>
+      <tr><td data-label="Leg">Kyoto → KIX Haruka (10 Apr)</td><td data-label="Per adult">¥2,850–3,490</td><td data-label="3 adults">¥8,550–10,470</td><td data-label="Infant">Free on lap</td></tr>
+      <tr><td data-label="Leg"><b>Total</b></td><td data-label="Per adult"><b>~¥17,200–18,100</b></td><td data-label="3 adults"><b>~¥51,700–54,200</b><br><b>≈ ₹28,000–34,000</b></td><td data-label="Infant"><b>¥0</b></td></tr>
+    </table>
+    <div class="warn"><b>Infant rule (verify):</b> sources say children under 6 ride free on a parent's lap with no seat of their own. If you want the infant in their own seat, a child fare applies. That is roughly half the adult fare, about ¥7,100 on the Shinkansen and ¥1,500 on the Haruka. Confirm on JR's site.</div>
+  </section>
+
+  <section style="--c:var(--sky)">
+    <h2>🛒 Where to book</h2>
+    <ul class="sites">
+      <li><b>Shinkansen (Tokyo → Kyoto):</b> <a href="https://smart-ex.jp/en/" target="_blank" rel="noopener">SmartEX</a> is JR Central's official English app and site and accepts overseas cards. Booking usually opens about 1 month before travel <span class="conf">verify</span>. You can also buy at a JR ticket office or machine at Tokyo Station.</li>
+      <li><b>Haruka (Kyoto → KIX):</b> buy at the Kyoto Station JR ticket office or a ticket machine the day before or on the day. No need to pre-book months ahead. Resellers like <a href="https://www.japan-experience.com/transportation/airport-transfers/kyoto/airport-transfer-haruka-express-from-kyoto-to-kansai-international-airport-kix" target="_blank" rel="noopener">Japan Experience</a> sell vouchers you swap at the station. Compare the price with the station price first.</li>
+      <li><b>Chuo Rapid:</b> no booking. Tap an IC card (Suica or ICOCA via Apple or Google Wallet if supported, or a physical card) or buy a ticket at the machine.</li>
+      <li><b>Official timetables:</b> <a href="https://jr-central.co.jp/en/" target="_blank" rel="noopener">JR Central</a> · <a href="https://www.westjr.co.jp/global/en/" target="_blank" rel="noopener">JR West</a></li>
+    </ul>
+    <div class="sub">Booking tip: reserve the Shinkansen seats together, with luggage space (last row or the oversize-baggage seats).</div>
+  </section>
+
+  <section style="--c:var(--sakura)">
+    <h2>🔎 Check before you travel</h2>
+    <ul>
+      <li>Official timetables: <a href="https://www.jreast.co.jp/e/" target="_blank">JR East</a> · <a href="https://jr-central.co.jp/en/" target="_blank">JR Central</a> (Shinkansen) · <a href="https://www.westjr.co.jp/global/en/" target="_blank">JR West</a> (Haruka)</li>
+      <li>Infant fares on both legs. Children under 6 usually travel free without a seat, but confirm.</li>
+      <li>Platform numbers change. Always confirm on the departure board in the station.</li>
+    </ul>
+    <div class="sub">Sources: <a href="https://ekitan.com/en/article/haruka-jikoku-ryoukin" target="_blank">ekitan Haruka timetable</a>, <a href="https://www.kansai-airport.or.jp/en/node/21536" target="_blank">Kansai Airport Haruka guide</a>, <a href="https://jprail.com/travel-informations/basic-informations/station-information/tokyo-station-guide-how-to-change-the-trains-shinkansen-narita-express-and-other-local-trains.html" target="_blank">jprail Tokyo Station guide</a>, <a href="https://japantrain.net/guide/tokyo-kyoto-shinkansen-price" target="_blank">japantrain.net fare</a>. Items tagged amber need verification.</div>
+  </section>
+</main>
+<script>
+const C = {walk:'#8e9ab8', wait:'#e8a93a', train:'#2f3e7a', xfer:'#8e5fb3', nozomi:'#e0483e', haruka:'#6fae78', air:'#4fa3d1'};
+function gantt(id, steps){
+  document.getElementById(id).innerHTML = steps.map(s =>
+    '<div style="flex:'+s[1]+';background:'+C[s[2]]+'" title="'+s[0]+' ~'+s[1]+' min"><b>'+s[3]+'</b>'+s[0]+'</div>').join('');
+}
+// [label, minutes(mid), colour, display minutes]
+gantt('g1', [
+  ['Hotel → Shinjuku Stn', 10, 'walk',  '5–15 min'],
+  ['Tickets / platform',   10, 'wait',  '10 min'],
+  ['Chuo Rapid',           14, 'train', '14 min'],
+  ['Change at Tokyo Stn',  20, 'xfer',  '15–25 min'],
+  ['Nozomi to Kyoto',     135, 'nozomi','2h15–20'],
+  ['Kyoto Stn → hotel',    10, 'walk',  '5–15 min']
+]);
+gantt('g2', [
+  ['Hotel → Kyoto Stn',    10, 'walk',  '5–15 min'],
+  ['Tickets / platform 30',20, 'wait',  '15–25 min'],
+  ['Haruka to KIX',        80, 'haruka','75–85 min'],
+  ['KIX Stn → Terminal 1', 10, 'walk',  '5–10 min']
+]);
+gantt('g3', [
+  ['Immigration + bags',   60, 'wait',  '45–75 min'],
+  ['Airport → Shinjuku',   70, 'air',   '45–100 min'],
+  ['Station → hotel',      10, 'walk',  '5–15 min']
+]);
+</script>
+</body>
+</body>
+</html>

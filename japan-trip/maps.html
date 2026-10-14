@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f3e7a">
+<title>Japan Trip Maps</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="hero"><div class="wrap">
+  <div class="jp">地図 · MAPS</div>
+  <h1>Maps &amp; heat maps</h1>
+  <div class="chips"><span class="chip">Pins and routes from data.js</span><span class="chip">Heat layers marked “estimate” are judgement</span></div>
+  <nav class="links"><a href="dashboard.html">Dashboard</a><a class="on" href="maps.html">Maps &amp; heat maps</a><a href="trains.html">Train guide</a></nav>
+</div></div>
+<main class="wrap">
+  <section style="--c:var(--vermilion)"><h2>🧭 1. Whole route</h2>
+    <div class="sub">Tokyo → Kyoto (Shinkansen) → Kansai Airport (Haruka). Dashed = planned rail.</div>
+    <div id="mapAll" class="map"></div></section>
+
+  <div class="grid two">
+    <section style="--c:var(--sakura)"><h2>🗼 2. Tokyo</h2>
+      <div class="sub">Layers: coloured daily routes, places, crowd heat <span class="tag">estimate</span> (toggle top right).</div>
+      <div id="mapTokyo" class="map"></div></section>
+    <section style="--c:var(--matcha)"><h2>⛩️ 3. Kyoto</h2>
+      <div class="sub">Same layers. Kyoto sights are spread out, so plan by area per day.</div>
+      <div id="mapKyoto" class="map"></div></section>
+  </div>
+
+  <section style="--c:var(--gold)"><h2>📅 4. Crowd / price pressure calendar <span class="tag">estimate</span></h2>
+    <div class="sub">Modelled from typical blossom timing (2026 forecast: Tokyo ~26 Mar, Kyoto ~31 Mar–1 Apr) plus weekends. Black outline = your trip. Redo in Dec/Jan when the 2027 forecast is out.</div>
+    <div id="cal" class="cal"></div></section>
+
+  <section style="--c:var(--plum)"><h2>👟 5. Day effort heat <span class="tag">estimate</span></h2>
+    <div class="sub">1 = easy, 5 = hard, for a family with an infant and a senior. Use it to move heavy days apart.</div>
+    <div id="effort" class="hm"></div></section>
+
+  <section style="--c:var(--sky)"><h2>📏 6. Straight-line distance matrix (km)</h2>
+    <div class="sub">Computed from the coordinates (not travel time). Darker = farther. Real transit is longer.</div>
+    <div id="dist" class="hm"></div></section>
+</main>
+
+<script src="data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.heat/0.2.0/leaflet-heat.js"></script>
+<script>
+const KC = {airport:'#8e5fb3', station:'#4fa3d1', sight:'#e0483e', hotel:'#6fae78'};
+const DAYCOL = ['#e6194b','#3cb44b','#4363d8','#f58231','#911eb4','#008080','#9a6324','#800000'];
+// crowd weight 0..1 (estimate). Edit freely.
+const CROWD = {
+  "Shibuya Crossing":1, "Senso-ji, Asakusa":.95, "Shinjuku Gyoen":.8, "Ueno Park":.85, "Tokyo Station":.6,
+  "Chidorigafuchi (blossom, flex)":.9, "Haneda Airport (HND)":.4,
+  "Fushimi Inari":1, "Kiyomizu-dera":1, "Gion":.9, "Arashiyama Bamboo":.95, "Kinkaku-ji":.8,
+  "Nishiki Market":.85, "Kyoto Station":.7, "Kansai Airport (KIX)":.4
+};
+const tiles = () => L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {subdomains:'abcd', attribution:'© OpenStreetMap contributors © CARTO', maxZoom:19});
+
+function buildMap(id, filter, extra) {
+  const map = L.map(id);
+  tiles().addTo(map);
+  const places = PLACES.filter(filter);
+  const pins = L.layerGroup(places.map(p =>
+    L.circleMarker([p.lat,p.lng], {radius:8, color:KC[p.kind], fillOpacity:.85})
+      .bindPopup(`<b>${p.name}</b><br>Trip day ${p.day} · crowd ~${Math.round((CROWD[p.name]||.5)*100)}% (est.)`)
+      .bindTooltip(p.name)));
+  const routes = L.layerGroup();
+  const days = [...new Set(places.map(p => p.day))];
+  days.forEach(d => {
+    const pts = places.filter(p => p.day===d).map(p => [p.lat,p.lng]);
+    if (pts.length > 1) L.polyline(pts, {color:DAYCOL[(d-1)%8], weight:4, opacity:.85}).bindTooltip('Day '+d).addTo(routes);
+  });
+  const heat = L.heatLayer(places.map(p => [p.lat,p.lng,CROWD[p.name]||.5]), {radius:45, blur:35, maxZoom:14});
+  pins.addTo(map); routes.addTo(map); heat.addTo(map);
+  L.control.layers(null, {"Places":pins, "Daily routes":routes, "Crowd heat (est.)":heat}).addTo(map);
+  if (extra) extra(map);
+  map.fitBounds(places.map(p=>[p.lat,p.lng]), {padding:[30,30]});
+}
+
+// Whole route
+(function(){
+  const map = L.map('mapAll'); tiles().addTo(map);
+  const find = n => PLACES.find(p => p.name.startsWith(n));
+  const hnd=find('Haneda'), tk=find('Tokyo Station'), ky=find('Kyoto Station'), kix=find('Kansai');
+  [hnd,tk,ky,kix].forEach(p => L.circleMarker([p.lat,p.lng],{radius:9,color:KC[p.kind],fillOpacity:.9}).addTo(map).bindTooltip(p.name,{permanent:true,direction:'top'}));
+  L.polyline([[hnd.lat,hnd.lng],[tk.lat,tk.lng]],{color:'#8e44ad',dashArray:'6 8'}).addTo(map).bindTooltip('Airport → city (~30 min)');
+  L.polyline([[tk.lat,tk.lng],[ky.lat,ky.lng]],{color:'#2a6f97',weight:5}).addTo(map).bindTooltip('Shinkansen ~2h15');
+  L.polyline([[ky.lat,ky.lng],[kix.lat,kix.lng]],{color:'#8e44ad',dashArray:'6 8'}).addTo(map).bindTooltip('Haruka ~75 min');
+  map.fitBounds([[hnd.lat,hnd.lng],[kix.lat,kix.lng],[tk.lat,tk.lng]],{padding:[40,40]});
+})();
+
+buildMap('mapTokyo', p => p.city==='Tokyo');
+buildMap('mapKyoto', p => p.city==='Kyoto');
+
+// Calendar heat (estimate): peak ~Apr 1, decays; weekends +
+(function(){
+  const start = new Date(Date.UTC(2027,2,22)); // Mar 22, 2027 (Mon)
+  const tripA = Date.UTC(2027,3,2), tripB = Date.UTC(2027,3,10), peak = Date.UTC(2027,3,1);
+  const names = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  let html = names.map(n=>`<div class="h">${n}</div>`).join('');
+  for (let i=0;i<28;i++){
+    const d = new Date(start.getTime()+i*864e5), t=d.getTime();
+    const dow = (d.getUTCDay()+6)%7;
+    let v = Math.max(0.15, 1 - Math.abs(t-peak)/864e5/14);
+    if (dow>=5) v = Math.min(1, v+0.1);
+    const hue = 120 - v*120; // green → red
+    const trip = t>=tripA && t<=tripB ? 'trip' : '';
+    html += `<div class="${trip}" style="background:hsl(${hue},70%,60%)" title="${d.toISOString().slice(0,10)}: pressure ~${Math.round(v*100)}% (est.)">${d.getUTCMonth()+1}/${d.getUTCDate()}</div>`;
+  }
+  document.getElementById('cal').innerHTML = html;
+})();
+
+// Effort heat
+(function(){
+  const rows = [
+    ['Apr 3 Sat','Arrive, Ueno',      1,2,2],
+    ['Apr 4 Sun','Asakusa, Gyoen, Shibuya',3,5,3],
+    ['Apr 5 Mon','Flex / rest',        2,3,2],
+    ['Apr 6 Tue','Shinkansen to Kyoto',3,3,4],
+    ['Apr 7 Wed','Fushimi, Kiyomizu, Gion',5,5,5],
+    ['Apr 8 Thu','Arashiyama',         3,4,3],
+    ['Apr 9 Fri','Kinkaku-ji, Nishiki',3,4,3],
+    ['Apr 10 Sat','Haruka → KIX, fly', 2,2,4]
+  ];
+  const col = v => `hsl(${120-(v-1)*30},65%,62%)`;
+  document.getElementById('effort').innerHTML =
+    '<table><tr><th class="l">Day</th><th class="l">Plan</th><th>Walking</th><th>Crowds</th><th>Stroller / infant difficulty</th></tr>' +
+    rows.map(r=>`<tr><td class="l">${r[0]}</td><td class="l">${r[1]}</td>` +
+      [2,3,4].map(i=>`<td style="background:${col(r[i])};color:#111">${r[i]}</td>`).join('') + '</tr>').join('') + '</table>';
+})();
+
+// Distance matrix
+(function(){
+  const R=6371, rad=x=>x*Math.PI/180;
+  const hav=(a,b)=>{const dl=rad(b.lat-a.lat),dg=rad(b.lng-a.lng);
+    const h=Math.sin(dl/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dg/2)**2;
+    return 2*R*Math.asin(Math.sqrt(h));};
+  const ps = PLACES.filter(p => p.kind!=='airport');
+  const short = n => n.replace(/\s*\(.*\)/,'').split(',')[0];
+  let max=0; const M = ps.map(a=>ps.map(b=>{const d=hav(a,b); if(d>max)max=d; return d;}));
+  let html = '<table><tr><th></th>' + ps.map(p=>`<th>${short(p.name)}</th>`).join('') + '</tr>';
+  ps.forEach((a,i)=>{
+    html += `<tr><th class="l">${short(a.name)}</th>` + M[i].map(d=>{
+      const v = d/max;
+      return `<td style="background:hsl(${210},60%,${92-v*50}%);color:${v>.5?'#fff':'#111'}">${d<0.05?'':d.toFixed(1)}</td>`;
+    }).join('') + '</tr>';
+  });
+  document.getElementById('dist').innerHTML = html + '</table>';
+})();
+</script>
+</body>
+</html>
