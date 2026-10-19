@@ -56,6 +56,7 @@ const ITINERARY = [
 const OPTIONS = [
   { category: "Flight",  name: "JAL nonstop BLR → Tokyo (return from KIX needs open-jaw check)", price: null, notes: "Confidence LOW: JAL showed ~₹88k RT for mid-2026 dates only (direct fetch 403). Get live April 2027 quote.", status: "idea" },
   { category: "Flight",  name: "IndiGo nonstop BLR → Tokyo NRT", price: null, notes: "Confidence LOW: named nonstop by Skyscanner/Kupi. Verify April 2027 operation, bassinet.", status: "idea" },
+  { category: "Flight",  name: "SQ quote 2026-10-19 (Amazon): BLR 11:35 → SIN (3h50 layover) → HND 06:45+1, 15h40, 3 adults + 1 infant, OUTBOUND ONLY", price: 157689, notes: "Confidence HIGH for quote (screenshot, was ₹1,72,041); date/baggage/refund rules unverified. Return KIX→BLR not yet priced; check open-jaw and singaporeair.com price.", status: "idea" },
   { category: "Flight",  name: "Singapore Airlines BLR→SIN→HND/NRT, KIX→SIN→BLR", price: 40000, notes: "Confidence MEDIUM: Goibibo ~₹39,836 one-way (Nov date). Google Flights RT $720–1,450. Ask for ≥2.5h layover.", status: "idea" },
   { category: "Hotel",   name: "Tokyo: Ueno or Shinjuku family room (3 nights)", price: null, notes: "Confidence LOW: no live rates. Candidates: Keio Plaza, Mimaru apartments.", status: "idea" },
   { category: "Hotel",   name: "Kyoto: Mimaru Kyoto Station / Granvia (4 nights)", price: null, notes: "Confidence LOW: Mimaru ¥35–65k/night (undated).", status: "idea" },
@@ -82,7 +83,7 @@ const TODO = [
 
 // Budget in INR. Fill planned/actual; null = unknown.
 const BUDGET = [
-  { cat: "Flights",       planned: null, actual: null },
+  { cat: "Flights",       planned: 315000, actual: null },
   { cat: "Hotels",        planned: null, actual: null },
   { cat: "Local transit", planned: null, actual: null },
   { cat: "Food",          planned: null, actual: null },
