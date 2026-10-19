@@ -107,4 +107,5 @@ const NOTES = [
 // price = TOTAL INR for 3 adults + 1 infant. null = not priced yet. Pick one per leg on the dashboard.
 const FLIGHTS = [
   { id: "sq-out-1", leg: "out", airline: "Singapore Airlines", route: "BLR 11:35 → SIN (3h50 layover) → HND 06:45+1", duration: "15h 40m", price: 157689, was: 172041, source: "Amazon, screenshot 2026-10-19", notes: "Confidence HIGH for quote; date, baggage, refund rules unverified. Compare on singaporeair.com." },
+  { id: "sq-ret-1", leg: "ret", airline: "Singapore Airlines", route: "13 Apr: KIX 23:25 → SIN (3h55 layover) → BLR 10:40+1", duration: "14h 45m", price: 126034, was: 138719, source: "Amazon, screenshot 2026-10-19", notes: "Departs 13 Apr (3 days later than the 10 Apr plan). Pax assumed 3A+1I like the outbound; confirm. Late flight: use the day for checkout and Haruka at leisure. Compare on singaporeair.com." },
 ];
