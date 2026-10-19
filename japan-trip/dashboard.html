@@ -37,6 +37,7 @@
   </div>
 
   <section style="--c:var(--sakura)"><h2>🌸 Day-by-day plan</h2><table id="itin" class="stack"></table></section>
+  <section style="--c:var(--sky)"><h2>✈️ Flight options &amp; estimate</h2><div class="sub" style="margin-bottom:8px">Prices are totals for 3 adults + 1 infant. Pick one per leg to see the estimate (saved in this browser).</div><div id="flights"></div></section>
   <section style="--c:var(--indigo)"><h2>⚖️ Options comparison</h2><table id="opts" class="stack"></table></section>
   <section style="--c:var(--matcha)"><h2>🎫 Confirmed bookings</h2><div id="bookings"></div></section>
 </main>
@@ -98,12 +99,39 @@ $('todo').innerHTML = TODO.map(t =>
 
 // Budget
 const max = Math.max(1, ...BUDGET.map(b => Math.max(b.planned||0, b.actual||0)));
-$('budget').innerHTML = BUDGET.map(b => `
+function renderBudget(){ const est=flightEst(); const B=BUDGET.map(b=>b.cat==='Flights'&&est!=null?{...b,planned:est}:b);
+$('budget').innerHTML = B.map(b => `
   <div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between">
     <span>${b.cat}</span><small class="sub">plan ${inr(b.planned)} · actual ${inr(b.actual)}</small></div>
     <div class="bar" style="width:${(b.planned||0)/max*100}%"></div>
     <div class="bar act" style="width:${(b.actual||0)/max*100}%"></div></div>`).join('') +
-  `<b>Planned total: ${inr(BUDGET.reduce((a,b)=>a+(b.planned||0),0))}</b>`;
+  `<b>Planned total: ${inr(B.reduce((a,b)=>a+(b.planned||0),0))}</b>`; }
+
+// Flights: pick one per leg, estimate feeds the Flights budget row
+let picks = {};
+try { picks = JSON.parse(localStorage.getItem('flightPicks')||'{}'); } catch(e) {}
+const flightEst = () => {
+  const f = id => FLIGHTS.find(x=>x.id===id);
+  const rt = f(picks.rt), o = f(picks.out), r = f(picks.ret);
+  if (rt && rt.price!=null) return rt.price;
+  return (o&&o.price||0) + (r&&r.price||0) || null;
+};
+function renderFlights() {
+  const legs = [['out','Outbound BLR → Tokyo'],['ret','Return Osaka KIX → BLR'],['rt','Round trip / open-jaw (one ticket)']];
+  $('flights').innerHTML = legs.map(([k,t]) => {
+    const rows = FLIGHTS.filter(f=>f.leg===k);
+    if (!rows.length && k==='rt') return '';
+    return '<h3 style="margin:10px 0 4px">'+t+'</h3>' + (rows.length ? '<table class="stack"><tr><th>Pick</th><th>Airline</th><th>Route</th><th>Total</th><th>Notes</th></tr>' +
+      rows.map(f=>'<tr><td data-label="Pick"><input type="radio" name="p-'+k+'" '+(picks[k]===f.id?'checked':'')+' onclick="pick(\''+k+'\',\''+f.id+'\')"></td><td data-label="Airline"><b>'+f.airline+'</b></td><td data-label="Route">'+f.route+(f.duration?' · '+f.duration:'')+'</td><td data-label="Total">'+inr(f.price)+(f.was?' <small class="sub"><s>'+inr(f.was)+'</s></small>':'')+'</td><td data-label="Notes">'+f.notes+' <small class="sub">('+f.source+')</small></td></tr>').join('') + '</table>'
+      : '<span class="sub">No options logged yet. Add entries to FLIGHTS in data.js.</span>');
+  }).join('') + '<p><b>Estimated flights: '+inr(flightEst())+'</b> <small class="sub">'+(picks.rt?'':(picks.out&&picks.ret?'outbound + return':'incomplete: pick both legs'))+'</small> <button onclick="pick(null)">Clear picks</button></p>';
+}
+function pick(k,id){
+  if(k===null) picks={}; else picks[k]=id;
+  try { localStorage.setItem('flightPicks', JSON.stringify(picks)); } catch(e) {}
+  renderFlights(); renderBudget();
+}
+renderFlights(); renderBudget();
 
 // Itinerary
 $('itin').innerHTML = '<tr><th>Day</th><th>City</th><th>Morning</th><th>Afternoon</th><th>Evening</th></tr>' +
