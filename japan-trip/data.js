@@ -7,7 +7,7 @@ const TRIP = {
   travelers: "2 adults + 1 senior (mom) + 1 infant (<1 yr)",
   passport: "Indian",
   startDate: "2027-04-02",    // depart BLR
-  endDate: "2027-04-10",      // depart KIX
+  endDate: "2027-04-13",      // depart KIX (fixed by user 2026-10-20: late-night flight, Kyoto Airbnb checkout same day)
   notes: "First international trip. Infant: needs own passport + visa. Keep days light, hotel near stations."
 };
 
