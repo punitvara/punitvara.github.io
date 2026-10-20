@@ -41,15 +41,18 @@ const PLACES = [
 
 // Day-by-day plan (draft). Edit freely.
 const ITINERARY = [
-  { day: "Apr 2 (Fri)",  city: "Bengaluru", morning: "Depart BLR", afternoon: "In flight / connection", evening: "Overnight or land Tokyo" },
-  { day: "Apr 3 (Sat)",  city: "Tokyo", morning: "Arrive HND/NRT, hotel drop", afternoon: "Ueno Park (blossom, flat, stroller-friendly)", evening: "Early dinner, rest" },
+  { day: "Apr 2 (Fri)",  city: "Bengaluru", morning: "Depart BLR 11:35 (SQ509)", afternoon: "Singapore layover 3h50 (SIN T3→T2)", evening: "SQ636 departs SIN 22:50, overnight flight" },
+  { day: "Apr 3 (Sat)",  city: "Tokyo", morning: "Land HND T3 06:45, immigration, hotel luggage drop", afternoon: "Ueno Park (blossom, flat, stroller-friendly)", evening: "Early dinner, rest" },
   { day: "Apr 4 (Sun)",  city: "Tokyo", morning: "Senso-ji, Asakusa", afternoon: "Shinjuku Gyoen (check entry & stroller rules)", evening: "Shibuya Crossing, back by 7pm" },
   { day: "Apr 5 (Mon)",  city: "Tokyo", morning: "Flex: Chidorigafuchi / Meguro River if in bloom", afternoon: "Rest / shopping", evening: "Pack" },
   { day: "Apr 6 (Tue)",  city: "Tokyo → Kyoto", morning: "Send luggage ahead (takkyubin), Tokyo Station", afternoon: "Chuo Rapid to Tokyo Stn, Shinkansen ~2h15, check in (≈3h door to door)", evening: "Kyoto Station area dinner" },
   { day: "Apr 7 (Wed)",  city: "Kyoto", morning: "Fushimi Inari (go early)", afternoon: "Kiyomizu-dera, Higashiyama", evening: "Gion walk, early night" },
   { day: "Apr 8 (Thu)",  city: "Kyoto", morning: "Arashiyama bamboo grove", afternoon: "Rest at hotel", evening: "Flex" },
   { day: "Apr 9 (Fri)",  city: "Kyoto", morning: "Kinkaku-ji / Philosopher's Path", afternoon: "Pack, Nishiki Market", evening: "Buffer day" },
-  { day: "Apr 10 (Sat)", city: "Kyoto → KIX", morning: "Haruka express Kyoto→KIX (~75–80 min, direct)", afternoon: "Check-in, fly to BLR", evening: "—" }
+  { day: "Apr 10 (Sat)", city: "Kyoto", morning: "Flex: Nara day trip (deer park, flat, 45 min by JR) or Kyoto Imperial Palace gardens", afternoon: "Rest at hotel", evening: "Light dinner" },
+  { day: "Apr 11 (Sun)", city: "Kyoto", morning: "Nijo Castle / Nishiki Market", afternoon: "Optional Osaka half-day (Dotonbori, aquarium) or rest", evening: "Buffer" },
+  { day: "Apr 12 (Mon)", city: "Kyoto", morning: "Flex / souvenirs / any missed sights", afternoon: "Pack, takkyubin or luggage plan", evening: "Early night" },
+  { day: "Apr 13 (Tue)", city: "Kyoto → KIX", morning: "Check out of Airbnb, store luggage", afternoon: "Free time near Kyoto Station", evening: "Haruka to KIX ~17:00–18:00, SQ flight departs 23:25 (arrive BLR 10:40 on 14 Apr)" }
 ];
 
 // Candidates / options for comparison (02-options)
@@ -93,14 +96,14 @@ const BUDGET = [
 
 // Decisions & things to remember. level: "decision" | "tip" | "warning"
 const NOTES = [
-  { level: "decision", text: "Stay area: Tokyo = Shinjuku (3 nights), Kyoto = near Kyoto Station (4 nights)." },
+  { level: "decision", text: "Stay area: Tokyo = Shinjuku (3 nights), Kyoto = near Kyoto Station (7 nights, 6–13 Apr)." },
   { level: "tip",      text: "Shinjuku → Kyoto Station by Shinkansen ≈ 3 h door to door: Shinjuku→Tokyo Station (JR Chuo Rapid) ~15–20 min + ~15–20 min buffer + Nozomi ~2h15–20. Shinkansen does NOT stop at Shinjuku." },
   { level: "tip",      text: "Kyoto Station → Kansai Airport (KIX) by JR Haruka limited express ≈ 75–80 min, direct, no change. Plan to leave Kyoto ≥ 4 h before an international departure (≈ 2.5–3 h before flight at airport + 80 min train + buffer)." },
   { level: "tip",      text: "Nozomi (fastest) is not covered by JR Pass. Hikari ~2h40, Kodama ~3h50." },
-  { level: "tip",      text: "Journey timing: 6 Apr hotel→hotel ≈ 3h05–3h40. 10 Apr hotel→KIX check-in ≈ 1h55–2h25, plus 2.5–3 h at airport, so leave hotel ≈ 4h30 before the flight. See trains.html." },
-  { level: "tip",      text: "Exact trains: see trains.html. 6 Apr = Chuo Rapid (Shinjuku→Tokyo) then Tokaido Shinkansen Nozomi to Kyoto. 10 Apr = JR Haruka from Kyoto Platform 30 direct to KIX." },
+  { level: "tip",      text: "Journey timing: 6 Apr hotel→hotel ≈ 3h05–3h40. 13 Apr hotel→KIX check-in ≈ 1h55–2h25, plus 2.5–3 h at airport, so leave hotel ≈ 4h30 before the flight. See trains.html." },
+  { level: "tip",      text: "Exact trains: see trains.html. 6 Apr = Chuo Rapid (Shinjuku→Tokyo) then Tokaido Shinkansen Nozomi to Kyoto. 13 Apr = JR Haruka from Kyoto Platform 30 direct to KIX." },
   { level: "warning",  text: "Large suitcases on Shinkansen may need an oversize-baggage reservation; consider takkyubin luggage forwarding Shinjuku hotel → Kyoto hotel." },
-  { level: "warning",  text: "Verify before booking: infant fare for Shinkansen and Haruka (JR Central / JR West), exact Haruka timetable for 10 April." }
+  { level: "warning",  text: "Verify before booking: infant fare for Shinkansen and Haruka (JR Central / JR West), exact Haruka timetable for 13 April." }
 ];
 
 // Flight options tracker. leg: "out" (BLR→Tokyo), "ret" (KIX→BLR) or "rt" (one ticket covering both).
