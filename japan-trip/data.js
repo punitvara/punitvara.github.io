@@ -68,6 +68,9 @@ const OPTIONS = [
 
 // Confirmed bookings only (04-bookings). Put files in that folder, list here.
 const BOOKINGS = [
+  // Keep refs/names/files OUT of here: this file is published to GitHub. Details live in 04-bookings/README-LOCAL-ONLY.md
+  { type: "Hotel", name: "Shinagawa Prince Hotel, Tokyo", dates: "3–8 Apr 2027 (5 nights)", status: "confirmed" },
+  { type: "Hotel", name: "Stay SAKURA Kyoto Shijo Karasuma", dates: "8–13 Apr 2027 (5 nights)", status: "confirmed" }
   // { type: "Hotel", name: "...", dates: "...", ref: "ABC123", file: "04-bookings/hotel-tokyo.pdf", status: "confirmed" }
 ];
 
@@ -77,7 +80,8 @@ const TODO = [
   { task: "Apply Japan tourist visa (all 4 incl. infant)",    date: null, done: false },
   { task: "Fix travel dates (check cherry blossom forecast)", date: null, done: false },
   { task: "Book flights",                                     date: null, done: false },
-  { task: "Book hotels (free cancellation)",                  date: null, done: false },
+  { task: "Book hotels (free cancellation)",                  date: null, done: true },
+  { task: "Pay Tokyo hotel (MMT) before 27 Mar 2027",         date: "2027-03-27", done: false },
   { task: "Travel insurance",                                 date: null, done: false },
   { task: "Book Shinkansen seats (opens ~1 month before)",    date: null, done: false },
   { task: "Pocket WiFi / eSIM",                               date: null, done: false }
