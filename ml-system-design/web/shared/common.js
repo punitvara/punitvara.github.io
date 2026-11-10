@@ -60,7 +60,7 @@ function lineChart(canvas, series, {xlabel = '', ylabel = '', h = 260} = {}) {
   const X = x => pad.l + (x - x0) / ((x1 - x0) || 1) * (W - pad.l - pad.r), Y = y => h - pad.b - (y - y0) / ((y1 - y0) || 1) * (h - pad.t - pad.b);
   c.strokeStyle = '#2a3144'; c.fillStyle = '#8d96ab'; c.font = '11px system-ui';
   for (let k = 0; k <= 4; k++) { const y = y0 + (y1 - y0) * k / 4; c.beginPath(); c.moveTo(pad.l, Y(y)); c.lineTo(W - pad.r, Y(y)); c.stroke(); c.fillText(y.toFixed(Math.abs(y) < 10 ? 2 : 0), 4, Y(y) + 4); }
-  c.fillText(xlabel, W / 2 - 20, h - 6); c.fillText(x0.toFixed(0), pad.l, h - 16); c.fillText(x1.toFixed(0), W - pad.r - 20, h - 16);
+  c.fillText(xlabel, W / 2 - 20, h - 6); const fx = x => Number.isInteger(x) ? String(x) : x.toFixed(Math.abs(x1) < 10 ? 2 : 0); c.fillText(fx(x0), pad.l, h - 16); c.fillText(fx(x1), W - pad.r - 26, h - 16);
   series.forEach((s, k) => { c.strokeStyle = s.color || cols[k % cols.length]; c.lineWidth = 2; c.beginPath(); s.xs.forEach((x, j) => j ? c.lineTo(X(x), Y(s.ys[j])) : c.moveTo(X(x), Y(s.ys[j]))); c.stroke(); c.fillStyle = c.strokeStyle; c.fillText(s.name || '', W - pad.r - 90, pad.t + 12 + k * 14); });
 }
 function barChart(el, labels, values, {max, fmt = v => v.toFixed(3)} = {}) {

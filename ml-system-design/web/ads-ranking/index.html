@@ -1,0 +1,235 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ads Ranking for the News Feed</title><link rel="stylesheet" href="../shared/style.css">
+<style>
+h2.sec{margin:34px 0 6px}.sub{margin:0 0 14px}
+.ctl{display:flex;gap:14px;flex-wrap:wrap;align-items:end}.ctl>div{min-width:130px}
+.scroll{overflow-x:auto}.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+tr.win td{background:rgba(76,195,138,.09)}tr.selr td{background:rgba(110,168,254,.12)}
+td input[type=number]{width:74px;padding:4px 6px}.sm{font-size:13px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{background:var(--panel2);color:var(--mute);border-radius:0;font-weight:400}.seg button.on{background:var(--accent);color:#0b1020;font-weight:600}
+</style></head><body>
+<header class="top"><a href="../">&larr; Lab</a><h1>📢 Ads Ranking for the News Feed</h1></header>
+<main>
+<div class="tabs"><div class="tab" data-pane="demo">Live demo</div><div class="tab" data-pane="guide">Interview guide</div></div>
+
+<div class="pane" id="demo">
+<p class="mute">40,000 synthetic ad impressions over 14 days, 60 ads, with a hidden true click probability for every user and ad. Models train on days 0-9, calibrate on days 10-11 and are tested on days 12-13. Because the truth is known, every chart can show what the model believed next to what was real.</p>
+
+<h2 class="sec">1. Click models compared</h2>
+<div id="kpi"></div>
+<div class="two" style="margin-top:16px">
+  <div class="card"><h3>Four pCTR models on the test days</h3><div class="scroll" id="models"></div>
+    <div class="note"><b>What to notice.</b> Normalized entropy (NE) is log loss divided by the log loss of always predicting the average CTR, so below 1 means better than no model. All four models are close on AUC yet every one over-predicts by 25% or more (calibration above 1). An auction multiplies bid by pCTR, so a model that ranks well but is 25% high overcharges advertisers. That is why ads teams report NE and calibration, not AUC alone.</div></div>
+  <div class="card"><h3>Logged CTR by feed position</h3><div class="scroll" id="bypos"></div>
+    <div class="note"><b>What to notice.</b> The ads shown in slot 5 would click as well as slot-1 ads if they were in slot 1 (see the "true CTR if slot 1" column), but their logged CTR is less than half because fewer people look that far down. Logged clicks mix ad quality with slot visibility. Section 6 shows what goes wrong if you train on that directly.</div></div>
+</div>
+
+<h2 class="sec">2. Feature hashing: memory against accuracy</h2>
+<p class="mute sub">Sparse IDs and crosses such as "interest x ad" are hashed into 2^bits weight slots.</p>
+<div class="card">
+  <div class="ctl"><div style="flex:1"><label>Hash bits: <span id="bitsv">12</span></label><input id="bits" type="range" min="4" max="18" value="12"></div></div>
+  <div class="scroll" id="hash" style="margin-top:10px"></div>
+  <div class="note"><b>What to notice.</b> With 64 buckets, 94% of features share a weight with another feature and NE is poor. Quality saturates once buckets exceed the number of distinct features. In production the vocabulary is billions of IDs, so you pick bits by the NE-versus-memory curve, and collisions mostly hurt rare features.</div>
+</div>
+
+<h2 class="sec">3. Calibration</h2>
+<p class="mute sub">Sort test impressions by predicted CTR into 10 equal groups and compare the average prediction with the actual click rate in each.</p>
+<div class="card">
+  <div class="ctl">
+    <div><label>Model</label><select id="calM"></select></div>
+    <div><label>Calibration layer</label><select id="calK"><option value="isotonic">Isotonic regression</option><option value="platt">Platt scaling</option><option value="none">None</option></select></div>
+  </div>
+  <div class="two" style="margin-top:12px"><div><canvas id="calC"></canvas><div class="mute sm">x: predicted CTR, y: actual CTR. Points on the grey diagonal are perfectly calibrated.</div></div><div><div class="scroll" id="calT"></div></div></div>
+  <div class="note"><b>What to notice.</b> The calibration layer is a monotone map, so the ordering of ads and therefore AUC barely change. Log loss, NE and the predicted-to-actual ratio improve. It is fit on the most recent days so it also absorbs drift between training and serving.</div>
+</div>
+
+<h2 class="sec">4. Auction simulator</h2>
+<p class="mute sub">One feed request, five candidate ads. Edit bids, change the ranking rule, and add user-experience terms to the score.</p>
+<div class="card">
+  <div class="ctl">
+    <div><button class="sec" id="newA">New user and ads</button></div>
+    <div><label>pCTR model</label><select id="aucM"></select></div>
+    <div><label>Rank by</label><select id="rule"><option value="ecpm">bid x pCTR (eCPM)</option><option value="bid">Bid only</option><option value="pctr">pCTR only</option></select></div>
+    <div><label>Ad slots</label><select id="slots"><option>1</option><option>2</option><option selected>3</option><option>4</option></select></div>
+    <div><label>Click bonus w_click: <span id="wcv">0</span></label><input id="wc" type="range" min="0" max="3" step="0.1" value="0"></div>
+    <div><label>Hide penalty w_hide: <span id="whv">0</span></label><input id="wh" type="range" min="0" max="5" step="0.1" value="0"></div>
+  </div>
+  <div class="mute sm" id="aucU" style="margin-top:10px"></div>
+  <div class="scroll" id="aucT" style="margin-top:8px"></div>
+  <div class="mute sm" id="aucF" style="margin-top:6px"></div>
+  <h3 style="margin-top:18px">Same request under each ranking rule</h3>
+  <div class="scroll" id="aucR"></div>
+  <div class="note"><b>What to notice.</b> The price per click is the smallest bid that would have kept the slot (generalized second price), so it is below the bid and depends on the next ad's score. Raise one ad's bid and the price paid by the ad above it rises. Ads marked * are clickbait: high click rate, high hide rate. Raise the hide penalty and they drop out, and with a large penalty a slot is left empty, which is how ad load becomes an output of ranking.</div>
+</div>
+
+<h2 class="sec">5. Revenue against user experience</h2>
+<p class="mute sub">1,500 simulated auctions with 8 eligible ads each. Sweep the hide penalty and watch revenue and "hide ad" reports.</p>
+<div class="card">
+  <div class="two"><div><label>Revenue per 1,000 auctions as the hide penalty rises</label><canvas id="tr1"></canvas></div><div><label>Hides per 1,000 impressions</label><canvas id="tr2"></canvas></div></div>
+  <h3 style="margin-top:14px">Ranking objective comparison</h3><div class="scroll" id="trB"></div>
+  <div class="mute sm">pCTR-only ranking ignores bids, so no competitive price exists and the simulator charges the full bid. Compare it on advertiser value, CTR and hides, not revenue.</div>
+  <div class="note"><b>What to notice.</b> A small hide penalty removes about a quarter of hides for a few percent of revenue. That short-term cost buys long-term feed usage, which no single auction can see. Bid-only ranking has the lowest CTR and advertiser value: it shows expensive ads nobody clicks. bid x pCTR gives the highest advertiser value, which is the argument for it.</div>
+</div>
+
+<h2 class="sec">6. Budget pacing</h2>
+<p class="mute sub">One advertiser, one day of 3,000 auctions, a fixed daily budget.</p>
+<div class="card">
+  <div class="ctl">
+    <div><label>Bid ($ per click)</label><input id="pBid" type="number" step="0.1" value="1.5" style="width:90px"></div>
+    <div><label>Daily budget ($)</label><input id="pBud" type="number" step="5" value="20" style="width:90px"></div>
+    <div><button id="pGo">Run day</button></div>
+  </div>
+  <div class="two" style="margin-top:12px"><div><label>Share of budget spent through the day</label><canvas id="pC"></canvas></div><div class="scroll" id="pT"></div></div>
+  <div class="note"><b>What to notice.</b> Without pacing the budget is gone before midday and the advertiser misses cheaper evening traffic. Throttling (skip some auctions) spreads spend evenly. Lowering the bid instead wins only the cheapest impressions, so it buys the most clicks per dollar. Pacing is a control loop on top of the ranker, not part of the click model.</div>
+</div>
+
+<h2 class="sec">7. Pitfalls interviewers ask about</h2>
+
+<div class="card">
+  <h3>Position bias</h3>
+  <div class="seg" id="posSeg"><button data-f="false">No position feature (wrong)</button><button data-f="true" class="on">Position as feature, serve at slot 1 (right)</button></div>
+  <div id="posK" style="margin-top:12px"></div>
+  <div class="two" style="margin-top:12px"><div class="scroll" id="posG"></div><div class="scroll" id="posC"></div></div>
+  <div class="note"><b>What to notice.</b> The old system put high bidders in top slots. A model trained without position learns "low bidders have low CTR" when the real cause was the slot. Predicted-to-true for low bidders is 0.42, so they almost never win slot 1 and never get the data to prove themselves. Training with position as a feature and scoring every candidate as if in slot 1 recovers most of it and learns the visibility curve on the right.</div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h3>Miscalibration and the winner's curse</h3>
+  <div class="ctl">
+    <div style="flex:1"><label>Overconfidence (1 = none): <span id="ocv">1.6</span></label><input id="oc" type="range" min="0.5" max="3" step="0.1" value="1.6"></div>
+    <div style="flex:1"><label>Per-ad noise: <span id="nsv">0.4</span></label><input id="ns" type="range" min="0" max="1.5" step="0.1" value="0.4"></div>
+  </div>
+  <div class="scroll" id="misT" style="margin-top:10px"></div>
+  <div class="note"><b>What to notice.</b> Even a calibrated model over-predicts for the ads that win (1.14 here), because the auction picks the highest estimate and high estimates are partly luck. Add per-ad noise and winners are over-predicted by 2x. A global calibration layer fixes the average but not the per-ad error, so winners stay over-predicted. This is why new ads with few impressions need wider uncertainty or separate handling.</div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h3>Negative downsampling without correction</h3>
+  <div class="ctl"><div style="flex:1"><label>Keep this share of non-clicks: <span id="drv">0.10</span></label><input id="dr" type="range" min="0.01" max="1" step="0.01" value="0.1"></div></div>
+  <div id="dK" style="margin-top:10px"></div>
+  <div class="two" style="margin-top:12px"><div><canvas id="dC"></canvas><div class="mute sm">x: predicted CTR, y: actual CTR.</div></div><div class="scroll" id="dT"></div></div>
+  <div class="note"><b>What to notice.</b> Dropping 90% of non-clicks makes training cheap, but the model then believes CTR is about 40% when it is 7%. Ranking (AUC) is untouched, which is why the bug is easy to miss. The fix is one line at serving: <code>q = p / (p + (1 - p) / w)</code>, where w is the keep rate.</div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h3>Delayed conversion labels</h3>
+  <div class="ctl"><div style="flex:1"><label>Wait window (days): <span id="dwv">3</span></label><input id="dw" type="range" min="0.5" max="7" step="0.5" value="3"></div></div>
+  <div class="two" style="margin-top:12px"><div class="scroll" id="cvT"></div><div><label>Share of conversions that have arrived, by days since click</label><canvas id="cvC"></canvas></div></div>
+  <div class="note"><b>What to notice.</b> A purchase can come days after the click. Training today on "no conversion yet" as a negative under-predicts conversion rate, worst for slow-converting advertisers, whose bids then come out too low. Waiting for labels fixes the bias but trains on stale data. Reweighting by the chance a conversion has arrived by now keeps the data fresh and removes part of the bias.</div>
+</div>
+</div>
+
+<div class="pane" id="guide">Loading...</div>
+</main>
+<script src="../shared/common.js"></script>
+<script>
+const SLUG = 'ads-ranking'; loadGuide(SLUG, $('#guide'));
+const pct = (v, d = 1) => (v * 100).toFixed(d) + '%', f = (v, d = 3) => (+v).toFixed(d);
+const deb = (fn, ms = 250) => { let t; return () => { clearTimeout(t); t = setTimeout(fn, ms); }; };
+const tbl = (el, head, rows, cls) => el.innerHTML = '<table><tr>' + head.map(h => `<th>${h}</th>`).join('') + '</tr>' + rows.map((r, i) => `<tr class="${cls ? cls(i) : ''}">` + r.map(c => `<td>${c}</td>`).join('') + '</tr>').join('') + '</table>';
+let V = null, sample = null, seed = 0;
+
+async function overview() {
+  const o = await api(SLUG, '/overview'), d = o.dataset; V = o.vocab;
+  kpis($('#kpi'), {'impressions': d.impressions, 'ads': d.ads, 'CTR': pct(d.ctr), 'conversion rate after click': pct(d.cvr_given_click), 'hide-ad rate': pct(d.hide_rate), 'sparse features and crosses': o.features.distinct_tokens});
+  tbl($('#models'), ['Model', 'NE', 'Log loss', 'AUC', 'Predicted / actual', 'Train ms', 'Score 500 ads, ms'],
+    o.models.map(m => [esc(m.label), f(m.ne, 4), f(m.logloss, 4), f(m.auc), f(m.calibration, 2), f(m.train_ms, 0), f(m.score_500_candidates_ms, 2)]));
+  tbl($('#bypos'), ['Slot', 'Impressions', 'Logged CTR', 'True CTR if slot 1', 'Chance user looks', 'Avg bid shown'],
+    o.by_position.map(p => [p.position, p.impressions, pct(p.logged_ctr), pct(p.true_ctr_if_slot1), pct(p.examination_prob, 0), '$' + f(p.avg_bid_of_ads_shown, 2)]));
+  const opts = o.models.map(m => `<option value="${m.model}">${esc(m.label)}</option>`).join('');
+  $('#calM').innerHTML = opts; $('#aucM').innerHTML = opts;
+}
+
+async function hashing() {
+  const r = await api(SLUG, '/hashing', {bits: +$('#bits').value});
+  tbl($('#hash'), ['Bits', 'Buckets', 'Features sharing a bucket', 'NE (lower is better)', 'AUC', 'Memory, KB'],
+    r.rows.map(x => [x.bits, x.buckets, pct(x.collision_rate, 0), f(x.ne, 4), f(x.auc), x.memory_kb]), i => r.rows[i].selected ? 'selr' : '');
+}
+
+function reliability(canvas, sets) {
+  const mx = Math.max(...sets.flatMap(s => s.curve.flatMap(p => [p.pred, p.actual])));
+  lineChart(canvas, [{name: 'perfect', xs: [0, mx], ys: [0, mx], color: '#5b6478'}, ...sets.map(s => ({name: s.name, xs: s.curve.map(p => p.pred), ys: s.curve.map(p => p.actual), color: s.color}))], {h: 260});
+}
+
+async function calibration() {
+  const r = await api(SLUG, '/calibration', {model: $('#calM').value, method: $('#calK').value});
+  reliability($('#calC'), [{name: 'before', curve: r.before.curve, color: '#ef6b73'}, {name: 'after', curve: r.after.curve, color: '#4cc38a'}]);
+  tbl($('#calT'), ['', 'Before', 'After'], [['Predicted / actual', f(r.before.calibration, 3), f(r.after.calibration, 3)], ['NE', f(r.before.ne, 4), f(r.after.ne, 4)], ['Log loss', f(r.before.logloss, 4), f(r.after.logloss, 4)], ['AUC', f(r.before.auc, 4), f(r.after.auc, 4)]]);
+}
+
+async function newAuction() {
+  sample = await api(SLUG, '/auction/sample?seed=' + (seed++));
+  const u = sample.user;
+  $('#aucU').innerHTML = `User: age ${V.ages[u.age]}, ${V.countries[u.country]}, interested in <b>${V.interests[u.interest]}</b>, ${V.devices[u.device]}, ${V.hours[u.hour]}.`;
+  auction();
+}
+
+async function auction() {
+  if (!sample) return;
+  const r = await api(SLUG, '/auction', {model: $('#aucM').value, rule: $('#rule').value, user: sample.user, ads: sample.ads.map(a => ({ad_id: a.ad_id, bid: a.bid})), w_click: +$('#wc').value, w_hide: +$('#wh').value, slots: +$('#slots').value});
+  tbl($('#aucT'), ['Slot', 'Ad', 'Bid $', 'pCTR', 'True CTR', 'pHide', 'True hide', 'eCPM', 'Score x1000', 'Price per click', 'Exp. revenue x1000'],
+    r.rows.map(x => [x.slot ?? '<span class="mute">not shown</span>', esc(x.name), `<input type="number" step="0.05" min="0.05" data-ad="${x.ad_id}" value="${x.bid}">`, pct(x.pctr), pct(x.true_ctr), pct(x.phide), pct(x.true_hide), f(x.ecpm, 1), f(x.total_value_x1000, 1), x.price_per_click == null ? '-' : '$' + f(x.price_per_click), f(x.exp_revenue_x1000, 1)]),
+    i => r.rows[i].slot ? 'win' : '');
+  $$('#aucT input').forEach(inp => inp.onchange = () => { const a = sample.ads.find(a => a.ad_id == inp.dataset.ad), v = +inp.value; if (v > 0 && v <= 100) { a.bid = v; auction(); } });
+  $('#aucF').textContent = r.formula + '   (scoring took ' + f(r.scoring_ms, 2) + ' ms)';
+  tbl($('#aucR'), ['Rank by', 'Ads shown, in order', 'Revenue x1000', 'Clicks x1000', 'Hides x1000', 'Advertiser value x1000'],
+    r.by_rule.map(x => [{ecpm: 'bid x pCTR', bid: 'bid only', pctr: 'pCTR only'}[x.rule], esc(x.winners), f(x.exp_revenue_x1000, 1), f(x.exp_clicks_x1000, 1), f(x.exp_hides_x1000, 1), f(x.advertiser_value_x1000, 1)]),
+    i => r.by_rule[i].rule === $('#rule').value ? 'selr' : '');
+}
+
+async function tradeoff() {
+  const r = await api(SLUG, '/tradeoff', {});
+  const xs = r.sweep_hide.map(x => x.w_hide);
+  lineChart($('#tr1'), [{name: 'revenue', xs, ys: r.sweep_hide.map(x => x.revenue_per_1k_auctions)}], {xlabel: 'hide penalty', h: 220});
+  lineChart($('#tr2'), [{name: 'hides', xs, ys: r.sweep_hide.map(x => x.hides_per_1k_imps), color: '#ef6b73'}], {xlabel: 'hide penalty', h: 220});
+  const row = (n, x) => [n, f(x.revenue_per_1k_auctions, 1), f(x.advertiser_value_per_1k, 1), f(x.ctr_pct, 2) + '%', f(x.hides_per_1k_imps, 1), f(x.ads_per_auction, 2)];
+  tbl($('#trB'), ['Objective', 'Revenue / 1k auctions', 'Advertiser value / 1k', 'CTR', 'Hides / 1k imps', 'Ads per request'],
+    [...r.baselines.map(b => row(esc(b.objective), b)), row('bid x pCTR with hide penalty 0.5', r.selected)]);
+}
+
+async function pacing() {
+  const r = await api(SLUG, '/pacing', {ad_id: 0, bid: +$('#pBid').value, budget: +$('#pBud').value}), m = r.modes;
+  lineChart($('#pC'), [{name: 'no pacing', xs: r.x, ys: m.none.series, color: '#ef6b73'}, {name: 'throttle', xs: r.x, ys: m.throttle.series, color: '#f0b429'}, {name: 'lower bid', xs: r.x, ys: m.bid.series, color: '#4cc38a'}], {xlabel: '% of day', h: 240});
+  const row = (n, x) => [n, '$' + f(x.spend, 2), x.impressions, f(x.exp_clicks, 1), '$' + f(x.cost_per_click), x.budget_exhausted_at_pct_of_day == null ? 'lasts all day' : f(x.budget_exhausted_at_pct_of_day, 0) + '% of day'];
+  tbl($('#pT'), ['Pacing', 'Spend', 'Impressions', 'Clicks', 'Cost per click', 'Budget runs out'], [row('None', m.none), row('Throttle', m.throttle), row('Lower the bid', m.bid)]);
+}
+
+async function posBias(fix) {
+  const r = await api(SLUG, '/pitfall/position-bias?fix=' + fix), A = r.auction, ks = Object.keys(A), cur = A[ks[fix ? 1 : 0]];
+  kpis($('#posK'), {'predicted / true, all candidates': f(cur['pred/true over all candidates'], 2), 'low bidders winning slot 1': pct(cur.low_bidder_share_of_slot1), 'with a perfect model': pct(r.oracle_low_bidder_share_of_slot1), 'advertiser value vs perfect model': pct(cur.advertiser_value_vs_oracle)});
+  tbl($('#posG'), ['Ad group', 'Avg logged slot', 'True slot-1 CTR', 'Pred / true, no position', 'Pred / true, with position'],
+    r.by_ad_group.map(g => [esc(g.ad_group), f(g.avg_logged_position, 2), pct(g.true_slot1_ctr), f(g['no position feature - pred/true'], 2), f(g['position feature, serve with pos=1 - pred/true'], 2)]));
+  tbl($('#posC'), ['Slot', 'True chance user looks', 'Learned by the model'], r.position_curve.map(p => [p.position, pct(p.true_examination, 0), pct(p.learned_by_model, 0)]));
+}
+
+async function miscal() {
+  const r = await api(SLUG, '/pitfall/miscalibration', {overconfidence: +$('#oc').value, noise_sd: +$('#ns').value});
+  tbl($('#misT'), ['pCTR used by the auction', 'Pred / true, all candidates', 'Pred / true, winners', 'Advertiser value vs perfect', 'Revenue / 1k auctions', 'Clicks / 1k auctions'],
+    r.rows.map(x => [esc(x['pCTR used by auction']), f(x['calibration all candidates (pred/true)'], 2), `<b>${f(x['calibration WINNERS (pred/true)'], 2)}</b>`, pct(x['advertiser value vs oracle']), f(x['revenue per 1k auctions'], 1), f(x['clicks per 1k auctions'], 1)]));
+}
+
+async function downsample() {
+  const r = await api(SLUG, '/pitfall/downsampling', {rate: +$('#dr').value}), u = r.uncorrected, c = r.corrected;
+  kpis($('#dK'), {'training rows kept': r.train_rows_kept + ' of ' + r.train_rows_full, 'CTR in the sampled training set': pct(r.train_ctr_after_sampling), 'real CTR': pct(r.true_ctr), 'mean pCTR, uncorrected': pct(u.mean_pctr), 'mean pCTR, corrected': pct(c.mean_pctr)});
+  reliability($('#dC'), [{name: 'uncorrected', curve: u.curve, color: '#ef6b73'}, {name: 'corrected', curve: c.curve, color: '#4cc38a'}]);
+  tbl($('#dT'), ['', 'Uncorrected', 'Corrected', 'Trained on all data'], [['Predicted / actual', f(u.calibration, 2), f(c.calibration, 2), f(r.full_data_reference.calibration, 2)], ['NE', f(u.ne, 3), f(c.ne, 3), f(r.full_data_reference.ne, 3)], ['AUC', f(u.auc), f(c.auc), f(r.full_data_reference.auc)]]);
+}
+
+async function delayed() {
+  const r = await api(SLUG, '/pitfall/delayed-conversions', {window_days: +$('#dw').value});
+  const nm = {naive: 'Train now, missing = negative', wait: 'Wait the window, then train', reweight: 'Train now, reweight by arrival chance', oracle: 'All labels known (reference)'};
+  tbl($('#cvT'), ['Method', 'Training clicks', 'Pred / true CVR', 'Pred / true, slow advertisers', 'Newest training data'],
+    r.rows.map(x => [nm[x.method], x.train_clicks, f(x['pred/true CVR (all)'], 2), f(x['pred/true CVR (slow-converting ads)'], 2), f(x.freshest_training_click_age_days, 1) + ' days old']));
+  lineChart($('#cvC'), [{name: 'arrived', xs: r.delay_cdf.map(d => d.days), ys: r.delay_cdf.map(d => d.share_of_conversions_arrived * 100)}], {xlabel: 'days since click', h: 220});
+}
+
+const bind = (id, out, fn, d = 2) => { $(id).oninput = e => $(out).textContent = (+e.target.value).toFixed(d); $(id).onchange = fn; };
+bind('#bits', '#bitsv', hashing, 0); bind('#wc', '#wcv', auction, 1); bind('#wh', '#whv', auction, 1);
+bind('#oc', '#ocv', miscal, 1); bind('#ns', '#nsv', miscal, 1); bind('#dr', '#drv', downsample, 2); bind('#dw', '#dwv', delayed, 1);
+$('#calM').onchange = $('#calK').onchange = calibration;
+$('#aucM').onchange = $('#rule').onchange = $('#slots').onchange = auction;
+$('#newA').onclick = newAuction; $('#pGo').onclick = pacing;
+$$('#posSeg button').forEach(b => b.onclick = () => { $$('#posSeg button').forEach(x => x.classList.toggle('on', x === b)); posBias(b.dataset.f); });
+overview().then(() => { calibration(); newAuction(); });
+hashing(); tradeoff(); pacing(); posBias('true'); miscal(); downsample(); delayed();
+</script></body></html>

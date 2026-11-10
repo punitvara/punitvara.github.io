@@ -20,7 +20,7 @@ The demos need the Python backend, so they do not run on GitHub Pages. Run them 
 | 1 | People You May Know | done | done | done |
 | 2 | Matching drivers with customers | drafted, untested | - | - |
 | 3 | Place / location recommender | drafted, untested | - | - |
-| 4 | Ads ranking for the news feed | drafted, untested | - | - |
+| 4 | Ads ranking for the news feed | done | done | done |
 | 5 | Ranking experiment (A/B testing) | drafted, untested | - | - |
 | 6 | Language classifier | drafted, untested | - | - |
 | 7 | Account bot detection | drafted, untested | - | - |
