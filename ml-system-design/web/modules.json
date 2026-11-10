@@ -1,0 +1,51 @@
+[
+ {
+  "slug": "friend-recommendation",
+  "title": "Friend Recommendation",
+  "tagline": "Link prediction at 1B users: FoF + embedding retrieval, GBDT ranker, leakage and hub-bias pitfalls",
+  "icon": "👥",
+  "order": 1
+ },
+ {
+  "slug": "driver-matching",
+  "title": "Ride Dispatch Matching",
+  "tagline": "Two-sided marketplace dispatch: ETA + acceptance models, greedy vs batched Hungarian matching, surge, geo index.",
+  "icon": "🚕",
+  "order": 2
+ },
+ {
+  "slug": "place-recommender",
+  "title": "Nearby Place Recommendations",
+  "tagline": "Geo retrieval + embeddings + context-aware GBDT re-rank, with diversity, exploration and bias pitfalls",
+  "icon": "📍",
+  "order": 3
+ },
+ {
+  "slug": "ads-ranking",
+  "title": "Ad Ranking in a Feed",
+  "tagline": "pCTR models, calibration, eCPM auctions with GSP pricing, pacing and position bias",
+  "icon": "📢",
+  "order": 4
+ },
+ {
+  "slug": "ranking-experiment",
+  "title": "Testing a New Ranker",
+  "tagline": "Power, SRM, CUPED, peeking, interference, interleaving and IPS: decide whether a new ranker ships.",
+  "icon": "🧬",
+  "order": 5
+ },
+ {
+  "slug": "language-classifier",
+  "title": "Text Language Detection",
+  "tagline": "Script rule -> char n-gram cascade for short, noisy, code-mixed posts; abstention, confusions, pitfalls.",
+  "icon": "🌐",
+  "order": 6
+ },
+ {
+  "slug": "bot-detection",
+  "title": "Fake Account Detection",
+  "tagline": "1% base rate, adversaries that adapt, rings found by union-find, and cost-based tiered enforcement",
+  "icon": "🤖",
+  "order": 7
+ }
+]
