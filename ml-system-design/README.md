@@ -19,7 +19,7 @@ The demos need the Python backend, so run them locally. The landing page and all
 |---|---|---|---|---|
 | 1 | Friend recommendation | done | done | done |
 | 2 | Ride dispatch matching | drafted, untested | - | - |
-| 3 | Nearby place recommendations | drafted, untested | - | - |
+| 3 | Nearby place recommendations | done | done | done |
 | 4 | Ad ranking in a feed | done | done | done |
 | 5 | Testing a new ranker | drafted, untested | - | - |
 | 6 | Text language detection | drafted, untested | - | - |
