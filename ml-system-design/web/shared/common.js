@@ -45,9 +45,19 @@ function md(src) {
 
 /** Load ../guides/<slug>.md via /api/guide/<slug> into element. */
 async function loadGuide(slug, el) {
-  try { el.innerHTML = '<div class="md">' + md(await (await fetch(`/api/guide/${slug}`)).text()) + '</div>'; }
-  catch (e) { el.textContent = 'Guide failed to load: ' + e; }
+  // Backend first; fall back to the static markdown file so guides work on GitHub Pages.
+  const get = async u => { const r = await fetch(u); if (!r.ok) throw new Error(r.status); return r.text(); };
+  try {
+    let t; try { t = await get(`/api/guide/${slug}`); } catch (e) { t = await get(`../../guides/${slug}.md`); }
+    el.innerHTML = '<div class="md">' + md(t) + '</div>';
+  } catch (e) { el.textContent = 'Guide failed to load: ' + e; }
 }
+// If there is no backend (static hosting), tell the reader how to run the demo.
+document.addEventListener('DOMContentLoaded', async () => {
+  const demo = document.getElementById('demo'); if (!demo) return;
+  try { const r = await fetch('/api/modules'); if (!r.ok) throw 0; await r.json(); }
+  catch (e) { demo.insertAdjacentHTML('afterbegin', '<div class="note" style="border-color:var(--warn)"><b>The live demo needs the Python backend.</b> The interview guide tab works here; to run the demo, clone the repo and run <code>cd ml-system-design &amp;&amp; ./run.sh</code>, then open <code>http://localhost:8000</code>.</div>'); }
+});
 
 // ---- tiny charts (canvas, no deps) ----
 function lineChart(canvas, series, {xlabel = '', ylabel = '', h = 260} = {}) {

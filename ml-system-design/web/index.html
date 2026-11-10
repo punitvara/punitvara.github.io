@@ -10,7 +10,7 @@
 <script src="shared/common.js"></script>
 <script>
 (async()=>{
-  const mods = await (await fetch('/api/modules')).json();
+  let mods; try { mods = await (await fetch('/api/modules')).json(); } catch (e) { mods = await (await fetch('modules.json')).json(); }
   const ready = await Promise.all(mods.map(m=>fetch(`${m.slug}/`).then(r=>r.ok).catch(()=>false)));
   $('#cards').innerHTML = mods.map((m,i)=>ready[i]
     ? `<a class="card" href="${m.slug}/"><div class="icon">${m.icon}</div><h3>${esc(m.title)}</h3><div class="mute">${esc(m.tagline)}</div></a>`

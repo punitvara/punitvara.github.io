@@ -1,0 +1,51 @@
+[
+ {
+  "slug": "pymk",
+  "title": "People You May Know",
+  "tagline": "Link prediction at 1B users: FoF + embedding retrieval, GBDT ranker, leakage and hub-bias pitfalls",
+  "icon": "👥",
+  "order": 1
+ },
+ {
+  "slug": "driver-matching",
+  "title": "Matching Drivers with Customers",
+  "tagline": "Two-sided marketplace dispatch: ETA + acceptance models, greedy vs batched Hungarian matching, surge, geo index.",
+  "icon": "🚕",
+  "order": 2
+ },
+ {
+  "slug": "place-recommender",
+  "title": "Place / Location Recommender",
+  "tagline": "Geo retrieval + embeddings + context-aware GBDT re-rank, with diversity, exploration and bias pitfalls",
+  "icon": "📍",
+  "order": 3
+ },
+ {
+  "slug": "ads-ranking",
+  "title": "Ads Ranking for the News Feed",
+  "tagline": "pCTR models, calibration, eCPM auctions with GSP pricing, pacing and position bias",
+  "icon": "📢",
+  "order": 4
+ },
+ {
+  "slug": "ranking-experiment",
+  "title": "Ranking Experiment (A/B Testing)",
+  "tagline": "Power, SRM, CUPED, peeking, interference, interleaving and IPS: decide whether a new ranker ships.",
+  "icon": "🧬",
+  "order": 5
+ },
+ {
+  "slug": "language-classifier",
+  "title": "Language Classifier",
+  "tagline": "Script rule -> char n-gram cascade for short, noisy, code-mixed posts; abstention, confusions, pitfalls.",
+  "icon": "🌐",
+  "order": 6
+ },
+ {
+  "slug": "bot-detection",
+  "title": "Account Bot Detection",
+  "tagline": "1% base rate, adversaries that adapt, rings found by union-find, and cost-based tiered enforcement",
+  "icon": "🤖",
+  "order": 7
+ }
+]

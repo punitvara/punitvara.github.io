@@ -11,7 +11,7 @@ cd ml-system-design
 ./run.sh            # installs requirements, serves http://localhost:8000
 ```
 
-The demos need the Python backend, so they do not run on GitHub Pages. Run them locally.
+The demos need the Python backend, so run them locally. The landing page and all interview guides are static, so they work on GitHub Pages at `/ml-system-design/` (guides load from `guides/*.md`; the demo tab shows a note explaining how to run it).
 
 ## Status
 
