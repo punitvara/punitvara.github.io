@@ -1,0 +1,175 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>People You May Know</title><link rel="stylesheet" href="../shared/style.css">
+<style>
+h2.sec{margin:34px 0 6px}.sub{margin:0 0 14px}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.chips button{padding:4px 10px;font-weight:400}
+.ctl{display:flex;gap:14px;flex-wrap:wrap;align-items:end}.ctl>div{min-width:120px}
+.chk{display:flex;gap:6px;align-items:center;text-transform:none;font-size:14px;color:var(--text);letter-spacing:0}
+tr.hit td{background:rgba(76,195,138,.09)}tr.sel td{background:rgba(110,168,254,.12)}tr.clk{cursor:pointer}
+.scroll{overflow-x:auto}.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+.funnel div{display:grid;grid-template-columns:190px 1fr 110px;gap:8px;align-items:center;margin:5px 0;font-size:14px}
+</style></head><body>
+<header class="top"><a href="../">&larr; Lab</a><h1>👥 People You May Know</h1></header>
+<main>
+<div class="tabs"><div class="tab" data-pane="demo">Live demo</div><div class="tab" data-pane="guide">Interview guide</div></div>
+
+<div class="pane" id="demo">
+<p class="mute">A 1,000-user synthetic social network with communities, schools, employers and uploaded contact books. The system sees the graph as of "today" and must predict friendships that form later. Those future friendships are hidden from the model and used only to score it.</p>
+
+<h2 class="sec">1. The system at a glance</h2>
+<div id="kpi"></div>
+<div class="two" style="margin-top:16px">
+  <div class="card"><h3>Recall by stage (top 10 shown to the user)</h3><div class="scroll" id="stage"></div>
+    <div class="note"><b>What to notice.</b> No single generator finds more than ~58% of future friends, but their union finds ~83%. Retrieval sets the ceiling; the ranker decides how much of it survives the cut to 10. Say "multiple candidate generators, measured by recall" before you say anything about the ranker.</div></div>
+  <div class="card"><h3>What the ranker learned (permutation importance)</h3><div id="imp"></div>
+    <div class="note"><b>What to notice.</b> Mutual-friend count is the feature everyone names first, yet the model leans on contact-book overlap, embedding similarity and profile views. Counts of mutual friends are mostly redundant once Adamic-Adar and Jaccard are present.</div></div>
+</div>
+
+<h2 class="sec">2. Recommend for one user</h2>
+<p class="mute sub">Walk one request through retrieval, filtering, ranking and explanation.</p>
+<div class="card">
+  <div class="ctl">
+    <div><label>User id (0-999)</label><input id="uid" type="number" min="0" max="999" value="5" style="width:110px"></div>
+    <div><label>Show top K</label><input id="k" type="number" min="1" max="50" value="10" style="width:80px"></div>
+    <div><label>Candidates per generator: <span id="pgv">50</span></label><input id="pg" type="range" min="5" max="300" step="5" value="50"></div>
+    <div><label>Embedding search</label><select id="np"><option value="">Exact (brute force)</option><option value="1">ANN, probe 1 of 32 cells</option><option value="4">ANN, probe 4 of 32 cells</option><option value="8">ANN, probe 8 of 32 cells</option></select></div>
+    <div><label class="chk"><input type="checkbox" id="hub"> Celebrity discount</label></div>
+    <div><button id="go">Recommend</button></div>
+  </div>
+  <label>Try a</label>
+  <div class="chips" id="chips"></div>
+</div>
+<div id="rec" style="margin-top:16px"></div>
+
+<h2 class="sec">3. Retrieval at 1B users: the ANN trade-off</h2>
+<p class="mute sub">Embeddings are clustered into 32 cells (an IVF index). A query scans only the nearest cells.</p>
+<div class="card"><div class="scroll" id="ann"></div>
+<div class="note"><b>What to notice.</b> Scanning 12% of the vectors keeps 97% of the exact top-20. At a billion users that is the difference between an infeasible scan and a few milliseconds. The knob (cells probed) trades recall for latency, and you tune it against downstream top-K recall, not against exact-search recall alone.</div></div>
+
+<h2 class="sec">4. Pitfall: label leakage from a random split</h2>
+<p class="mute sub">Train the same model two ways and compare the offline score with what happens in production.</p>
+<div class="card">
+  <div class="ctl"><button class="sec" data-split="random">Random split (wrong)</button><button class="sec" data-split="time">Time split (right)</button><button id="both">Run both</button></div>
+  <div class="two" style="margin-top:14px"><div id="leakR"></div><div id="leakT"></div></div>
+  <div class="note"><b>What to notice.</b> With a random split the features are read from today's tables, after the friendship already exists. Profile views between two people jump once they are friends, so the model learns a consequence of the label. Offline AUC looks near perfect and production AUC collapses. The fix is point-in-time features: snapshot at T, label from the window after T.</div>
+</div>
+
+<h2 class="sec">5. Pitfall: hub bias and the feedback loop</h2>
+<p class="mute sub">Simulate several rounds of serving PYMK to everyone, where accepted suggestions become new edges that feed the next round.</p>
+<div class="card">
+  <div class="ctl">
+    <div><label>Rounds: <span id="rdv">5</span></label><input id="rd" type="range" min="1" max="8" value="5"></div>
+    <div><label>Impression cap per person: <span id="capv">12</span></label><input id="cap" type="range" min="1" max="60" value="12"></div>
+    <div><button id="loop">Run simulation</button></div>
+  </div>
+  <div id="loopK" style="margin-top:14px"></div>
+  <div class="two" style="margin-top:14px">
+    <div><label>Share of impressions going to hubs (top 5% by friends)</label><canvas id="c1"></canvas></div>
+    <div><label>Friendships per 100 impressions</label><canvas id="c2"></canvas></div>
+  </div>
+  <div class="scroll" id="loopT" style="margin-top:10px"></div>
+  <div class="note"><b>What to notice.</b> Hubs are 5.7% of users but take about twice that share of slots without mitigation, and one person can be shown dozens of times per round. The discount plus an impression cap spreads exposure at almost no cost in total friendships. Also watch yield decay round over round: the easy, real-world ties get used up, which is why a launch-week lift overstates the long-run effect.</div>
+</div>
+</div>
+
+<div class="pane" id="guide">Loading...</div>
+</main>
+<script src="../shared/common.js"></script>
+<script>
+const SLUG = 'pymk'; loadGuide(SLUG, $('#guide'));
+const pct = v => (v * 100).toFixed(1) + '%', f3 = v => (+v).toFixed(3);
+let dismissed = [], last = null, selRow = 0;
+
+async function overview() {
+  const o = await api(SLUG, '/overview'), d = o.dataset, m = o.model.metrics;
+  kpis($('#kpi'), {'users': d.users, 'friendships today': d.friendships_at_serving_time, 'hidden future friendships': d.hidden_future_friendships,
+    'cold-start users': d.cold_start_users, 'label base rate': pct(o.model.train_info.base_rate),
+    'AUC, time-split validation': f3(m.validation_time_split.auc), 'AUC, production': f3(m.production.auc), 'PR-AUC, production': f3(m.production.pr_auc)});
+  $('#stage').innerHTML = '<table><tr><th>Stage</th><th>Avg candidates</th><th>Recall, warm users</th><th>Recall, cold-start users</th></tr>' +
+    o.stage_recall.rows.map(r => `<tr><td>${esc(r.stage)}</td><td>${r.avg_candidates.toFixed(0)}</td><td>${pct(r['recall (warm users)'])}</td><td>${pct(r['recall (cold-start users)'])}</td></tr>`).join('') + '</table>';
+  const fi = Object.entries(o.model.feature_importance).sort((a, b) => b[1] - a[1]);
+  barChart($('#imp'), fi.map(x => x[0]), fi.map(x => Math.max(0, x[1])), {fmt: v => v.toFixed(4)});
+  const s = o.sample_users, chip = (lbl, id) => `<button class="sec" data-u="${id}">${lbl} #${id}</button>`;
+  $('#chips').innerHTML = s.typical.slice(0, 3).map(i => chip('Typical user', i)).join('') + s.hubs.slice(0, 3).map(i => chip('Hub', i)).join('') + s.cold_start.slice(0, 3).map(i => chip('Cold-start user', i)).join('');
+  $$('#chips button').forEach(b => b.onclick = () => { $('#uid').value = b.dataset.u; dismissed = []; recommend(); });
+}
+
+async function recommend() {
+  const np = $('#np').value;
+  const r = await api(SLUG, '/recommend', {user_id: +$('#uid').value, k: +$('#k').value, per_gen: +$('#pg').value, hub_discount: $('#hub').checked, dismissed, nprobe: np === '' ? null : +np});
+  last = r; selRow = 0; renderRec();
+}
+
+function renderRec() {
+  const r = last, u = r.user, maxN = Math.max(...r.stage_recall.map(s => s.n), 1);
+  const tag = u.is_cold_start ? '<span class="pill warn">cold start</span>' : u.is_hub ? '<span class="pill warn">hub</span>' : '<span class="pill">typical</span>';
+  let h = `<div class="card"><h3>User #${u.id} ${tag}</h3>
+    <div class="mute">${u.friends} friends, community ${u.community}, school ${u.school}, employer ${u.employer}, city ${u.city}, age ${u.age}, ${u.uploaded_contacts_matches} contact-book matches. <b class="good">${u.hidden_future_friends}</b> friendships will form later (hidden from the model).</div>
+    ${r.cold_start_note ? `<div class="note"><b>Cold start.</b> ${esc(r.cold_start_note)}</div>` : ''}
+    <div class="two" style="margin-top:14px"><div><label>Funnel: candidates and recall of hidden friends</label><div class="funnel">` +
+    r.stage_recall.map(s => `<div><span class="mute">${esc(s.stage)}</span><div class="bar"><i style="width:${s.n / maxN * 100}%"></i></div><span>${s.n} / ${pct(s.recall)}</span></div>`).join('') +
+    `</div></div><div><label>Per generator</label><table><tr><th>Generator</th><th>Cands</th><th>Hidden found</th><th>Scanned</th><th>ms</th></tr>` +
+    r.generators.map(g => `<tr><td>${esc(g.name)}</td><td>${g.n_candidates}</td><td>${g.hidden_found}</td><td>${g.vectors_scanned}</td><td>${g.latency_ms.toFixed(2)}</td></tr>`).join('') +
+    `</table><div class="mute" style="margin-top:8px;font-size:13px">Filters removed ${r.filters.already_friends_removed} existing friends, ${r.filters.blocked_removed} blocked, ${r.filters.dismissed_removed} dismissed. Latency: retrieval ${r.latency_ms.retrieval.toFixed(1)} ms, features ${r.latency_ms.features.toFixed(1)} ms, ranking ${r.latency_ms.ranking_and_explanations.toFixed(1)} ms.</div></div></div></div>`;
+  h += `<div class="two" style="margin-top:16px"><div class="card"><h3>Ranked suggestions</h3><div class="scroll"><table><tr><th>#</th><th>User</th><th>P(accept)</th><th>Score</th><th>Friends</th><th>Found by</th><th></th></tr>` +
+    r.ranked.map((x, i) => `<tr class="clk ${x.is_hidden_friend ? 'hit' : ''} ${i === selRow ? 'sel' : ''}" data-i="${i}"><td>${x.rank}</td><td>#${x.id} ${x.is_hub ? '<span class="pill warn">hub</span>' : ''} ${x.is_hidden_friend ? '<span class="pill good">future friend</span>' : ''}</td><td>${pct(x.accept_prob)}</td><td>${f3(x.final_score)}${x.hub_discount < 1 ? ` <span class="mute">(x${x.hub_discount.toFixed(2)})</span>` : ''}</td><td>${x.degree}</td><td class="mute" style="font-size:12px">${x.sources.map(s => s.replace('fof_', '').replace('_', ' ')).join(', ')}</td><td><button class="sec" data-x="${x.id}" title="Dismiss" style="padding:2px 8px">✕</button></td></tr>`).join('') +
+    `</table></div><div class="mute" style="font-size:13px;margin-top:8px">Green rows are real future friendships. Click a row to see why it ranked. ✕ records negative feedback and removes that person for good.</div></div>
+    <div class="card" id="why"></div></div>
+    <div class="note"><b>What to notice.</b> Try a cold-start user: graph generators return nothing and the contacts/school fallback carries the request. Try a hub with and without the celebrity discount. Raise candidates per generator and watch union recall rise while top-K recall barely moves, which tells you the ranker, not retrieval, is the bottleneck for that user.</div>`;
+  $('#rec').innerHTML = h;
+  $$('#rec tr.clk').forEach(t => t.onclick = e => { if (e.target.dataset.x) return; selRow = +t.dataset.i; renderRec(); });
+  $$('#rec button[data-x]').forEach(b => b.onclick = () => { dismissed.push(+b.dataset.x); recommend(); });
+  why();
+}
+
+function why() {
+  const x = last.ranked[selRow]; if (!x) { $('#why').innerHTML = '<span class="mute">No candidates.</span>'; return; }
+  const c = Object.entries(x.contributions).sort((a, b) => Math.abs(b[1]) - Math.abs(a[1])), m = Math.max(...c.map(e => Math.abs(e[1])), 1e-9);
+  $('#why').innerHTML = `<h3>Why #${x.id} ranked ${x.rank}</h3><div class="mute" style="font-size:13px;margin-bottom:8px">Feature value, then how much the score moves (in log-odds) when that feature is replaced by a typical value.</div>` +
+    c.map(([k, v]) => `<div style="display:grid;grid-template-columns:120px 60px 1fr 54px;gap:8px;align-items:center;margin:4px 0;font-size:14px"><span class="mute">${k}</span><span>${(+x.features[k]).toFixed(2)}</span><div class="bar"><i style="width:${Math.abs(v) / m * 100}%;background:${v >= 0 ? 'var(--good)' : 'var(--bad)'}"></i></div><span>${v >= 0 ? '+' : ''}${v.toFixed(2)}</span></div>`).join('');
+}
+
+async function ann() {
+  const a = await api(SLUG, '/ann_tradeoff');
+  $('#ann').innerHTML = `<table><tr><th>Cells probed (of ${a.cells})</th><th>Recall vs exact top-${a.k}</th><th>Vectors scanned</th><th>ms per query</th></tr>` +
+    a.rows.map(r => `<tr><td>${r.nprobe}</td><td>${pct(r.recall_vs_exact)}</td><td>${pct(r.fraction_scanned)}</td><td>${r.ms_per_query.toFixed(3)}</td></tr>`).join('') + '</table>';
+}
+
+async function leak(split) {
+  const el = split === 'random' ? $('#leakR') : $('#leakT'); el.innerHTML = '<span class="mute">Training...</span>';
+  const r = await api(SLUG, '/leakage', {split}), bad = split === 'random';
+  const top = Object.entries(r.feature_importance_offline).sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0]).join(', ');
+  el.innerHTML = `<h3 class="${bad ? 'bad' : 'good'}">${bad ? 'Random split' : 'Time split'}</h3><div class="mute" style="font-size:13px">${esc(r.how)}</div>
+    <table style="margin-top:8px"><tr><th></th><th>AUC</th><th>PR-AUC</th></tr><tr><td>Offline</td><td>${f3(r.offline.auc)}</td><td>${f3(r.offline.pr_auc)}</td></tr><tr><td>Production</td><td>${f3(r.production.auc)}</td><td>${f3(r.production.pr_auc)}</td></tr>
+    <tr><td>Gap</td><td class="${bad ? 'bad' : 'good'}">${f3(r.offline_minus_production_auc)}</td><td class="${bad ? 'bad' : 'good'}">${f3(r.offline_minus_production_pr_auc)}</td></tr></table>
+    <div style="margin-top:8px;font-size:13px">Top features offline: <b>${esc(top)}</b></div><div class="${bad ? 'bad' : 'good'}" style="margin-top:6px;font-size:13px">${esc(r.verdict)}</div>`;
+}
+
+async function loop() {
+  $('#loop').disabled = true;
+  try {
+    const body = {rounds: +$('#rd').value, cap: +$('#cap').value, k: 5};
+    const [a, b] = await Promise.all([api(SLUG, '/feedback_loop', {...body, mitigate: false}), api(SLUG, '/feedback_loop', {...body, mitigate: true})]);
+    const row = (n, r) => ({policy: n, 'new friendships': r.summary.total_new_friendships, 'per 100 impressions': r.summary.friendships_per_100_impressions.toFixed(1),
+      'hub share, round 1': pct(r.summary.hub_impression_share_first), 'max impressions, one person': Math.max(...r.rounds.map(x => x.max_impressions_one_person)),
+      'never suggested, last round': r.rounds.at(-1).users_never_suggested_pct.toFixed(1) + '%', 'repeat impressions, last round': r.rounds.at(-1).repeat_impression_pct.toFixed(0) + '%'});
+    table($('#loopT'), [row('No mitigation', a), row('Discount + cap + dismiss memory', b)]);
+    kpis($('#loopK'), {'hub share of population': pct(a.summary.hub_share_of_population), 'hub share of slots, no mitigation': pct(a.summary.hub_impression_share_first), 'hub share of slots, mitigated': pct(b.summary.hub_impression_share_first),
+      'friendships lost to mitigation': pct(1 - b.summary.total_new_friendships / a.summary.total_new_friendships)});
+    const xs = a.rounds.map(r => r.round);
+    if (xs.length > 1) {
+      lineChart($('#c1'), [{name: 'no mitigation', xs, ys: a.rounds.map(r => r.hub_impression_share * 100), color: '#ef6b73'}, {name: 'mitigated', xs, ys: b.rounds.map(r => r.hub_impression_share * 100), color: '#4cc38a'}], {xlabel: 'round', h: 220});
+      lineChart($('#c2'), [{name: 'no mitigation', xs, ys: a.rounds.map(r => r.friendships_per_100_impressions), color: '#ef6b73'}, {name: 'mitigated', xs, ys: b.rounds.map(r => r.friendships_per_100_impressions), color: '#4cc38a'}], {xlabel: 'round', h: 220});
+    }
+  } finally { $('#loop').disabled = false; }
+}
+
+$('#go').onclick = () => { dismissed = []; recommend(); };
+$('#hub').onchange = $('#np').onchange = recommend;
+$('#pg').oninput = e => $('#pgv').textContent = e.target.value; $('#pg').onchange = recommend;
+$('#rd').oninput = e => $('#rdv').textContent = e.target.value; $('#cap').oninput = e => $('#capv').textContent = e.target.value;
+$$('button[data-split]').forEach(b => b.onclick = () => leak(b.dataset.split));
+$('#both').onclick = () => { leak('random'); leak('time'); };
+$('#loop').onclick = loop;
+overview().then(recommend); ann();
+</script></body></html>

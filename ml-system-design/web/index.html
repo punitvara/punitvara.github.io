@@ -1,0 +1,28 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ML System Design Interview Lab</title><link rel="stylesheet" href="shared/style.css"></head><body>
+<header class="top"><h1>🧪 ML System Design Interview Lab</h1><span class="sp"></span><a href="https://github.com/punitvara/punitvara.github.io" target="_blank">GitHub</a></header>
+<main>
+<p class="mute">Seven classic ML system design questions. Each has a runnable demo (real models on synthetic data), a FAANG-level interview guide, and follow-up questions with model answers.</p>
+<div id="cards" class="grid"></div>
+<h2 style="margin-top:36px">The interview framework (use it on every question)</h2>
+<div class="card md" id="framework"></div>
+</main>
+<script src="shared/common.js"></script>
+<script>
+(async()=>{
+  const mods = await (await fetch('/api/modules')).json();
+  const ready = await Promise.all(mods.map(m=>fetch(`${m.slug}/`).then(r=>r.ok).catch(()=>false)));
+  $('#cards').innerHTML = mods.map((m,i)=>ready[i]
+    ? `<a class="card" href="${m.slug}/"><div class="icon">${m.icon}</div><h3>${esc(m.title)}</h3><div class="mute">${esc(m.tagline)}</div></a>`
+    : `<div class="card" style="opacity:.55"><div class="icon">${m.icon}</div><h3>${esc(m.title)} <span class="pill">in progress</span></h3><div class="mute">${esc(m.tagline)}</div></div>`).join('');
+  $('#framework').innerHTML = md(`1. **Clarify** - product goal, scale (users, QPS, latency budget), constraints, cold start, what "success" means.
+2. **Frame as ML** - pick the objective(s) and proxy metrics; offer 2 options (e.g. revenue vs clicks) and justify one.
+3. **Data & labels** - sources, implicit vs explicit labels, sampling, bias, leakage, label delay.
+4. **Features** - user / item / context / cross features; encoding (dense, sparse, bucketed, embeddings); freshness; feature store.
+5. **Models** - baseline -> 2-3 candidates with trade-offs (scale, latency, cold start); circle back to the objective.
+6. **Serving** - candidate generation -> ranking -> re-ranking; caching; latency budget.
+7. **Evaluation** - offline (AUC, NDCG, PR) **and** online (A/B, guardrails, novelty effects).
+8. **Debugging & monitoring** - drift, logging skew, feedback loops, slicing, shadow mode, canary, rollback.
+9. **Wrap up** - extensions, risks, what you would do with more time.`);
+})();
+</script></body></html>
