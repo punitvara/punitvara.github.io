@@ -1,4 +1,4 @@
-"""People You May Know (PYMK) - link prediction as a two-stage recommender.
+"""Friend recommendation - link prediction as a two-stage recommender.
 
 What this module teaches (each section below is tagged with the interview concept):
   1. Synthetic world      - stochastic-block-model communities + latent real-world ties that
@@ -28,8 +28,8 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 from sklearn.utils.extmath import randomized_svd
 
 META = {
-    "slug": "pymk",
-    "title": "People You May Know",
+    "slug": "friend-recommendation",
+    "title": "Friend Recommendation",
     "tagline": "Link prediction at 1B users: FoF + embedding retrieval, GBDT ranker, leakage and hub-bias pitfalls",
     "icon": "\U0001F465",
     "order": 1,

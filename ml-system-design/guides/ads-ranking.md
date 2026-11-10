@@ -1,10 +1,10 @@
-# Ads Ranking for the News Feed: interview guide
+# Ad Ranking in a Feed: interview guide
 
 > The one-line answer: an ads system is a prediction problem feeding an auction. Retrieve eligible ads by targeting, predict calibrated probabilities (click, conversion, negative feedback), rank by expected value per impression (bid × pCTR plus quality terms), charge by a second-price rule, and pace budgets. The interview is won on calibration, position bias, feature crosses, freshness and multi-objective trade-offs, not on naming a deep model.
 
 ## 1. Problem statement and how to open
 
-**Prompt.** "Design an advertising ranking feature for the news feed."
+**Prompt.** "Design the ranking of sponsored posts in a social feed."
 
 Spend the first 5 minutes on questions. Then say: "I will cover the objective, the funnel, features, the click model, the auction, and evaluation. I can go deeper on features and modeling, on the auction and pacing, or on evaluation. Which would you like?"
 
@@ -121,7 +121,7 @@ Fatigue: `fatigue = log(1 + impressions of this advertiser to this user in 7 day
 |---|---|---|---|---|---|
 | Logistic regression on hashed crosses (FTRL) | Billions of features, online updates | Microseconds | Poor without content features | High | Needs hand-built crosses; freshness is excellent |
 | GBDT | Good on dense features, batch only | Milliseconds | Same | Medium | Learns crosses; bad at high-cardinality IDs and cannot update online |
-| GBDT leaves into LR (Facebook 2014) | GBDT daily, LR online | Low | Same | Medium | Trees do feature transforms, LR on top stays fresh |
+| GBDT leaves into LR (He et al., 2014) | GBDT daily, LR online | Low | Same | Medium | Trees do feature transforms, LR on top stays fresh |
 | Factorization machine | Good | Low | Generalizes to unseen crosses | Medium | Pairwise interactions through embeddings |
 | Deep model: Wide and Deep, DeepFM, DLRM, multi-task (MMoE) | GPU training, large embedding tables | 10 to 30 ms for hundreds of ads | Best, with content embeddings | Low | State of practice; shared embeddings across click, conversion and hide heads |
 
@@ -166,7 +166,7 @@ Fatigue: `fatigue = log(1 + impressions of this advertiser to this user in 7 day
 
 ## 10. Scaling and advanced topics
 
-- **Auction mechanics.** Generalized second price: each winner pays the minimum bid that keeps its slot. With quality terms, `price_i = (score_next - user_value_i) / pCTR_i`. VCG charges each winner the harm it does to others and is truthful with multiple slots; Meta uses VCG, search engines historically GSP. Reserve prices set a floor.
+- **Auction mechanics.** Generalized second price: each winner pays the minimum bid that keeps its slot. With quality terms, `price_i = (score_next - user_value_i) / pCTR_i`. VCG charges each winner the harm it does to others and is truthful with multiple slots; some feed platforms use VCG, search engines historically GSP. Reserve prices set a floor.
 - **Pacing.** A controller per campaign adjusts a multiplier so spend tracks a target curve. Throttling skips auctions; bid shading lowers the bid and wins cheaper impressions. Shading gives more results per dollar.
 - **Auto-bidding.** Advertisers give a goal (cost per conversion). The system sets `bid = target_cost × pCVR` per impression, so prediction quality directly sets the bid.
 - **Multi-objective.** Weights such as w_hide are set by long-term experiments that measure how hides and ad load change sessions, then converted into currency.

@@ -6,7 +6,7 @@ Each module = 3 files, nothing else is touched:
 2. `web/<slug>/index.html`   (+ optional `web/<slug>/app.js`)
 3. `guides/<slug>.md`
 
-Slugs/modules: pymk/pymk, driver-matching/driver_matching, place-recommender/place_recommender,
+Slugs/modules: friend-recommendation/friend_recommendation, driver-matching/driver_matching, place-recommender/place_recommender,
 ads-ranking/ads_ranking, ranking-experiment/ranking_experiment, language-classifier/language_classifier, bot-detection/bot_detection.
 
 ## Backend
@@ -36,7 +36,7 @@ ads-ranking/ads_ranking, ranking-experiment/ranking_experiment, language-classif
 - Each demo must have short "What to notice" callouts (`<div class="note">`) tying what's on screen to an interview talking point.
 
 ## Guide (`guides/<slug>.md`) - rendered by shared `md()` (supports #/##/###, **bold**, `code`, ``` fences, lists, tables, > quotes, `<details>`)
-Write at the level of a Meta/Google/Amazon ML E5/L6 interview. Required sections, in this order (## headings):
+Write at the level of a senior/staff ML engineer interview at a large tech company. Required sections, in this order (## headings):
 1. **Problem statement & how to open** - the exact prompt, then the clarifying questions to ask (grouped: product, scale, constraints, data) with *why each matters* and typical answers.
 2. **Objectives & metrics** - 2-3 framing options with trade-offs, chosen one, and offline/online/guardrail metrics.
 3. **High-level architecture** - ASCII diagram (in a ``` fence) + latency/QPS budget numbers.

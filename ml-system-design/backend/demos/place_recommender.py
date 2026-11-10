@@ -22,7 +22,7 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 
 META = {
     "slug": "place-recommender",
-    "title": "Place / Location Recommender",
+    "title": "Nearby Place Recommendations",
     "tagline": "Geo retrieval + embeddings + context-aware GBDT re-rank, with diversity, exploration and bias pitfalls",
     "icon": "\U0001F4CD",
     "order": 3,

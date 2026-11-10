@@ -1,15 +1,15 @@
-# People You May Know: interview guide
+# Friend Recommendation: interview guide
 
-> The one-line answer: PYMK is link prediction served as a funnel. Several cheap candidate generators (friends-of-friends, embeddings, contact books) give recall, a learned ranker predicts mutual value, and re-ranking rules handle safety, hub fairness and fatigue. Most of the interview is spent on objective choice, pair features, time-correct training data and feedback loops.
+> The one-line answer: Friend recommendation is link prediction served as a funnel. Several cheap candidate generators (friends-of-friends, embeddings, contact books) give recall, a learned ranker predicts mutual value, and re-ranking rules handle safety, hub fairness and fatigue. Most of the interview is spent on objective choice, pair features, time-correct training data and feedback loops.
 
 ## 1. Problem statement and how to open
 
-**Prompt.** "Design People You May Know for a social network with about 1B users."
+**Prompt.** "Design a friend-suggestion feature for a social network with about 1B users."
 
 Do not start drawing. Spend 4 to 5 minutes on questions, then state your assumptions out loud and ask where the interviewer wants depth: "I can go deep on candidate generation, features and ranking, or evaluation. Which one matters most to you?"
 
 **Product**
-- Is the edge symmetric (Facebook friend, needs acceptance) or directed (follow)? *Symmetric means two people must both benefit, so you score both directions.* Assume symmetric.
+- Is the edge symmetric (mutual friendship that needs acceptance) or directed (follow)? *Symmetric means two people must both benefit, so you score both directions.* Assume symmetric.
 - Where does it surface? Feed unit, dedicated tab, post-signup flow, notifications. *Each surface has a different latency budget and a different user intent.*
 - What does success mean to the business: more connections, more engagement, new-user retention? *This picks the label.*
 - Who should never be suggested? Blocked users, people the user removed, minors to unknown adults, reported accounts.
@@ -17,7 +17,7 @@ Do not start drawing. Spend 4 to 5 minutes on questions, then state your assumpt
 **Scale**
 - 1B users, roughly 300 to 500 friends on average, so on the order of 10^11 edges.
 - Friends-of-friends per user is 10^4 to 10^5 before dedup. All pairs is 10^18, so you can never score all pairs.
-- Read QPS: assume 200M daily PYMK views, peak about 10k QPS.
+- Read QPS: assume 200M daily suggestion views, peak about 10k QPS.
 
 **Constraints**
 - Latency: 200 ms p99 if computed online for the feed unit. A tab can serve a precomputed list.
@@ -25,7 +25,7 @@ Do not start drawing. Spend 4 to 5 minutes on questions, then state your assumpt
 - Privacy: which signals are allowed (contact upload, location, profile views)? *Creepy suggestions are a real product risk, so ask.*
 
 **Data**
-- Friend graph with edge timestamps, request sent/accepted/rejected/ignored logs, PYMK impression logs with position, profile attributes, contact uploads, interaction logs.
+- Friend graph with edge timestamps, request sent/accepted/rejected/ignored logs, suggestion impression logs with position, profile attributes, contact uploads, interaction logs.
 
 ## 2. Objectives and metrics
 
@@ -43,7 +43,7 @@ Train the fast heads daily and the slow head (interaction) weekly. This gives yo
 
 **Offline metrics:** recall@K per generator and for the union, AUC and PR-AUC for the ranker, NDCG@10, calibration.
 **Online primary:** friendships formed per user that have an interaction within 7 days. For new users, share reaching 10 friends in 14 days.
-**Guardrails:** dismiss ("X") rate, reports and blocks from PYMK, request rejection rate, request load on the receiving side, exposure concentration (Gini), latency p99.
+**Guardrails:** dismiss ("X") rate, reports and blocks from suggestions, request rejection rate, request load on the receiving side, exposure concentration (Gini), latency p99.
 
 ## 3. High-level architecture
 
@@ -67,7 +67,7 @@ request -> fetch candidates (KV)  ----\
 
 ## 4. Data and labels
 
-- **Positives:** an impression followed by request and accept within 7 days. Also organic friendships (search, profile visit) as extra positives for retrieval training, since they are free of PYMK's own bias.
+- **Positives:** an impression followed by request and accept within 7 days. Also organic friendships (search, profile visit) as extra positives for retrieval training, since they are free of the suggester's own bias.
 - **Negatives:** impressions with no request. Explicit dismissals are strong negatives and deserve higher weight. For retrieval models, add random and in-batch negatives, otherwise the model only learns to separate among things it already retrieved.
 - **Sampling:** base rate is 1 to 3%. Downsample negatives at rate w and correct the probability: `p' = p / (p + (1 - p) / w)`.
 - **Position bias:** slot 1 gets more requests regardless of quality. Log position, use it as a training feature, fix it to a constant at serving.
@@ -91,7 +91,7 @@ request -> fetch candidates (KV)  ----\
 | Recent-tie closure | pair, graph | count of mutual friends added in last 30 days | New job or new school makes whole clusters connectable now | Nearline |
 | Mutual-friend cohesion | pair, graph | edge density among the mutual friends | Ten mutuals who all know each other is one context; ten unrelated is ten contexts | Daily |
 | Candidate accept rate | node, v-side | smoothed rate | Some people accept everyone, some no one | Daily |
-| Viewer's PYMK behavior | node, u-side | send rate, dismiss rate, last 30 days | Calibrates per-user propensity | Daily |
+| Viewer's suggestion behavior | node, u-side | send rate, dismiss rate, last 30 days | Calibrates per-user propensity | Daily |
 | Prior impressions of this pair | pair | count, days since last | Fatigue: the 5th impression is worth far less | Real time |
 
 **Formulas to write on the board**
@@ -228,7 +228,7 @@ It only gets labels for pairs it showed, and shown pairs gain features (impressi
 </details>
 
 <details>
-<summary>Twist: the product is now follow-based, like Instagram or X. What changes?</summary>
+<summary>Twist: the product is now follow-based, like a follow-based network. What changes?</summary>
 The edge is directed and needs no acceptance, so the label is follow plus later engagement with the followed account's content. Popularity is now a legitimate signal, since following celebrities is the point, so the hub discount relaxes. Retrieval leans on co-follow ("people who follow A also follow B") and content interest embeddings. Creator-side exposure fairness becomes the two-sided concern.
 </details>
 

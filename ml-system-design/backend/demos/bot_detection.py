@@ -33,7 +33,7 @@ from sklearn.preprocessing import StandardScaler
 
 META = {
     "slug": "bot-detection",
-    "title": "Account Bot Detection",
+    "title": "Fake Account Detection",
     "tagline": "1% base rate, adversaries that adapt, rings found by union-find, and cost-based tiered enforcement",
     "icon": "\U0001F916",
     "order": 7,

@@ -3,7 +3,7 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
-/** api('pymk', '/recommend', {user_id:3}) -> POST JSON if body given, else GET. */
+/** api('friend-recommendation', '/recommend', {user_id:3}) -> POST JSON if body given, else GET. */
 async function api(slug, path, body) {
   const opt = body === undefined ? {} : {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body)};
   const r = await fetch(`/api/${slug}${path}`, opt);

@@ -1,4 +1,4 @@
-"""Matching Drivers with Customers (Uber / Lyft / DoorDash dispatch).
+"""Matching Drivers with Customers (ride-hailing / delivery dispatch).
 
 What this module teaches (each section below is tagged with the interview concept):
   1. WORLD        - a synthetic 10x10 km city with ground-truth ETA / acceptance / cancellation
@@ -24,7 +24,7 @@ from sklearn.metrics import brier_score_loss, log_loss, mean_absolute_error, roc
 
 META = {
     "slug": "driver-matching",
-    "title": "Matching Drivers with Customers",
+    "title": "Ride Dispatch Matching",
     "tagline": "Two-sided marketplace dispatch: ETA + acceptance models, greedy vs batched Hungarian matching, surge, geo index.",
     "icon": "🚕",
     "order": 2,

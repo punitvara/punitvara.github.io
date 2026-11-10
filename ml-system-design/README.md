@@ -1,6 +1,6 @@
-# ML System Design Interview Lab
+# ML Systems Practice Lab
 
-Runnable demos and FAANG-level interview guides for seven classic ML system design questions.
+Runnable demos and in-depth interview guides for seven ML system design problems.
 Each module has a FastAPI backend with real models on synthetic data, an interactive page, and a guide
 with clarifying questions, features, model trade-offs, evaluation, debugging and follow-up questions.
 
@@ -17,13 +17,13 @@ The demos need the Python backend, so run them locally. The landing page and all
 
 | # | Question | Backend | Demo page | Guide |
 |---|---|---|---|---|
-| 1 | People You May Know | done | done | done |
-| 2 | Matching drivers with customers | drafted, untested | - | - |
-| 3 | Place / location recommender | drafted, untested | - | - |
-| 4 | Ads ranking for the news feed | done | done | done |
-| 5 | Ranking experiment (A/B testing) | drafted, untested | - | - |
-| 6 | Language classifier | drafted, untested | - | - |
-| 7 | Account bot detection | drafted, untested | - | - |
+| 1 | Friend recommendation | done | done | done |
+| 2 | Ride dispatch matching | drafted, untested | - | - |
+| 3 | Nearby place recommendations | drafted, untested | - | - |
+| 4 | Ad ranking in a feed | done | done | done |
+| 5 | Testing a new ranker | drafted, untested | - | - |
+| 6 | Text language detection | drafted, untested | - | - |
+| 7 | Fake account detection | drafted, untested | - | - |
 
 ## Layout
 

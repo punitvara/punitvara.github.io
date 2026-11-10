@@ -1,4 +1,4 @@
-"""Language identification (LID) for user posts - interview lab module.
+"""Language identification (LID) for user posts - practice lab module.
 
 Question: "Design a language identification classifier for user posts
 (100+ languages, short noisy text, code-mixing)."
@@ -36,7 +36,7 @@ from sklearn.naive_bayes import MultinomialNB
 
 META = {
     "slug": "language-classifier",
-    "title": "Language Classifier",
+    "title": "Text Language Detection",
     "tagline": "Script rule -> char n-gram cascade for short, noisy, code-mixed posts; abstention, confusions, pitfalls.",
     "icon": "\U0001F310",
     "order": 6,

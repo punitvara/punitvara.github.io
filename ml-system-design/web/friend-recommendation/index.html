@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>People You May Know</title><link rel="stylesheet" href="../shared/style.css">
+<title>Friend Recommendation</title><link rel="stylesheet" href="../shared/style.css">
 <style>
 h2.sec{margin:34px 0 6px}.sub{margin:0 0 14px}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.chips button{padding:4px 10px;font-weight:400}
@@ -9,7 +9,7 @@ tr.hit td{background:rgba(76,195,138,.09)}tr.sel td{background:rgba(110,168,254,
 .scroll{overflow-x:auto}.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
 .funnel div{display:grid;grid-template-columns:190px 1fr 110px;gap:8px;align-items:center;margin:5px 0;font-size:14px}
 </style></head><body>
-<header class="top"><a href="../">&larr; Lab</a><h1>👥 People You May Know</h1></header>
+<header class="top"><a href="../">&larr; Lab</a><h1>👥 Friend Recommendation</h1></header>
 <main>
 <div class="tabs"><div class="tab" data-pane="demo">Live demo</div><div class="tab" data-pane="guide">Interview guide</div></div>
 
@@ -55,7 +55,7 @@ tr.hit td{background:rgba(76,195,138,.09)}tr.sel td{background:rgba(110,168,254,
 </div>
 
 <h2 class="sec">5. Pitfall: hub bias and the feedback loop</h2>
-<p class="mute sub">Simulate several rounds of serving PYMK to everyone, where accepted suggestions become new edges that feed the next round.</p>
+<p class="mute sub">Simulate several rounds of serving friend suggestions to everyone, where accepted suggestions become new edges that feed the next round.</p>
 <div class="card">
   <div class="ctl">
     <div><label>Rounds: <span id="rdv">5</span></label><input id="rd" type="range" min="1" max="8" value="5"></div>
@@ -76,7 +76,7 @@ tr.hit td{background:rgba(76,195,138,.09)}tr.sel td{background:rgba(110,168,254,
 </main>
 <script src="../shared/common.js"></script>
 <script>
-const SLUG = 'pymk'; loadGuide(SLUG, $('#guide'));
+const SLUG = 'friend-recommendation'; loadGuide(SLUG, $('#guide'));
 const pct = v => (v * 100).toFixed(1) + '%', f3 = v => (+v).toFixed(3);
 let dismissed = [], last = null, selRow = 0;
 

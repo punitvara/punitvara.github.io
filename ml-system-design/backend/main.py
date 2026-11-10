@@ -1,4 +1,4 @@
-"""ML System Design Interview Lab - FastAPI shell.
+"""ML Systems Practice Lab - FastAPI shell.
 
 Auto-discovers every module in backend/demos/*.py. Each module must expose:
   META   = {"slug": str, "title": str, "tagline": str, "icon": str}
@@ -15,7 +15,7 @@ from fastapi.responses import PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 ROOT = Path(__file__).resolve().parent.parent
-app = FastAPI(title="ML System Design Interview Lab")
+app = FastAPI(title="ML Systems Practice Lab")
 MODULES: list[dict] = []
 
 from . import demos  # noqa: E402

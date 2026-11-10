@@ -4,7 +4,7 @@ Interview concepts illustrated (search for the "# ==" section banners):
   1. Synthetic impression log with HIDDEN ground truth (true pCTR at position 1, examination
      probability per position, pCVR with delayed conversions, "hide ad" negative feedback).
   2. Feature hashing of sparse id features + crosses (hand-written hashing trick).
-  3. Three pCTR model families + the Facebook hybrid:
+  3. Three pCTR model families + the GBDT-into-LR hybrid:
        lr_hash  - logistic regression on hashed crosses (numpy Adagrad; online-learnable)
        gbdt     - sklearn HistGradientBoosting (learns crosses itself, batch only)
        fm       - factorization machine written in numpy (generalises to unseen crosses)
@@ -29,7 +29,7 @@ from sklearn.metrics import roc_auc_score
 
 META = {
     "slug": "ads-ranking",
-    "title": "Ads Ranking for the News Feed",
+    "title": "Ad Ranking in a Feed",
     "tagline": "pCTR models, calibration, eCPM auctions with GSP pricing, pacing and position bias",
     "icon": "\U0001F4E2",
     "order": 4,
@@ -327,7 +327,7 @@ def _fit_all():
     M["fm"] = {"label": "Factorization machine (numpy)", "train_ms": (time.perf_counter() - t0) * 1e3,
                "predict": lambda c: fm_predict(fm, onehot(c))}
 
-    # Facebook hybrid: small GBDT = learned feature transform (leaf ids), LR on top = the part
+    # GBDT-into-LR hybrid: small GBDT = learned feature transform (leaf ids), LR on top = the part
     # that can be refreshed online every few minutes while trees are retrained daily.
     t0 = time.perf_counter()
     sm = np.random.default_rng(1).choice(len(y), 8000, replace=False)
@@ -335,7 +335,7 @@ def _fit_all():
     trees.fit(ordinal(ctr)[sm][:, :9], y[sm])                      # trees do not see position
     leaves = lambda c: trees.apply(ordinal(c)[:, :9])[:, :, 0].astype(np.int64)
     hy = train_lr(hashed(ctr, BITS, leaves=leaves(ctr)), y, 1 << BITS)
-    M["gbdt_lr"] = {"label": "GBDT leaves -> LR (FB hybrid)", "train_ms": (time.perf_counter() - t0) * 1e3,
+    M["gbdt_lr"] = {"label": "GBDT leaves -> LR (hybrid)", "train_ms": (time.perf_counter() - t0) * 1e3,
                     "predict": lambda c: lr_predict(hy, hashed(c, BITS, leaves=leaves(c)))}
 
     # auxiliary heads used by the auction: P(hide) and an LR that never saw position (pitfall demo)

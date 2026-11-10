@@ -30,7 +30,7 @@ from pydantic import BaseModel, Field
 
 META = {
     "slug": "ranking-experiment",
-    "title": "Ranking Experiment (A/B Testing)",
+    "title": "Testing a New Ranker",
     "tagline": "Power, SRM, CUPED, peeking, interference, interleaving and IPS: decide whether a new ranker ships.",
     "icon": "🧬",
     "order": 5,
