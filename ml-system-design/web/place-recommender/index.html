@@ -1,0 +1,128 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nearby Place Recommendations</title><link rel="stylesheet" href="../shared/style.css">
+<style>
+h2.sec{margin:36px 0 6px}.sub{margin:0 0 14px}.sm{font-size:13px}
+.stage{display:grid;gap:16px;grid-template-columns:minmax(320px,620px) minmax(300px,1fr);align-items:start}
+@media(max-width:900px){.stage{grid-template-columns:1fr}}
+#mapWrap{position:relative}#map{display:block;width:100%;border-radius:12px;border:1px solid var(--line);cursor:crosshair;background:#131824}
+#tip{position:absolute;pointer-events:none;background:#0b0e14;border:1px solid var(--line);border-radius:8px;padding:6px 9px;font-size:12px;display:none;white-space:nowrap;z-index:3}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:12px;color:var(--mute)}.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.ctl{display:grid;gap:4px 14px;grid-template-columns:1fr 1fr}.ctl .full{grid-column:1/-1}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip{padding:4px 10px;border-radius:99px;border:1px solid var(--line);background:var(--panel2);font-size:13px;cursor:pointer;user-select:none}.chip.on{background:var(--accent);color:#0b1020;border-color:var(--accent);font-weight:600}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex-wrap:wrap}.seg button{background:var(--panel2);color:var(--mute);border-radius:0;font-weight:400;padding:6px 10px;font-size:13px}.seg button.on{background:var(--accent);color:#0b1020;font-weight:600}
+.sky{height:26px;border-radius:8px;position:relative;margin-top:4px;background:linear-gradient(90deg,#0b1030 0%,#0b1030 20%,#f6a15b 27%,#7ec8f5 38%,#7ec8f5 68%,#f08a5d 77%,#1a1f4a 86%,#0b1030 100%)}
+.sky b{position:absolute;top:-3px;width:4px;height:32px;background:#fff;border-radius:2px;transform:translateX(-2px);box-shadow:0 0 6px #fff}
+.taste{display:flex;height:16px;border-radius:8px;overflow:hidden;margin:6px 0}.taste i{display:block;height:100%}
+.funnel{display:flex;flex-direction:column;align-items:center;gap:3px}.funnel .f{height:30px;border-radius:6px;background:linear-gradient(90deg,#3d6fd6,#6ea8fe);display:flex;align-items:center;justify-content:center;font-size:12px;color:#0b1020;font-weight:700;min-width:54px}
+.funnel .t{font-size:12px;color:var(--mute);text-align:center}
+.res{display:grid;gap:8px}.r{display:grid;grid-template-columns:30px 1fr 150px;gap:10px;align-items:center;background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;cursor:default}
+.r:hover,.r.hl{border-color:var(--accent)}.r .n{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b1020;font-size:13px}
+.r .nm{font-weight:600}.r .meta{font-size:12px;color:var(--mute)}
+.stack{display:flex;height:10px;border-radius:5px;overflow:hidden;background:#10141d}.stack i{display:block;height:100%}
+.badge{font-size:11px;padding:1px 7px;border-radius:99px;border:1px solid var(--line);margin-left:6px}.badge.new{color:var(--warn);border-color:var(--warn)}.badge.up{color:var(--good);border-color:var(--good)}.badge.dn{color:var(--bad);border-color:var(--bad)}
+.two{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(330px,1fr))}
+.key{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--mute);margin:6px 0}.key i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+</style></head><body>
+<header class="top"><a href="../">&larr; Lab</a><h1>📍 Nearby Place Recommendations</h1></header>
+<main>
+<div class="tabs"><div class="tab" data-pane="demo">Live demo</div><div class="tab" data-pane="guide">Interview guide</div></div>
+
+<div class="pane" id="demo">
+<p class="mute">A synthetic 10 km city: 600 places, 800 people, 90 days of check-ins. Each person has hidden tastes, so the demo can show how satisfied they would really be with each suggestion. Click anywhere on the map to stand there and ask "what's good near me?"</p>
+<div id="kpi"></div>
+
+<h2 class="sec">1. Ask for recommendations</h2>
+<div class="stage">
+  <div>
+    <div id="mapWrap"><canvas id="map"></canvas><div id="tip"></div></div>
+    <div class="legend" id="legend"></div>
+    <div class="legend"><span>◎ you</span><span>⌂ home</span><span>▣ work</span><span style="color:var(--warn)">○ opened recently, little data</span><span>blue squares: grid cells searched</span><span>dot size: past visits</span></div>
+  </div>
+  <div>
+    <div class="card">
+      <div class="ctl">
+        <div><label>Person</label><div style="display:flex;gap:6px"><input id="uid" type="number" min="0" max="799" value="3" style="width:84px"><button class="sec" id="rndU" title="Random person">🎲</button></div></div>
+        <div><label>Or</label><div class="chip" id="newU">Brand-new user</div></div>
+        <div class="full" id="uInfo"></div>
+        <div class="full"><label>Time: <span id="hrv"></span></label><input id="hr" type="range" min="0" max="23" value="19"><div class="sky"><b id="skyM"></b></div></div>
+        <div><label>Day and weather</label><div class="chips"><span class="chip" id="wk">Weekend</span><span class="chip" id="rain">🌧 Rain</span></div></div>
+        <div><label>Budget up to</label><div class="seg" id="bud"><button data-v="1">$</button><button data-v="2">$$</button><button data-v="3">$$$</button><button data-v="4" class="on">$$$$</button></div></div>
+        <div><label>Search radius: <span id="radv">2.0</span> km</label><input id="rad" type="range" min="0.3" max="6" step="0.1" value="2"></div>
+        <div><label>Location precision: <span id="precv">exact</span></label><input id="prec" type="range" min="0" max="3" step="0.5" value="0"></div>
+        <div class="full"><label>Ranking model</label><div class="seg" id="var"><button data-v="popularity">Popularity</button><button data-v="mf">Taste embedding</button><button data-v="mf_distance">Taste + distance</button><button data-v="gbdt" class="on">Full ranker</button></div></div>
+        <div><label>Diversity: <span id="divv">0.0</span></label><input id="div" type="range" min="0" max="1" step="0.05" value="0"></div>
+        <div><label>Explore new places</label><div class="seg" id="exp"><button data-v="none" class="on">Off</button><button data-v="ucb">Bonus</button><button data-v="epsilon">Random</button></div></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px"><h3 style="margin-bottom:10px">Serving funnel</h3><div class="funnel" id="funnel"></div></div>
+  </div>
+</div>
+
+<div class="two" style="margin-top:16px">
+  <div class="card">
+    <h3>Top suggestions</h3>
+    <div class="key"><span><i style="background:#6ea8fe"></i>taste match</span><span><i style="background:#4cc38a"></i>distance</span><span><i style="background:#f0b429"></i>popularity</span><span><i style="background:#b794f6"></i>time and weather</span></div>
+    <div class="res" id="res"></div>
+  </div>
+  <div>
+    <div class="card"><h3>How good is this list, really?</h3><div id="sum"></div><canvas id="satC" style="margin-top:10px"></canvas>
+      <div class="mute sm">Bars: hidden true satisfaction of each suggested place for this person. Dashed line: the best achievable average among the candidates.</div></div>
+    <div class="note"><b>What to notice.</b> Switch the model from Popularity to Full ranker and watch the pins move toward you and the satisfaction bars rise. Drag the time slider from 9:00 to 22:00: cafes and bakeries give way to bars. Raise Diversity and the list covers more categories at a small cost in score. Turn on Explore and places with a yellow ring enter the list; without that they never collect data. Coarsen location precision and the results degrade, which is the privacy trade-off in one slider.</div>
+  </div>
+</div>
+
+<h2 class="sec">2. Offline evaluation: which model is better?</h2>
+<p class="mute sub">Trained on days 0-71, tested on check-ins from days 72-89. Recall@10: was the place the person went to in the top 10?</p>
+<div class="two">
+  <div class="card"><div style="display:flex;gap:10px;align-items:end;flex-wrap:wrap"><div><label>Slice</label><select id="slice"></select></div></div><canvas id="mC" style="margin-top:10px"></canvas>
+    <div class="note"><b>What to notice.</b> Global popularity finds 10% of visits. Restricting to nearby places more than doubles it, before any learning. The taste embedding alone is no better than nearby popularity; adding distance and then context is what gets to 47%. Change the slice to "new place": every model drops, and retrieval alone cannot fix it.</div></div>
+  <div class="card"><h3>What the full ranker relies on</h3><div class="key" id="impKey"></div><canvas id="iC"></canvas>
+    <div class="note"><b>What to notice.</b> Distance and "is this category popular at this hour" outweigh the personal taste score. For local recommendations, where and when beat who. Say this when asked which features matter most.</div></div>
+</div>
+
+<h2 class="sec">3. Pitfalls</h2>
+
+<div class="card">
+  <h3>Distance bias: "not visited" mostly means "too far"</h3>
+  <div class="two" style="margin-top:8px">
+    <div><label>How far people travel to check in, km (share of visits)</label><canvas id="dH"></canvas></div>
+    <div><label>What does the embedding score track?</label><canvas id="dC"></canvas></div>
+    <div><label>Recall@10 of the embedding when the person is away from home</label><canvas id="dR"></canvas></div>
+  </div>
+  <div class="note"><b>What to notice.</b> Four in five check-ins are within 2 km. If negatives are sampled from the whole city, the easiest way to separate visited from unvisited is to learn where each person lives, so the score tracks distance from home (0.45) and barely tracks taste (0.08). It then fails when the person travels. Sampling negatives near the visited place forces the embedding to learn taste, and distance goes in as an explicit feature.</div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h3>Position bias in click logs</h3>
+  <div class="ctl" style="max-width:640px"><div><label>How fast attention drops with rank: <span id="etav">1.0</span></label><input id="eta" type="range" min="0" max="2" step="0.1" value="1"></div><div><label>Share of traffic shown in random order: <span id="rfv">10%</span></label><input id="rf" type="range" min="0.01" max="0.5" step="0.01" value="0.1"></div></div>
+  <div class="two" style="margin-top:10px">
+    <div><label>Click rate by list position</label><canvas id="pC"></canvas></div>
+    <div><label>Good places buried at the bottom: click rate estimates</label><canvas id="pB"></canvas></div>
+  </div>
+  <div id="pK" style="margin-top:10px"></div>
+  <div class="note"><b>What to notice.</b> The old ranker sorted by popularity, so good but obscure places sat in slots 8 to 10 where few people look. Their raw click rate is about 10% when their true appeal is near 90%. Showing a small share of traffic in random order measures how attention falls with position; dividing each click by that factor recovers the truth. Set random traffic to 1% and the correction gets noisy.</div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h3>Popularity feedback loop</h3>
+  <div class="ctl" style="max-width:640px"><div><label>Weight on popularity: <span id="pwv">0.6</span></label><input id="pw" type="range" min="0" max="2" step="0.1" value="0.6"></div><div><label>Rounds: <span id="rdv">12</span></label><input id="rd" type="range" min="2" max="25" value="12"></div></div>
+  <div class="two" style="margin-top:10px">
+    <div><label>Share of impressions going to the head places</label><canvas id="l1"></canvas></div>
+    <div><label>Share of the catalogue ever shown</label><canvas id="l2"></canvas></div>
+    <div><label>True satisfaction of the places people click</label><canvas id="l3"></canvas></div>
+  </div>
+  <div class="note"><b>What to notice.</b> Using raw visit counts as a feature rewards places for having been shown. The head takes about 80% of impressions and only a third of the catalogue is ever seen. Replacing counts with position-corrected rates and adding an uncertainty bonus shows over 90% of the catalogue, and people end up clicking places they like more.</div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h3>Random split against time split</h3>
+  <canvas id="sC"></canvas>
+  <div class="note" id="sN"></div>
+</div>
+</div>
+
+<div class="pane" id="guide">Loading...</div>
+</main>
+<script src="../shared/common.js"></script>
+<script src="app.js"></script>
+</body></html>
